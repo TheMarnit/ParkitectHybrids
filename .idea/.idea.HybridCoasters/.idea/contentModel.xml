@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ContentModelStore">
-    <e p="$USER_HOME$/.Rider2017.3/system/resharper-host/local/Transient/ReSharperHost/v11/SolutionCaches/_HybridCoasters.-22549643.00" t="ExcludeRecursive" />
+    <e p="$USER_HOME$/.Rider2017.3/system/resharper-host/local/Transient/ReSharperHost/v11/SolutionCaches/_HybridCoasters.-1859159447.00" t="ExcludeRecursive" />
     <e p="$PROJECT_DIR$" t="IncludeRecursive">
       <e p="HybridCoasters.csproj" t="IncludeRecursive" />
       <e p="HybridCoasters.sln" t="IncludeFlat" />
@@ -27,8 +27,7 @@
       <e p="obj" t="ExcludeRecursive" />
       <e p="packages" t="ExcludeRecursive" />
       <e p="preview.png" t="Include" />
-      <e p="steam_workshop-id" t="Include" />
     </e>
-    <e p="$PROJECT_DIR$/../pollend@HybridCoasters" t="ExcludeRecursive" />
+    <e p="$PROJECT_DIR$/../pollend@CorkscrewCoaster" t="ExcludeRecursive" />
   </component>
 </project>

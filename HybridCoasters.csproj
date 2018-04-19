@@ -91,9 +91,6 @@
     <Content Include="preview.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="steam_workshop-id">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
     <Content Include="TrackRiderUtil\.git" />
     <Content Include="TrackRiderUtil\.gitignore" />
     <Content Include="TrackRiderUtil\LICENSE" />
