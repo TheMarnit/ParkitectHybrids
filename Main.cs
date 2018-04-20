@@ -30,30 +30,30 @@ namespace HybridCoasters
          
 
             binder = new TrackRiderBinder("kvwQwhKWWG");
-            TrackedRide trackedRide =
+            TrackedRide iboxCoaster =
                 binder.RegisterTrackedRide<TrackedRide>("Steel Coaster", "IboxCoaster", "RMC IBox");
             TwisterCoasterMeshGenerator trackGenerator =
-                binder.RegisterMeshGenerator<TwisterCoasterMeshGenerator>(trackedRide);
+                binder.RegisterMeshGenerator<TwisterCoasterMeshGenerator>(iboxCoaster);
             TrackRideHelper.PassMeshGeneratorProperties(TrackRideHelper.GetTrackedRide("Steel Coaster").meshGenerator,
-                trackedRide.meshGenerator);
+                iboxCoaster.meshGenerator);
 
             trackGenerator.crossBeamGO = GameObjectHelper.SetUV(Object.Instantiate(SideCrossBeamsGo), 15, 14);
 
 
-            trackedRide.price = 1200;
-            trackedRide.carTypes = new CoasterCarInstantiator[] { };
-            trackedRide.meshGenerator.customColors = new[]
+            iboxCoaster.price = 1200;
+            iboxCoaster.carTypes = new CoasterCarInstantiator[] { };
+            iboxCoaster.meshGenerator.customColors = new[]
             {
                 new Color(63f / 255f, 46f / 255f, 37f / 255f, 1), new Color(43f / 255f, 35f / 255f, 35f / 255f, 1),
                 new Color(90f / 255f, 90f / 255f, 90f / 255f, 1),new Color(90f / 255f, 90f / 255f, 90f / 255f, 1)
             };
-            trackedRide.dropsImportanceExcitement = 0.665f;
-            trackedRide.inversionsImportanceExcitement = 0.673f;
-            trackedRide.averageLatGImportanceExcitement = 0.121f;
-            trackedRide.accelerationImportanceExcitement = 0.525f;
+            iboxCoaster.dropsImportanceExcitement = 0.665f;
+            iboxCoaster.inversionsImportanceExcitement = 0.673f;
+            iboxCoaster.averageLatGImportanceExcitement = 0.121f;
+            iboxCoaster.accelerationImportanceExcitement = 0.525f;
 
             CoasterCarInstantiator coasterCarInstantiator =
-                binder.RegisterCoasterCarInstaniator<CoasterCarInstantiator>(trackedRide, "CorkscrewCoasterInsantiator",
+                binder.RegisterCoasterCarInstaniator<CoasterCarInstantiator>(iboxCoaster, "CorkscrewCoasterInsantiator",
                     "Corkscrew Car", 1, 15, 6);
 
             BaseCar frontCar = binder.RegisterCar<BaseCar>(Object.Instantiate(FrontCartGo), "CorkScrewCoaster_Front_Car",
