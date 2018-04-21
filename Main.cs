@@ -44,7 +44,7 @@ namespace HybridCoasters
             iboxCoaster.carTypes = new CoasterCarInstantiator[] { };
             iboxCoaster.meshGenerator.customColors = new[]
             {
-                new Color(63f / 255f, 46f / 255f, 37f / 255f, 1), new Color(43f / 255f, 35f / 255f, 35f / 255f, 1),
+                new Color(132f / 255f, 40f / 255f, 137f / 255f, 1), new Color(23f / 255f, 133f / 255f, 30f / 255f, 1),
                 new Color(90f / 255f, 90f / 255f, 90f / 255f, 1),new Color(90f / 255f, 90f / 255f, 90f / 255f, 1)
             };
             iboxCoaster.dropsImportanceExcitement = 0.665f;
