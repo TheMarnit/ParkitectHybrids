@@ -12,7 +12,6 @@ namespace HybridCoasters
         
         public GameObject FrontCartGo;
         public GameObject CartGo;
-        public GameObject SideCrossBeamsGo;
 
         
         GameObject _go;
@@ -24,21 +23,18 @@ namespace HybridCoasters
 
             FrontCartGo =  assetBundle.LoadAsset<GameObject> ("01be2cec49bbb476381a537d75ad047e");
             CartGo =  assetBundle.LoadAsset<GameObject> ("7c1045f838c59460db2bfebd3df04a47");
-            SideCrossBeamsGo =  assetBundle.LoadAsset<GameObject> ("c184c4f392587465f9bf2c86e6615e78");
             
-            
-         
-
             binder = new TrackRiderBinder("kvwQwhKWWG");
             TrackedRide iboxCoaster =
-                binder.RegisterTrackedRide<TrackedRide>("Steel Coaster", "IboxCoaster", "RMC IBox");
-            TwisterCoasterMeshGenerator trackGenerator =
-                binder.RegisterMeshGenerator<TwisterCoasterMeshGenerator>(iboxCoaster);
-            TrackRideHelper.PassMeshGeneratorProperties(TrackRideHelper.GetTrackedRide("Steel Coaster").meshGenerator,
+                binder.RegisterTrackedRide<TrackedRide>("Floorless Coaster", "IboxCoaster", "RMC IBox");
+            IboxCoasterMeshGenerator trackGenerator =
+                binder.RegisterMeshGenerator<IboxCoasterMeshGenerator>(iboxCoaster);
+            TrackRideHelper.PassMeshGeneratorProperties(TrackRideHelper.GetTrackedRide("Floorless Coaster").meshGenerator,
                 iboxCoaster.meshGenerator);
 
-            trackGenerator.crossBeamGO = GameObjectHelper.SetUV(Object.Instantiate(SideCrossBeamsGo), 15, 14);
-
+            trackGenerator.crossBeamGO = null;
+            trackGenerator.supportInstantiator = null;
+            trackGenerator.stationPlatformGO = TrackRideHelper.GetTrackedRide("Steel Coaster").meshGenerator.stationPlatformGO;
 
             iboxCoaster.price = 1200;
             iboxCoaster.carTypes = new CoasterCarInstantiator[] { };

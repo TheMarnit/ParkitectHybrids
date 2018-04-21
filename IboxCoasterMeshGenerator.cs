@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-public class TwisterCoasterMeshGenerator : MeshGenerator
+public class IboxCoasterMeshGenerator : MeshGenerator
 {
     private const float buildVolumeHeight = 0.8f;
 
@@ -116,17 +116,17 @@ public class TwisterCoasterMeshGenerator : MeshGenerator
 
     public override float getTunnelOffsetY()
     {
-        return 0.4f;
+        return 0.15f;
     }
 
     public override float getTunnelWidth()
     {
-        return 0.6f;
+        return 0.8f;
     }
 
     public override float getTunnelHeight()
     {
-        return 1f;
+        return 0.8f;
     }
     public override float getFrictionWheelOffsetY()
     {

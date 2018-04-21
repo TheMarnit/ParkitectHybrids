@@ -64,7 +64,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="TwisterCoasterMeshGenerator.cs" />
+    <Compile Include="IboxCoasterMeshGenerator.cs" />
     <Compile Include="Main.cs" />
     <Compile Include="TrackRiderUtil\BaseCar.cs" />
     <Compile Include="TrackRiderUtil\GameObjectHelper.cs" />
