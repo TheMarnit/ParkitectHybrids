@@ -28,6 +28,6 @@
       <e p="packages" t="ExcludeRecursive" />
       <e p="preview.png" t="Include" />
     </e>
-    <e p="$PROJECT_DIR$/../pollend@CorkscrewCoaster" t="ExcludeRecursive" />
+    <e p="$PROJECT_DIR$/../marnit@HybridCoastter" t="ExcludeRecursive" />
   </component>
 </project>
