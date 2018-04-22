@@ -35,6 +35,7 @@ namespace HybridCoasters
             trackGenerator.crossBeamGO = null;
             trackGenerator.supportInstantiator = null;
             trackGenerator.stationPlatformGO = TrackRideHelper.GetTrackedRide("Steel Coaster").meshGenerator.stationPlatformGO;
+            trackGenerator.frictionWheelsGO = TrackRideHelper.GetTrackedRide("Junior Coaster").meshGenerator.frictionWheelsGO;
 
             iboxCoaster.price = 1200;
             iboxCoaster.carTypes = new CoasterCarInstantiator[] { };

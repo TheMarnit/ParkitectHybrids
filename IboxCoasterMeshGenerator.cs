@@ -18,7 +18,6 @@ public class IboxCoasterMeshGenerator : MeshGenerator
     {
         base.Initialize();
         trackWidth = 0.41f;
-        
     }
 
     public override void prepare(TrackSegment4 trackSegment, GameObject putMeshOnGO)
@@ -112,7 +111,7 @@ public class IboxCoasterMeshGenerator : MeshGenerator
         collisionMeshExtruder.extrude(trackPivot, tangentPoint, normal);
         if (liftExtruder != null)
         {
-            liftExtruder.extrude(vector - normal * (0.06713f + chainLiftHeight / 2f), tangentPoint, normal);
+            liftExtruder.extrude(vector - normal * (0.16f + chainLiftHeight / 2f), tangentPoint, normal);
         }
     }
 
@@ -186,7 +185,7 @@ public class IboxCoasterMeshGenerator : MeshGenerator
     }
     public override float getFrictionWheelOffsetY()
     {
-        return 0.15f;
+        return 0.115f;
     }
     protected override float railHalfHeight()
     {
