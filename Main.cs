@@ -41,7 +41,7 @@ namespace HybridCoasters
             iboxCoaster.meshGenerator.customColors = new[]
             {
                 new Color(132f / 255f, 40f / 255f, 137f / 255f, 1), new Color(23f / 255f, 133f / 255f, 30f / 255f, 1),
-                new Color(90f / 255f, 90f / 255f, 90f / 255f, 1),new Color(90f / 255f, 90f / 255f, 90f / 255f, 1)
+                new Color(180 / 255f, 180f / 255f, 180f / 255f, 1),new Color(108f / 255f, 70f / 255f, 23f / 255f, 1)
             };
             iboxCoaster.dropsImportanceExcitement = 0.665f;
             iboxCoaster.inversionsImportanceExcitement = 0.673f;

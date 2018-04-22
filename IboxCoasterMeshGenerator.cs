@@ -8,6 +8,10 @@ public class IboxCoasterMeshGenerator : MeshGenerator
 
     private ShapeExtruder rightRailExtruder;
 
+    private ShapeExtruder crossTieExtruder_left;
+
+    private ShapeExtruder crossTieExtruder_right;
+
     private BoxExtruder collisionMeshExtruder;
 
     protected override void Initialize()
@@ -59,10 +63,38 @@ public class IboxCoasterMeshGenerator : MeshGenerator
             new Vector3(-0.046103f, 0f, 0f)
         }, true);
         rightRailExtruder.setUV(14, 15);
+        crossTieExtruder_left = new ShapeExtruder();
+        crossTieExtruder_left.setShape(new Vector3[8]
+        {
+            new Vector3(-0.046f, 0f, 0f),
+            new Vector3(-0.022f, 0f, 0f),
+            new Vector3(-0.022f, -0.08f, 0f),
+            new Vector3(-0.046f, -0.08f, 0f),
+            new Vector3(-0.046f, -0.075f, 0f),
+            new Vector3(-0.03f, -0.075f, 0f),
+            new Vector3(-0.03f, -0.005f, 0f),
+            new Vector3(-0.046f, -0.005f, 0f)
+        }, true);
+        crossTieExtruder_left.setUV(15, 14);
+        crossTieExtruder_left.closeEnds = true;
+        crossTieExtruder_right = new ShapeExtruder();
+        crossTieExtruder_right.setShape(new Vector3[8]
+        {
+            new Vector3(0.022f, 0f, 0f),
+            new Vector3(0.046f, 0f, 0f),
+            new Vector3(0.046f, -0.005f, 0f),
+            new Vector3(0.03f, -0.005f, 0f),
+            new Vector3(0.03f, -0.075f, 0f),
+            new Vector3(0.046f, -0.075f, 0f),
+            new Vector3(0.046f, -0.08f, 0f),
+            new Vector3(0.022f, -0.08f, 0f)
+        }, true);
+        crossTieExtruder_right.setUV(15, 14);
+        crossTieExtruder_right.closeEnds = true;
         collisionMeshExtruder = new BoxExtruder(trackWidth, 0.02666f);
         buildVolumeMeshExtruder = new BoxExtruder(trackWidth, 0.8f);
         buildVolumeMeshExtruder.closeEnds = true;
-        base.setModelExtruders(leftRailExtruder, rightRailExtruder);
+        base.setModelExtruders(leftRailExtruder, rightRailExtruder, crossTieExtruder_left, crossTieExtruder_right);
     }
 
     public override void sampleAt(TrackSegment4 trackSegment, float t)
@@ -87,11 +119,35 @@ public class IboxCoasterMeshGenerator : MeshGenerator
     public override void afterExtrusion(TrackSegment4 trackSegment, GameObject putMeshOnGO)
     {
         base.afterExtrusion(trackSegment, putMeshOnGO);
+        float sample = trackSegment.getLength(0) / (float)Mathf.RoundToInt(trackSegment.getLength(0) / this.crossBeamSpacing);
+        float pos = 0.25f;
+        int index = 0;
+        while (pos < trackSegment.getLength(0))
+        {
+            float tForDistance = trackSegment.getTForDistance(pos, 0);
+
+            index++;
+            pos += sample;
+
+            Vector3 normal = trackSegment.getNormal(tForDistance);
+            Vector3 tangentPoint = trackSegment.getTangentPoint(tForDistance);
+            Vector3 binormal = Vector3.Cross(normal, tangentPoint).normalized;
+            Vector3 trackPivot = base.getTrackPivot(trackSegment.getPoint(tForDistance, 0), normal);
+            Vector3 binormalFlat = Vector3.Cross(Vector3.up, tangentPoint).normalized;
+
+            crossTieExtruder_left.extrude(trackPivot + normal * 0.119107f + binormal * .49f, -1f * binormal, normal);
+            crossTieExtruder_left.extrude(trackPivot + normal * 0.119107f - binormal * .49f, -1f * binormal, normal);
+            crossTieExtruder_left.end();
+            crossTieExtruder_right.extrude(trackPivot + normal * 0.119107f + binormal * .49f, -1f * binormal, normal);
+            crossTieExtruder_right.extrude(trackPivot + normal * 0.119107f - binormal * .49f, -1f * binormal, normal);
+            crossTieExtruder_right.end();
+
+        }
     }
 
     public override Mesh getMesh(GameObject putMeshOnGO)
     {
-        return MeshCombiner.start().add(leftRailExtruder, rightRailExtruder).end(putMeshOnGO.transform.worldToLocalMatrix);
+        return MeshCombiner.start().add(leftRailExtruder, rightRailExtruder, crossTieExtruder_left, crossTieExtruder_right).end(putMeshOnGO.transform.worldToLocalMatrix);
     }
 
     public override Mesh getCollisionMesh(GameObject putMeshOnGO)
