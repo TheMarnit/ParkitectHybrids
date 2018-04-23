@@ -65,28 +65,28 @@ public class IboxCoasterMeshGenerator : MeshGenerator
         crossTieExtruder_left = new ShapeExtruder();
         crossTieExtruder_left.setShape(new Vector3[8]
         {
-            new Vector3(-0.046f, 0f, 0f),
-            new Vector3(-0.022f, 0f, 0f),
-            new Vector3(-0.022f, -0.08f, 0f),
-            new Vector3(-0.046f, -0.08f, 0f),
-            new Vector3(-0.046f, -0.075f, 0f),
-            new Vector3(-0.03f, -0.075f, 0f),
-            new Vector3(-0.03f, -0.005f, 0f),
-            new Vector3(-0.046f, -0.005f, 0f)
+            new Vector3(-0.046f, 0.04f, 0f),
+            new Vector3(-0.022f, 0.04f, 0f),
+            new Vector3(-0.022f, -0.04f, 0f),
+            new Vector3(-0.046f, -0.04f, 0f),
+            new Vector3(-0.046f, -0.035f, 0f),
+            new Vector3(-0.03f, -0.035f, 0f),
+            new Vector3(-0.03f, 0.035f, 0f),
+            new Vector3(-0.046f, 0.035f, 0f)
         }, true);
         crossTieExtruder_left.setUV(15, 14);
         crossTieExtruder_left.closeEnds = true;
         crossTieExtruder_right = new ShapeExtruder();
         crossTieExtruder_right.setShape(new Vector3[8]
         {
-            new Vector3(0.022f, 0f, 0f),
-            new Vector3(0.046f, 0f, 0f),
-            new Vector3(0.046f, -0.005f, 0f),
-            new Vector3(0.03f, -0.005f, 0f),
-            new Vector3(0.03f, -0.075f, 0f),
-            new Vector3(0.046f, -0.075f, 0f),
-            new Vector3(0.046f, -0.08f, 0f),
-            new Vector3(0.022f, -0.08f, 0f)
+            new Vector3(0.022f, 0.04f, 0f),
+            new Vector3(0.046f, 0.04f, 0f),
+            new Vector3(0.046f, 0.035f, 0f),
+            new Vector3(0.03f, 0.035f, 0f),
+            new Vector3(0.03f, -0.035f, 0f),
+            new Vector3(0.046f, -0.035f, 0f),
+            new Vector3(0.046f, -0.04f, 0f),
+            new Vector3(0.022f, -0.04f, 0f)
         }, true);
         crossTieExtruder_right.setUV(15, 14);
         crossTieExtruder_right.closeEnds = true;
@@ -132,13 +132,16 @@ public class IboxCoasterMeshGenerator : MeshGenerator
             Vector3 tangentPoint = trackSegment.getTangentPoint(tForDistance);
             Vector3 binormal = Vector3.Cross(normal, tangentPoint).normalized;
             Vector3 trackPivot = base.getTrackPivot(trackSegment.getPoint(tForDistance, 0), normal);
-            Vector3 binormalFlat = Vector3.Cross(Vector3.up, tangentPoint).normalized;
+            Vector3 startPoint = trackPivot + normal * 0.159107f + binormal * .49f;
+            Vector3 endPoint = trackPivot + normal * 0.159107f - binormal * .49f;
 
-            crossTieExtruder_left.extrude(trackPivot + normal * 0.119107f + binormal * .49f, -1f * binormal, normal);
-            crossTieExtruder_left.extrude(trackPivot + normal * 0.119107f - binormal * .49f, -1f * binormal, normal);
+            bool equalHeight = startPoint.y == endPoint.y;
+
+            crossTieExtruder_left.extrude(startPoint, -1f * binormal, equalHeight ? Vector3.up : normal);
+            crossTieExtruder_left.extrude(endPoint, -1f * binormal, equalHeight ? Vector3.up : normal);
             crossTieExtruder_left.end();
-            crossTieExtruder_right.extrude(trackPivot + normal * 0.119107f + binormal * .49f, -1f * binormal, normal);
-            crossTieExtruder_right.extrude(trackPivot + normal * 0.119107f - binormal * .49f, -1f * binormal, normal);
+            crossTieExtruder_right.extrude(startPoint, -1f * binormal, equalHeight ? Vector3.up : normal);
+            crossTieExtruder_right.extrude(endPoint, -1f * binormal, equalHeight ? Vector3.up : normal);
             crossTieExtruder_right.end();
 
         }
