@@ -132,16 +132,45 @@ public class IboxCoasterMeshGenerator : MeshGenerator
             Vector3 tangentPoint = trackSegment.getTangentPoint(tForDistance);
             Vector3 binormal = Vector3.Cross(normal, tangentPoint).normalized;
             Vector3 trackPivot = base.getTrackPivot(trackSegment.getPoint(tForDistance, 0), normal);
+
+            //track beam
             Vector3 startPoint = trackPivot + normal * 0.159107f + binormal * .49f;
             Vector3 endPoint = trackPivot + normal * 0.159107f - binormal * .49f;
-
-            bool equalHeight = startPoint.y == endPoint.y;
+            
+            bool equalHeight = (startPoint.y - endPoint.y) < 0.97f && (startPoint.y - endPoint.y) > -0.97f;
+            //bool equalHeight = (normal.y < 0.01f && normal.y > -0.01f) || ((startPoint.y - endPoint.y) < 0.97 && (startPoint.y - endPoint.y) > -0.97f);
 
             crossTieExtruder_left.extrude(startPoint, -1f * binormal, equalHeight ? Vector3.up : normal);
             crossTieExtruder_left.extrude(endPoint, -1f * binormal, equalHeight ? Vector3.up : normal);
             crossTieExtruder_left.end();
             crossTieExtruder_right.extrude(startPoint, -1f * binormal, equalHeight ? Vector3.up : normal);
             crossTieExtruder_right.extrude(endPoint, -1f * binormal, equalHeight ? Vector3.up : normal);
+            crossTieExtruder_right.end();
+
+
+            float topBarY = Mathf.Max(startPoint.y, endPoint.y);
+            float bottomBarY = Mathf.Min(startPoint.y, endPoint.y);
+
+            //bottom beam
+            startPoint.y = bottomBarY;
+            endPoint.y = bottomBarY;
+
+            crossTieExtruder_left.extrude(startPoint, -1f * binormal, Vector3.up);
+            crossTieExtruder_left.extrude(endPoint, -1f * binormal, Vector3.up);
+            crossTieExtruder_left.end();
+            crossTieExtruder_right.extrude(startPoint, -1f * binormal, Vector3.up);
+            crossTieExtruder_right.extrude(endPoint, -1f * binormal, Vector3.up);
+            crossTieExtruder_right.end();
+
+            //top beam
+            startPoint.y = topBarY;
+            endPoint.y = topBarY;
+
+            crossTieExtruder_left.extrude(startPoint, -1f * binormal, Vector3.up);
+            crossTieExtruder_left.extrude(endPoint, -1f * binormal, Vector3.up);
+            crossTieExtruder_left.end();
+            crossTieExtruder_right.extrude(startPoint, -1f * binormal, Vector3.up);
+            crossTieExtruder_right.extrude(endPoint, -1f * binormal, Vector3.up);
             crossTieExtruder_right.end();
 
         }
