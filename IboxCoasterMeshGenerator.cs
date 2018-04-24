@@ -1,4 +1,6 @@
 ﻿using UnityEngine;
+using System;
+using System.IO;
 
 public class IboxCoasterMeshGenerator : MeshGenerator
 {
@@ -15,6 +17,10 @@ public class IboxCoasterMeshGenerator : MeshGenerator
     private BoxExtruder supportBeamExtruder;
 
     private BoxExtruder collisionMeshExtruder;
+
+    private StreamWriter streamWriter;
+
+    public string path;
 
     protected override void Initialize()
     {
@@ -190,6 +196,7 @@ public class IboxCoasterMeshGenerator : MeshGenerator
 
 
                 //Top beam extruding
+                WriteToFile("normal.y: "+normal.y);
                 if (normal.y > 0)
                 {
                     crossTieExtruder_left.extrude(new Vector3(bottomBeamStart.x, Mathf.Max(startPoint.y, endPoint.y), bottomBeamStart.z), -1f * bottomBeamBinormal, Vector3.up);
@@ -268,5 +275,13 @@ public class IboxCoasterMeshGenerator : MeshGenerator
     protected override float railHalfHeight()
     {
         return 0.02666f;
+    }
+
+    public void WriteToFile(string text)
+    {
+        streamWriter = File.AppendText(path + @"/mod.log");
+        streamWriter.WriteLine(DateTime.Now + ": " + text);
+        streamWriter.Flush();
+        streamWriter.Close();
     }
 }

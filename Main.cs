@@ -32,6 +32,7 @@ namespace HybridCoasters
             TrackRideHelper.PassMeshGeneratorProperties(TrackRideHelper.GetTrackedRide("Floorless Coaster").meshGenerator,
                 iboxCoaster.meshGenerator);
 
+            trackGenerator.path = Path;
             trackGenerator.crossBeamGO = null;
             trackGenerator.supportInstantiator = null;
             trackGenerator.stationPlatformGO = TrackRideHelper.GetTrackedRide("Steel Coaster").meshGenerator.stationPlatformGO;
