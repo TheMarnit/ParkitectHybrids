@@ -222,11 +222,6 @@ public class IboxCoasterMeshGenerator : MeshGenerator
         }
     }
 
-    public Vector2 Rotate(Vector2 v, float degrees)
-    {
-        return Quaternion.Euler(0, 0, degrees) * v;
-    }
-
     public override Mesh getMesh(GameObject putMeshOnGO)
     {
         return MeshCombiner.start().add(leftRailExtruder, rightRailExtruder, crossTieExtruder_left, crossTieExtruder_right, supportBeamExtruder).end(putMeshOnGO.transform.worldToLocalMatrix);
