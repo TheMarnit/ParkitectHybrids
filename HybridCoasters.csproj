@@ -45,7 +45,7 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>..\marnit@HybridCoastter\</OutputPath>
+    <OutputPath>..\marnit%40HybridCoaster\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -89,4 +89,11 @@
     <Content Include="TrackRiderUtil\TrackedRiderUtility.sln" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PreBuildEvent>wmic process where name='Parkitect.exe' delete</PreBuildEvent>
+  </PropertyGroup>
+  <PropertyGroup>
+    <PostBuildEvent>copy /Y "$(TargetDir)$(ProjectName).dll" "%25USERPROFILE%25\Documents\Parkitect\Mods\HybridCoasters\$(ProjectName).dll"
+"C:\Program Files (x86)\Steam\steamapps\common\Parkitect\Parkitect.exe"</PostBuildEvent>
+  </PropertyGroup>
 </Project>
