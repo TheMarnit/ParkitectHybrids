@@ -19,6 +19,8 @@ public class IboxCoasterMeshGenerator : MeshGenerator
     private BoxExtruder collisionMeshExtruder;
 
     private StreamWriter streamWriter;
+    
+    private float errorMargin90deg = 0.001f;
 
     public string path;
 
@@ -196,8 +198,12 @@ public class IboxCoasterMeshGenerator : MeshGenerator
 
 
                 //Top beam extruding
-                WriteToFile("normal.y: "+normal.y);
-                if (normal.y > 0)
+                /*
+                WriteToFile("normal.x: " + normal.x);
+                WriteToFile("normal.y: " + normal.y);
+                WriteToFile("normal.z: " + normal.z);
+                */
+                if (normal.y > errorMargin90deg)
                 {
                     crossTieExtruder_left.extrude(new Vector3(bottomBeamStart.x, Mathf.Max(startPoint.y, endPoint.y), bottomBeamStart.z), -1f * bottomBeamBinormal, Vector3.up);
                     crossTieExtruder_left.extrude(new Vector3(bottomBeamEnd.x, Mathf.Max(startPoint.y, endPoint.y), bottomBeamEnd.z), -1f * bottomBeamBinormal, Vector3.up);
