@@ -12,6 +12,8 @@ public class IboxCoasterMeshGenerator : MeshGenerator
 
     private ShapeExtruder crossTieExtruder_right;
 
+    private BoxExtruder supportBeamExtruder;
+
     private BoxExtruder collisionMeshExtruder;
 
     protected override void Initialize()
@@ -93,7 +95,10 @@ public class IboxCoasterMeshGenerator : MeshGenerator
         collisionMeshExtruder = new BoxExtruder(trackWidth, 0.02666f);
         buildVolumeMeshExtruder = new BoxExtruder(trackWidth, 0.8f);
         buildVolumeMeshExtruder.closeEnds = true;
-        base.setModelExtruders(leftRailExtruder, rightRailExtruder, crossTieExtruder_left, crossTieExtruder_right);
+        supportBeamExtruder = new BoxExtruder(0.043f,0.043f);
+        supportBeamExtruder.closeEnds = true;
+        supportBeamExtruder.setUV(14, 14);
+        base.setModelExtruders(leftRailExtruder, rightRailExtruder, crossTieExtruder_left, crossTieExtruder_right, supportBeamExtruder);
     }
 
     public override void sampleAt(TrackSegment4 trackSegment, float t)
@@ -136,8 +141,8 @@ public class IboxCoasterMeshGenerator : MeshGenerator
             //track beam
             Vector3 startPoint = trackPivot + normal * 0.159107f + binormal * .49f;
             Vector3 endPoint = trackPivot + normal * 0.159107f - binormal * .49f;
-            
-            bool equalHeight = (startPoint.y - endPoint.y) < 0.97f && (startPoint.y - endPoint.y) > -0.97f;
+
+            bool equalHeight = Mathf.Abs(startPoint.y - endPoint.y) < 0.97f;
             //bool equalHeight = (normal.y < 0.01f && normal.y > -0.01f) || ((startPoint.y - endPoint.y) < 0.97 && (startPoint.y - endPoint.y) > -0.97f);
 
             crossTieExtruder_left.extrude(startPoint, -1f * binormal, equalHeight ? Vector3.up : normal);
@@ -148,37 +153,63 @@ public class IboxCoasterMeshGenerator : MeshGenerator
             crossTieExtruder_right.end();
 
 
-            float topBarY = Mathf.Max(startPoint.y, endPoint.y);
-            float bottomBarY = Mathf.Min(startPoint.y, endPoint.y);
+            if (!(trackSegment is Station)) {
+              //Bottom beam calculation
+              Vector3 bottomBeamPivot = new Vector3(trackPivot.x, Mathf.Min(startPoint.y, endPoint.y), trackPivot.z);
+              Vector3 bottomBeamDirection = startPoint - endPoint;
+              bottomBeamDirection.y = 0.0f;
+              if (bottomBeamDirection.magnitude < 0.01f) {
+                bottomBeamDirection = normal;
+              }
 
-            //bottom beam
-            startPoint.y = bottomBarY;
-            endPoint.y = bottomBarY;
+              float projectedBeamLength = Mathf.Sqrt(Mathf.Pow(startPoint.x - trackPivot.x, 2) + Mathf.Pow(startPoint.z - trackPivot.z, 2));
+              float projectedBeamLengthComplement = (0.98f - projectedBeamLength);
 
-            crossTieExtruder_left.extrude(startPoint, -1f * binormal, Vector3.up);
-            crossTieExtruder_left.extrude(endPoint, -1f * binormal, Vector3.up);
-            crossTieExtruder_left.end();
-            crossTieExtruder_right.extrude(startPoint, -1f * binormal, Vector3.up);
-            crossTieExtruder_right.extrude(endPoint, -1f * binormal, Vector3.up);
-            crossTieExtruder_right.end();
+              bottomBeamDirection.Normalize();
+              Vector3 bottomBeamStart = bottomBeamPivot - bottomBeamDirection * ((startPoint.y < endPoint.y) ? projectedBeamLength : projectedBeamLengthComplement) + bottomBeamDirection * 0.04f;
+              Vector3 bottomBeamEnd = bottomBeamPivot + bottomBeamDirection * ((startPoint.y < endPoint.y) ? projectedBeamLengthComplement: projectedBeamLength)  + bottomBeamDirection * 0.04f;
 
-            //top beam
-            startPoint.y = topBarY;
-            endPoint.y = topBarY;
 
-            crossTieExtruder_left.extrude(startPoint, -1f * binormal, Vector3.up);
-            crossTieExtruder_left.extrude(endPoint, -1f * binormal, Vector3.up);
-            crossTieExtruder_left.end();
-            crossTieExtruder_right.extrude(startPoint, -1f * binormal, Vector3.up);
-            crossTieExtruder_right.extrude(endPoint, -1f * binormal, Vector3.up);
-            crossTieExtruder_right.end();
+              Vector3 bottomBeamBinormal = bottomBeamDirection.normalized;
 
+              //Bottom beam extruding
+              crossTieExtruder_left.extrude(bottomBeamStart, -1f * bottomBeamBinormal, Vector3.up);
+              crossTieExtruder_left.extrude(bottomBeamEnd, -1f * bottomBeamBinormal, Vector3.up);
+              crossTieExtruder_left.end();
+              crossTieExtruder_right.extrude(bottomBeamStart, -1f * bottomBeamBinormal, Vector3.up);
+              crossTieExtruder_right.extrude(bottomBeamEnd, -1f * bottomBeamBinormal, Vector3.up);
+              crossTieExtruder_right.end();
+
+              LandPatch terrain = GameController.Instance.park.getTerrain(trackPivot);
+
+              if(terrain != null) {
+                float lowest = terrain.getLowestHeight ();
+
+                Vector3 projectedTangentDirection = tangentPoint;
+                projectedTangentDirection.y = 0;
+                projectedTangentDirection.Normalize();
+                //left post
+                supportBeamExtruder.extrude(new Vector3(startPoint.x, startPoint.y + 0.2f , startPoint.z), new Vector3 (0, -1, 0), projectedTangentDirection);
+                supportBeamExtruder.extrude(new Vector3(startPoint.x, lowest, startPoint.z), new Vector3(0, -1, 0), projectedTangentDirection);
+                supportBeamExtruder.end();
+                //right post
+                supportBeamExtruder.extrude(new Vector3(endPoint.x, endPoint.y + 0.2f , endPoint.z), new Vector3(0, -1, 0), projectedTangentDirection);
+                supportBeamExtruder.extrude(new Vector3(endPoint.x, lowest, endPoint.z), new Vector3(0, -1, 0), projectedTangentDirection);
+                supportBeamExtruder.end();
+              }
+
+            }
         }
+    }
+
+    public Vector2 Rotate(Vector2 v, float degrees)
+    {
+         return Quaternion.Euler(0, 0, degrees) * v;
     }
 
     public override Mesh getMesh(GameObject putMeshOnGO)
     {
-        return MeshCombiner.start().add(leftRailExtruder, rightRailExtruder, crossTieExtruder_left, crossTieExtruder_right).end(putMeshOnGO.transform.worldToLocalMatrix);
+        return MeshCombiner.start().add(leftRailExtruder, rightRailExtruder, crossTieExtruder_left, crossTieExtruder_right,supportBeamExtruder).end(putMeshOnGO.transform.worldToLocalMatrix);
     }
 
     public override Mesh getCollisionMesh(GameObject putMeshOnGO)
