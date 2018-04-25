@@ -224,7 +224,7 @@ public class IboxCoasterMeshGenerator : MeshGenerator
                     projectedTangentDirection.y = 0;
                     projectedTangentDirection.Normalize();
                     Vector3 leftPost = new Vector3(startPoint.x, startPoint.y + supportBeamExtension, startPoint.z);
-                    Vector3 RightPost = new Vector3(endPoint.x, endPoint.y + supportBeamExtension, endPoint.z);
+                    Vector3 rightPost = new Vector3(endPoint.x, endPoint.y + supportBeamExtension, endPoint.z);
 
                     if ((normal.x > errorMargin90deg && normal.y < errorMargin90deg) || (normal.x < errorMargin90deg && normal.y > errorMargin90deg))
                     {
@@ -232,13 +232,13 @@ public class IboxCoasterMeshGenerator : MeshGenerator
                         leftPost.z = bottomBeamEnd.z;
                     } else
                     {
-                        RightPost.x = bottomBeamStart.x;
-                        RightPost.z = bottomBeamStart.z;
+                        rightPost.x = bottomBeamStart.x;
+                        rightPost.z = bottomBeamStart.z;
                     }
                     if(normal.y > errorMargin90deg)
                     {
                         leftPost.y = Mathf.Max(startPoint.y, endPoint.y) + supportBeamExtension;
-                        RightPost.y = Mathf.Max(startPoint.y, endPoint.y) + supportBeamExtension;
+                        rightPost.y = Mathf.Max(startPoint.y, endPoint.y) + supportBeamExtension;
                     }
                     
                     //left post
@@ -247,7 +247,7 @@ public class IboxCoasterMeshGenerator : MeshGenerator
                     supportBeamExtruder.end();
                     //right post
                     supportBeamExtruder.extrude(RightPost, new Vector3(0, -1, 0), projectedTangentDirection);
-                    supportBeamExtruder.extrude(new Vector3(RightPost.x, lowest, RightPost.z), new Vector3(0, -1, 0), projectedTangentDirection);
+                    supportBeamExtruder.extrude(new Vector3(rightPost.x, lowest, rightPost.z), new Vector3(0, -1, 0), projectedTangentDirection);
                     supportBeamExtruder.end();
                 }
 
