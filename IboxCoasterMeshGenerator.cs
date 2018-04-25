@@ -10,11 +10,11 @@ public class IboxCoasterMeshGenerator : MeshGenerator
 
     private ShapeExtruder rightRailExtruder;
 
-    private ShapeExtruder crossTieExtruder_left;
+    private ShapeExtruder metalRearCrossTieExtruder;
 
-    private ShapeExtruder crossTieExtruder_right;
+    private ShapeExtruder metalFrontCrossTieExtruder;
 
-    private BoxExtruder supportBeamExtruder;
+    private BoxExtruder woodenVerticalSupportPostExtruder;
 
     private BoxExtruder collisionMeshExtruder;
 
@@ -74,8 +74,8 @@ public class IboxCoasterMeshGenerator : MeshGenerator
             new Vector3(-0.046103f, 0f, 0f)
         }, true);
         rightRailExtruder.setUV(14, 15);
-        crossTieExtruder_left = new ShapeExtruder();
-        crossTieExtruder_left.setShape(new Vector3[8]
+        metalRearCrossTieExtruder = new ShapeExtruder();
+        metalRearCrossTieExtruder.setShape(new Vector3[8]
         {
             new Vector3(-0.046f, 0.04f, 0f),
             new Vector3(-0.022f, 0.04f, 0f),
@@ -86,10 +86,10 @@ public class IboxCoasterMeshGenerator : MeshGenerator
             new Vector3(-0.03f, 0.035f, 0f),
             new Vector3(-0.046f, 0.035f, 0f)
         }, true);
-        crossTieExtruder_left.setUV(15, 14);
-        crossTieExtruder_left.closeEnds = true;
-        crossTieExtruder_right = new ShapeExtruder();
-        crossTieExtruder_right.setShape(new Vector3[8]
+        metalRearCrossTieExtruder.setUV(15, 14);
+        metalRearCrossTieExtruder.closeEnds = true;
+        metalFrontCrossTieExtruder = new ShapeExtruder();
+        metalFrontCrossTieExtruder.setShape(new Vector3[8]
         {
             new Vector3(0.022f, 0.04f, 0f),
             new Vector3(0.046f, 0.04f, 0f),
@@ -100,15 +100,15 @@ public class IboxCoasterMeshGenerator : MeshGenerator
             new Vector3(0.046f, -0.04f, 0f),
             new Vector3(0.022f, -0.04f, 0f)
         }, true);
-        crossTieExtruder_right.setUV(15, 14);
-        crossTieExtruder_right.closeEnds = true;
+        metalFrontCrossTieExtruder.setUV(15, 14);
+        metalFrontCrossTieExtruder.closeEnds = true;
         collisionMeshExtruder = new BoxExtruder(trackWidth, 0.02666f);
         buildVolumeMeshExtruder = new BoxExtruder(trackWidth, 0.8f);
         buildVolumeMeshExtruder.closeEnds = true;
-        supportBeamExtruder = new BoxExtruder(0.043f, 0.043f);
-        supportBeamExtruder.closeEnds = true;
-        supportBeamExtruder.setUV(14, 14);
-        base.setModelExtruders(leftRailExtruder, rightRailExtruder, crossTieExtruder_left, crossTieExtruder_right, supportBeamExtruder);
+        woodenVerticalSupportPostExtruder = new BoxExtruder(0.043f, 0.043f);
+        woodenVerticalSupportPostExtruder.closeEnds = true;
+        woodenVerticalSupportPostExtruder.setUV(14, 14);
+        base.setModelExtruders(leftRailExtruder, rightRailExtruder, metalRearCrossTieExtruder, metalFrontCrossTieExtruder, woodenVerticalSupportPostExtruder);
     }
 
     public override void sampleAt(TrackSegment4 trackSegment, float t)
@@ -155,12 +155,9 @@ public class IboxCoasterMeshGenerator : MeshGenerator
             bool equalHeight = Mathf.Abs(startPoint.y - endPoint.y) < 0.97f;
             //bool equalHeight = (normal.y < 0.01f && normal.y > -0.01f) || ((startPoint.y - endPoint.y) < 0.97 && (startPoint.y - endPoint.y) > -0.97f);
 
-            crossTieExtruder_left.extrude(startPoint, -1f * binormal, equalHeight ? Vector3.up : normal);
-            crossTieExtruder_left.extrude(endPoint, -1f * binormal, equalHeight ? Vector3.up : normal);
-            crossTieExtruder_left.end();
-            crossTieExtruder_right.extrude(startPoint, -1f * binormal, equalHeight ? Vector3.up : normal);
-            crossTieExtruder_right.extrude(endPoint, -1f * binormal, equalHeight ? Vector3.up : normal);
-            crossTieExtruder_right.end();
+            metalCrossTieExtrude(startPoint, -1f * binormal, equalHeight ? Vector3.up : normal);
+            metalCrossTieExtrude(endPoint, -1f * binormal, equalHeight ? Vector3.up : normal);
+            metalCrossTieEnd();
 
 
             if (!(trackSegment is Station))
@@ -204,24 +201,18 @@ public class IboxCoasterMeshGenerator : MeshGenerator
                     bottomBeamEnd.y -= normal.normalized.y * 1f;
                 }
 
-                //Bottom beam extruding
-                crossTieExtruder_left.extrude(bottomBeamEnd, -1f * bottomBeamBinormal, Vector3.up);
-                crossTieExtruder_left.extrude(bottomBeamStart, -1f * bottomBeamBinormal, Vector3.up);
-                crossTieExtruder_left.end();
-                crossTieExtruder_right.extrude(bottomBeamEnd, -1f * bottomBeamBinormal, Vector3.up);
-                crossTieExtruder_right.extrude(bottomBeamStart, -1f * bottomBeamBinormal, Vector3.up);
-                crossTieExtruder_right.end();
+                //Bottom beam extrudingright
+                metalCrossTieExtrude(bottomBeamEnd, -1f * bottomBeamBinormal, Vector3.up);
+                metalCrossTieExtrude(bottomBeamStart, -1f * bottomBeamBinormal, Vector3.up);
+                metalCrossTieEnd();
 
 
                 //Top beam extruding
                 if (normal.y > errorMargin90deg)
                 {
-                    crossTieExtruder_left.extrude(new Vector3(bottomBeamEnd.x, Mathf.Max(startPoint.y, endPoint.y), bottomBeamEnd.z), -1f * bottomBeamBinormal, Vector3.up);
-                    crossTieExtruder_left.extrude(new Vector3(bottomBeamStart.x, Mathf.Max(startPoint.y, endPoint.y), bottomBeamStart.z), -1f * bottomBeamBinormal, Vector3.up);
-                    crossTieExtruder_left.end();
-                    crossTieExtruder_right.extrude(new Vector3(bottomBeamEnd.x, Mathf.Max(startPoint.y, endPoint.y), bottomBeamEnd.z), -1f * bottomBeamBinormal, Vector3.up);
-                    crossTieExtruder_right.extrude(new Vector3(bottomBeamStart.x, Mathf.Max(startPoint.y, endPoint.y), bottomBeamStart.z), -1f * bottomBeamBinormal, Vector3.up);
-                    crossTieExtruder_right.end();
+                    metalCrossTieExtrude(new Vector3(bottomBeamEnd.x, Mathf.Max(startPoint.y, endPoint.y), bottomBeamEnd.z), -1f * bottomBeamBinormal, Vector3.up);
+                    metalCrossTieExtrude(new Vector3(bottomBeamStart.x, Mathf.Max(startPoint.y, endPoint.y), bottomBeamStart.z), -1f * bottomBeamBinormal, Vector3.up);
+                    metalCrossTieEnd();
                 }
                 LandPatch terrain = GameController.Instance.park.getTerrain(trackPivot);
 
@@ -232,23 +223,24 @@ public class IboxCoasterMeshGenerator : MeshGenerator
                     Vector3 projectedTangentDirection = tangentPoint;
                     projectedTangentDirection.y = 0;
                     projectedTangentDirection.Normalize();
-                    Vector3 rightPost = new Vector3(bottomBeamStart.x, endPoint.y + supportBeamExtension, bottomBeamStart.z);
-                    Vector3 leftPost = new Vector3(bottomBeamEnd.x, startPoint.y + supportBeamExtension, bottomBeamEnd.z);
+                    Vector3 rightVerticalSupportPost = new Vector3(bottomBeamStart.x, endPoint.y + supportBeamExtension, bottomBeamStart.z);
+                    Vector3 leftVerticalSupportPost = new Vector3(bottomBeamEnd.x, startPoint.y + supportBeamExtension, bottomBeamEnd.z);
 
                     if(normal.y > errorMargin90deg)
                     {
-                        leftPost.y = Mathf.Max(startPoint.y, endPoint.y) + supportBeamExtension;
-                        rightPost.y = Mathf.Max(startPoint.y, endPoint.y) + supportBeamExtension;
+                        leftVerticalSupportPost.y = Mathf.Max(startPoint.y, endPoint.y) + supportBeamExtension;
+                        rightVerticalSupportPost.y = Mathf.Max(startPoint.y, endPoint.y) + supportBeamExtension;
                     }
 
                     //left post
-                    supportBeamExtruder.extrude(leftPost, new Vector3(0, -1, 0), projectedTangentDirection);
-                    supportBeamExtruder.extrude(new Vector3(leftPost.x, lowest, leftPost.z), new Vector3(0, -1, 0), projectedTangentDirection);
-                    supportBeamExtruder.end();
+                    woodenVerticalSupportPostExtruder.extrude(leftVerticalSupportPost, new Vector3(0, -1, 0), projectedTangentDirection);
+                    woodenVerticalSupportPostExtruder.extrude(new Vector3(leftVerticalSupportPost.x, lowest, leftVerticalSupportPost.z), new Vector3(0, -1, 0), projectedTangentDirection);
+                    woodenVerticalSupportPostExtruder.end();
+
                     //right post
-                    supportBeamExtruder.extrude(rightPost, new Vector3(0, -1, 0), projectedTangentDirection);
-                    supportBeamExtruder.extrude(new Vector3(rightPost.x, lowest, rightPost.z), new Vector3(0, -1, 0), projectedTangentDirection);
-                    supportBeamExtruder.end();
+                    woodenVerticalSupportPostExtruder.extrude(rightVerticalSupportPost, new Vector3(0, -1, 0), projectedTangentDirection);
+                    woodenVerticalSupportPostExtruder.extrude(new Vector3(rightVerticalSupportPost.x, lowest, rightVerticalSupportPost.z), new Vector3(0, -1, 0), projectedTangentDirection);
+                    woodenVerticalSupportPostExtruder.end();
                 }
 
             }
@@ -257,7 +249,7 @@ public class IboxCoasterMeshGenerator : MeshGenerator
 
     public override Mesh getMesh(GameObject putMeshOnGO)
     {
-        return MeshCombiner.start().add(leftRailExtruder, rightRailExtruder, crossTieExtruder_left, crossTieExtruder_right, supportBeamExtruder).end(putMeshOnGO.transform.worldToLocalMatrix);
+        return MeshCombiner.start().add(leftRailExtruder, rightRailExtruder, metalRearCrossTieExtruder, metalFrontCrossTieExtruder, woodenVerticalSupportPostExtruder).end(putMeshOnGO.transform.worldToLocalMatrix);
     }
 
     public override Mesh getCollisionMesh(GameObject putMeshOnGO)
@@ -302,7 +294,16 @@ public class IboxCoasterMeshGenerator : MeshGenerator
     {
         return 0.02666f;
     }
-
+    public void metalCrossTieExtrude(Vector3 middlePoint, Vector3 tangent, Vector3 normal)
+    {
+        metalRearCrossTieExtruder.extrude(middlePoint, tangent, normal);
+        metalFrontCrossTieExtruder.extrude(middlePoint, tangent, normal);
+    }
+    public void metalCrossTieEnd()
+    { 
+        metalRearCrossTieExtruder.end();
+        metalFrontCrossTieExtruder.end();
+    }
     public void WriteToFile(string text)
     {
         streamWriter = File.AppendText(path + @"/mod.log");
