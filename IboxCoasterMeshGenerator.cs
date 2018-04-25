@@ -126,7 +126,7 @@ public class IboxCoasterMeshGenerator : MeshGenerator
             new Vector3(-0.03f, 0.035f, 0f),
             new Vector3(-0.046f, 0.035f, 0f)
         }, true);
-        metalRearCrossTieExtruder_1.setUV(9, 4);
+        metalRearCrossTieExtruder_1.setUV(15, 14);
         metalRearCrossTieExtruder_1.closeEnds = true;
         metalRearCrossTieExtruder_2 = new ShapeExtruder();
         metalRearCrossTieExtruder_2.setShape(new Vector3[4]
@@ -136,7 +136,7 @@ public class IboxCoasterMeshGenerator : MeshGenerator
             new Vector3(-0.022f, -0.04f, 0f),
             new Vector3(-0.046f, -0.04f, 0f)
         }, true);
-        metalRearCrossTieExtruder_2.setUV(9, 5);
+        metalRearCrossTieExtruder_2.setUV(15, 14);
         metalRearCrossTieExtruder_2.closeEnds = true;
         metalRearCrossTieExtruder_3 = new ShapeExtruder();
         metalRearCrossTieExtruder_3.setShape(new Vector3[4]
@@ -146,7 +146,7 @@ public class IboxCoasterMeshGenerator : MeshGenerator
             new Vector3(-0.03f, -0.035f, 0f),
             new Vector3(-0.03f, 0.035f, 0f)
         }, true);
-        metalRearCrossTieExtruder_3.setUV(9, 6);
+        metalRearCrossTieExtruder_3.setUV(15, 14);
         metalRearCrossTieExtruder_3.closeEnds = true;
         metalIBeamExtruder_1 = new ShapeExtruder();
         metalIBeamExtruder_1.setShape(new Vector3[4]
@@ -240,28 +240,46 @@ public class IboxCoasterMeshGenerator : MeshGenerator
             {
                 //Bottom beam calculation
                 Vector3 bottomBeamPivot = new Vector3(trackPivot.x, Mathf.Min(startPoint.y, endPoint.y), trackPivot.z);
-                Vector3 bottomBeamDirection = startPoint - endPoint;
-                bottomBeamDirection.y = 0.0f;
-                WriteToFile("bottomBeamDirection: (" + bottomBeamDirection.x + "," + bottomBeamDirection.y + "," + bottomBeamDirection.z + ")");
-
-                if (bottomBeamDirection.magnitude < errorMargin90deg)
-                {
-                  bottomBeamDirection = new Vector3(normal.x, 0, normal.z);
-                  WriteToFile("Normal: (" + normal.x + "," + normal.y + "," + normal.z + ")");
-                }
+                Vector3 bottomBeamDirection = normal + binormal;
+                bottomBeamDirection.y = 0;
                 bottomBeamDirection.Normalize();
 
                 Vector3 bottomBeamStart = new Vector3();
                 Vector3 bottomBeamEnd = new Vector3();
                 Vector3 bottomBeamBinormal = bottomBeamDirection.normalized;
 
-                if ((normal.x > errorMargin90deg && normal.y < errorMargin90deg) || (normal.x < errorMargin90deg && normal.y > errorMargin90deg))
+                bool trainFacingXPositive = tangentPoint.x > Mathf.Abs(tangentPoint.z);
+                bool trainFacingXNegative = tangentPoint.x < -Mathf.Abs(tangentPoint.z);
+                bool trainFacingZPositive = tangentPoint.z > Mathf.Abs(tangentPoint.x);
+                bool trainFacingZNegative = tangentPoint.z < -Mathf.Abs(tangentPoint.x);
+
+                float trainBanking = 0f;
+                if (trainFacingXPositive)
+                {
+                    trainBanking = Mathf.Repeat(Mathf.Atan2(normal.z, -normal.y), Mathf.PI * 2.0f) * Mathf.Rad2Deg;
+                }
+                if (trainFacingXNegative)
+                {
+                    trainBanking = Mathf.Repeat(Mathf.Atan2(normal.z, -normal.y), Mathf.PI * 2.0f) * Mathf.Rad2Deg;
+                }
+                if (trainFacingZPositive)
+                {
+                    trainBanking = Mathf.Repeat(Mathf.Atan2(normal.x, -normal.y), Mathf.PI * 2.0f) * Mathf.Rad2Deg;
+                }
+                if (trainFacingZNegative)
+                {
+                    trainBanking = Mathf.Repeat(Mathf.Atan2(normal.x, -normal.y), Mathf.PI * 2.0f) * Mathf.Rad2Deg;
+                }
+                WriteToFile("ANGLE:" + trainBanking);
+
+
+                if (true)
                 {
                     bottomBeamStart.x = endPoint.x;
                     bottomBeamStart.z = endPoint.z;
                     bottomBeamStart.y = endPoint.y > startPoint.y ? startPoint.y : endPoint.y;
 
-                    bottomBeamEnd = bottomBeamStart + bottomBeamDirection.normalized * 0.98f;
+                    bottomBeamEnd = bottomBeamStart - bottomBeamDirection.normalized * 0.98f;
                 } else
                 {
                     bottomBeamEnd.x = startPoint.x;
