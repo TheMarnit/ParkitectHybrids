@@ -10,9 +10,23 @@ public class IboxCoasterMeshGenerator : MeshGenerator
 
     private ShapeExtruder rightRailExtruder;
 
-    private ShapeExtruder metalRearCrossTieExtruder;
+    private ShapeExtruder metalFrontCrossTieExtruder_1;
 
-    private ShapeExtruder metalFrontCrossTieExtruder;
+    private ShapeExtruder metalFrontCrossTieExtruder_2;
+
+    private ShapeExtruder metalFrontCrossTieExtruder_3;
+
+    private ShapeExtruder metalRearCrossTieExtruder_1;
+
+    private ShapeExtruder metalRearCrossTieExtruder_2;
+
+    private ShapeExtruder metalRearCrossTieExtruder_3;
+
+    private ShapeExtruder metalIBeamExtruder_1;
+
+    private ShapeExtruder metalIBeamExtruder_2;
+
+    private ShapeExtruder metalIBeamExtruder_3;
 
     private BoxExtruder woodenVerticalSupportPostExtruder;
 
@@ -74,41 +88,103 @@ public class IboxCoasterMeshGenerator : MeshGenerator
             new Vector3(-0.046103f, 0f, 0f)
         }, true);
         rightRailExtruder.setUV(14, 15);
-        metalRearCrossTieExtruder = new ShapeExtruder();
-        metalRearCrossTieExtruder.setShape(new Vector3[8]
-        {
-            new Vector3(-0.046f, 0.04f, 0f),
-            new Vector3(-0.022f, 0.04f, 0f),
-            new Vector3(-0.022f, -0.04f, 0f),
-            new Vector3(-0.046f, -0.04f, 0f),
-            new Vector3(-0.046f, -0.035f, 0f),
-            new Vector3(-0.03f, -0.035f, 0f),
-            new Vector3(-0.03f, 0.035f, 0f),
-            new Vector3(-0.046f, 0.035f, 0f)
-        }, true);
-        metalRearCrossTieExtruder.setUV(15, 14);
-        metalRearCrossTieExtruder.closeEnds = true;
-        metalFrontCrossTieExtruder = new ShapeExtruder();
-        metalFrontCrossTieExtruder.setShape(new Vector3[8]
+        metalFrontCrossTieExtruder_1 = new ShapeExtruder();
+        metalFrontCrossTieExtruder_1.setShape(new Vector3[4]
         {
             new Vector3(0.022f, 0.04f, 0f),
             new Vector3(0.046f, 0.04f, 0f),
             new Vector3(0.046f, 0.035f, 0f),
+            new Vector3(0.03f, 0.035f, 0f)
+        }, true);
+        metalFrontCrossTieExtruder_1.setUV(15, 14);
+        metalFrontCrossTieExtruder_1.closeEnds = true;
+        metalFrontCrossTieExtruder_2 = new ShapeExtruder();
+        metalFrontCrossTieExtruder_2.setShape(new Vector3[4]
+        {
             new Vector3(0.03f, 0.035f, 0f),
+            new Vector3(0.03f, -0.035f, 0f),
+            new Vector3(0.022f, -0.04f, 0f),
+            new Vector3(0.022f, 0.04f, 0f)
+        }, true);
+        metalFrontCrossTieExtruder_2.setUV(15, 14);
+        metalFrontCrossTieExtruder_2.closeEnds = true;
+        metalFrontCrossTieExtruder_3 = new ShapeExtruder();
+        metalFrontCrossTieExtruder_3.setShape(new Vector3[4]
+        {
             new Vector3(0.03f, -0.035f, 0f),
             new Vector3(0.046f, -0.035f, 0f),
             new Vector3(0.046f, -0.04f, 0f),
             new Vector3(0.022f, -0.04f, 0f)
         }, true);
-        metalFrontCrossTieExtruder.setUV(15, 14);
-        metalFrontCrossTieExtruder.closeEnds = true;
+        metalFrontCrossTieExtruder_3.setUV(15, 14);
+        metalFrontCrossTieExtruder_3.closeEnds = true;
+        metalRearCrossTieExtruder_1 = new ShapeExtruder();
+        metalRearCrossTieExtruder_1.setShape(new Vector3[4]
+        {
+            new Vector3(-0.046f, 0.04f, 0f),
+            new Vector3(-0.022f, 0.04f, 0f),
+            new Vector3(-0.03f, 0.035f, 0f),
+            new Vector3(-0.046f, 0.035f, 0f)
+        }, true);
+        metalRearCrossTieExtruder_1.setUV(9, 4);
+        metalRearCrossTieExtruder_1.closeEnds = true;
+        metalRearCrossTieExtruder_2 = new ShapeExtruder();
+        metalRearCrossTieExtruder_2.setShape(new Vector3[4]
+        {
+            new Vector3(-0.046f, -0.035f, 0f),
+            new Vector3(-0.03f, -0.035f, 0f),
+            new Vector3(-0.022f, -0.04f, 0f),
+            new Vector3(-0.046f, -0.04f, 0f)
+        }, true);
+        metalRearCrossTieExtruder_2.setUV(9, 5);
+        metalRearCrossTieExtruder_2.closeEnds = true;
+        metalRearCrossTieExtruder_3 = new ShapeExtruder();
+        metalRearCrossTieExtruder_3.setShape(new Vector3[4]
+        {
+            new Vector3(-0.022f, 0.04f, 0f),
+            new Vector3(-0.022f, -0.04f, 0f),
+            new Vector3(-0.03f, -0.035f, 0f),
+            new Vector3(-0.03f, 0.035f, 0f)
+        }, true);
+        metalRearCrossTieExtruder_3.setUV(9, 6);
+        metalRearCrossTieExtruder_3.closeEnds = true;
+        metalIBeamExtruder_1 = new ShapeExtruder();
+        metalIBeamExtruder_1.setShape(new Vector3[4]
+        {
+            new Vector3(-0.021f, 0.04f, 0f),
+            new Vector3(0.021f, 0.04f, 0f),
+            new Vector3(0.021f, 0.035f, 0f),
+            new Vector3(-0.021f, 0.035f, 0f)
+        }, true);
+        metalIBeamExtruder_1.setUV(15, 14);
+        metalIBeamExtruder_1.closeEnds = true;
+        metalIBeamExtruder_2 = new ShapeExtruder();
+        metalIBeamExtruder_2.setShape(new Vector3[4]
+        {
+            new Vector3(-0.005f, 0.037f, 0f),
+            new Vector3(0.005f, 0.037f, 0f),
+            new Vector3(0.005f, -0.037f, 0f),
+            new Vector3(-0.005f, -0.037f, 0f)
+        }, true);
+        metalIBeamExtruder_2.setUV(15, 14);
+        metalIBeamExtruder_2.closeEnds = true;
+        metalIBeamExtruder_3 = new ShapeExtruder();
+        metalIBeamExtruder_3.setShape(new Vector3[4]
+        {
+            new Vector3(-0.021f, -0.035f, 0f),
+            new Vector3(0.021f, -0.035f, 0f),
+            new Vector3(0.021f, -0.04f, 0f),
+            new Vector3(-0.021f, -0.04f, 0f)
+        }, true);
+        metalIBeamExtruder_3.setUV(15, 14);
+        metalIBeamExtruder_3.closeEnds = true;
         collisionMeshExtruder = new BoxExtruder(trackWidth, 0.02666f);
         buildVolumeMeshExtruder = new BoxExtruder(trackWidth, 0.8f);
         buildVolumeMeshExtruder.closeEnds = true;
         woodenVerticalSupportPostExtruder = new BoxExtruder(0.043f, 0.043f);
         woodenVerticalSupportPostExtruder.closeEnds = true;
         woodenVerticalSupportPostExtruder.setUV(14, 14);
-        base.setModelExtruders(leftRailExtruder, rightRailExtruder, metalRearCrossTieExtruder, metalFrontCrossTieExtruder, woodenVerticalSupportPostExtruder);
+        base.setModelExtruders(leftRailExtruder, rightRailExtruder, metalFrontCrossTieExtruder_1, metalFrontCrossTieExtruder_2, metalFrontCrossTieExtruder_3, metalRearCrossTieExtruder_1, metalRearCrossTieExtruder_2, metalRearCrossTieExtruder_3, metalIBeamExtruder_1, metalIBeamExtruder_2, metalIBeamExtruder_3, woodenVerticalSupportPostExtruder);
     }
 
     public override void sampleAt(TrackSegment4 trackSegment, float t)
@@ -155,9 +231,9 @@ public class IboxCoasterMeshGenerator : MeshGenerator
             bool equalHeight = Mathf.Abs(startPoint.y - endPoint.y) < 0.97f;
             //bool equalHeight = (normal.y < 0.01f && normal.y > -0.01f) || ((startPoint.y - endPoint.y) < 0.97 && (startPoint.y - endPoint.y) > -0.97f);
 
-            metalCrossTieExtrude(startPoint, -1f * binormal, equalHeight ? Vector3.up : normal);
-            metalCrossTieExtrude(endPoint, -1f * binormal, equalHeight ? Vector3.up : normal);
-            metalCrossTieEnd();
+            metalIBeamExtrude(startPoint, -1f * binormal, equalHeight ? Vector3.up : normal);
+            metalIBeamExtrude(endPoint, -1f * binormal, equalHeight ? Vector3.up : normal);
+            metalIBeamEnd();
 
 
             if (!(trackSegment is Station))
@@ -201,7 +277,7 @@ public class IboxCoasterMeshGenerator : MeshGenerator
                     bottomBeamEnd.y -= normal.normalized.y * 1f;
                 }
 
-                //Bottom beam extrudingright
+                //Bottom beam extruding
                 metalCrossTieExtrude(bottomBeamEnd, -1f * bottomBeamBinormal, Vector3.up);
                 metalCrossTieExtrude(bottomBeamStart, -1f * bottomBeamBinormal, Vector3.up);
                 metalCrossTieEnd();
@@ -249,7 +325,7 @@ public class IboxCoasterMeshGenerator : MeshGenerator
 
     public override Mesh getMesh(GameObject putMeshOnGO)
     {
-        return MeshCombiner.start().add(leftRailExtruder, rightRailExtruder, metalRearCrossTieExtruder, metalFrontCrossTieExtruder, woodenVerticalSupportPostExtruder).end(putMeshOnGO.transform.worldToLocalMatrix);
+        return MeshCombiner.start().add(leftRailExtruder, rightRailExtruder, metalFrontCrossTieExtruder_1, metalFrontCrossTieExtruder_2, metalFrontCrossTieExtruder_3, metalRearCrossTieExtruder_1, metalRearCrossTieExtruder_2, metalRearCrossTieExtruder_3, metalIBeamExtruder_1, metalIBeamExtruder_2, metalIBeamExtruder_3, woodenVerticalSupportPostExtruder).end(putMeshOnGO.transform.worldToLocalMatrix);
     }
 
     public override Mesh getCollisionMesh(GameObject putMeshOnGO)
@@ -296,13 +372,33 @@ public class IboxCoasterMeshGenerator : MeshGenerator
     }
     public void metalCrossTieExtrude(Vector3 middlePoint, Vector3 tangent, Vector3 normal)
     {
-        metalRearCrossTieExtruder.extrude(middlePoint, tangent, normal);
-        metalFrontCrossTieExtruder.extrude(middlePoint, tangent, normal);
+        metalFrontCrossTieExtruder_1.extrude(middlePoint, tangent, normal);
+        metalFrontCrossTieExtruder_2.extrude(middlePoint, tangent, normal);
+        metalFrontCrossTieExtruder_3.extrude(middlePoint, tangent, normal);
+        metalRearCrossTieExtruder_1.extrude(middlePoint, tangent, normal);
+        metalRearCrossTieExtruder_2.extrude(middlePoint, tangent, normal);
+        metalRearCrossTieExtruder_3.extrude(middlePoint, tangent, normal);
+    }
+    public void metalIBeamExtrude(Vector3 middlePoint, Vector3 tangent, Vector3 normal)
+    {
+        metalIBeamExtruder_1.extrude(middlePoint, tangent, normal);
+        metalIBeamExtruder_2.extrude(middlePoint, tangent, normal);
+        metalIBeamExtruder_3.extrude(middlePoint, tangent, normal);
     }
     public void metalCrossTieEnd()
-    { 
-        metalRearCrossTieExtruder.end();
-        metalFrontCrossTieExtruder.end();
+    {
+        metalFrontCrossTieExtruder_1.end();
+        metalFrontCrossTieExtruder_2.end();
+        metalFrontCrossTieExtruder_3.end();
+        metalRearCrossTieExtruder_1.end();
+        metalRearCrossTieExtruder_2.end();
+        metalRearCrossTieExtruder_3.end();
+    }
+    public void metalIBeamEnd()
+    {
+        metalIBeamExtruder_1.end();
+        metalIBeamExtruder_2.end();
+        metalIBeamExtruder_3.end();
     }
     public void WriteToFile(string text)
     {
