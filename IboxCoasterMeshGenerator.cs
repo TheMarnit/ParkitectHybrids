@@ -19,7 +19,7 @@ public class IboxCoasterMeshGenerator : MeshGenerator
     private BoxExtruder collisionMeshExtruder;
 
     private StreamWriter streamWriter;
-    
+
     private float errorMargin90deg = 0.001f;
 
     private float supportBeamExtension = 0.2f;
@@ -169,49 +169,58 @@ public class IboxCoasterMeshGenerator : MeshGenerator
                 Vector3 bottomBeamPivot = new Vector3(trackPivot.x, Mathf.Min(startPoint.y, endPoint.y), trackPivot.z);
                 Vector3 bottomBeamDirection = startPoint - endPoint;
                 bottomBeamDirection.y = 0.0f;
-                if (bottomBeamDirection.magnitude < 0.01f)
+                WriteToFile("bottomBeamDirection: (" + bottomBeamDirection.x + "," + bottomBeamDirection.y + "," + bottomBeamDirection.z + ")");
+
+                if (bottomBeamDirection.magnitude < errorMargin90deg)
                 {
-                    bottomBeamDirection = normal;
+                  bottomBeamDirection = new Vector3(normal.x, 0, normal.z);
+                  WriteToFile("Normal: (" + normal.x + "," + normal.y + "," + normal.z + ")");
                 }
-
-                float projectedBeamLength = Mathf.Sqrt(Mathf.Pow(startPoint.x - trackPivot.x, 2) + Mathf.Pow(startPoint.z - trackPivot.z, 2));
-                float projectedBeamLengthComplement = (0.98f - projectedBeamLength);
-
                 bottomBeamDirection.Normalize();
-                Vector3 bottomBeamStart = bottomBeamPivot - bottomBeamDirection * ((startPoint.y < endPoint.y) ? projectedBeamLength : projectedBeamLengthComplement) + bottomBeamDirection * 0.04f;
-                Vector3 bottomBeamEnd = bottomBeamPivot + bottomBeamDirection * ((startPoint.y < endPoint.y) ? projectedBeamLengthComplement : projectedBeamLength) + bottomBeamDirection * 0.04f;
 
-
+                Vector3 bottomBeamStart = new Vector3();
+                Vector3 bottomBeamEnd = new Vector3();
                 Vector3 bottomBeamBinormal = bottomBeamDirection.normalized;
 
-                if (normal.y > 0)
+                if ((normal.x > errorMargin90deg && normal.y < errorMargin90deg) || (normal.x < errorMargin90deg && normal.y > errorMargin90deg))
                 {
-                    bottomBeamStart.y -= normal.y * 1f;
-                    bottomBeamEnd.y -= normal.y * 1f;
+                    bottomBeamStart.x = endPoint.x;
+                    bottomBeamStart.z = endPoint.z;
+                    bottomBeamStart.y = endPoint.y > startPoint.y ? startPoint.y : endPoint.y;
+
+                    bottomBeamEnd = bottomBeamStart + bottomBeamDirection.normalized * 0.98f;
+                } else
+                {
+                    bottomBeamEnd.x = startPoint.x;
+                    bottomBeamEnd.z = startPoint.z;
+                    bottomBeamEnd.y = endPoint.y > startPoint.y ? startPoint.y : endPoint.y;
+
+                    bottomBeamStart = bottomBeamEnd - bottomBeamDirection.normalized * 0.98f;
+                }
+
+                if (normal.y > errorMargin90deg)
+                {
+                    bottomBeamStart.y -= normal.normalized.y * 1f;
+                    bottomBeamEnd.y -= normal.normalized.y * 1f;
                 }
 
                 //Bottom beam extruding
-                crossTieExtruder_left.extrude(bottomBeamStart, -1f * bottomBeamBinormal, Vector3.up);
                 crossTieExtruder_left.extrude(bottomBeamEnd, -1f * bottomBeamBinormal, Vector3.up);
+                crossTieExtruder_left.extrude(bottomBeamStart, -1f * bottomBeamBinormal, Vector3.up);
                 crossTieExtruder_left.end();
-                crossTieExtruder_right.extrude(bottomBeamStart, -1f * bottomBeamBinormal, Vector3.up);
                 crossTieExtruder_right.extrude(bottomBeamEnd, -1f * bottomBeamBinormal, Vector3.up);
+                crossTieExtruder_right.extrude(bottomBeamStart, -1f * bottomBeamBinormal, Vector3.up);
                 crossTieExtruder_right.end();
 
 
                 //Top beam extruding
-                /*
-                WriteToFile("normal.x: " + normal.x);
-                WriteToFile("normal.y: " + normal.y);
-                WriteToFile("normal.z: " + normal.z);
-                */
                 if (normal.y > errorMargin90deg)
                 {
-                    crossTieExtruder_left.extrude(new Vector3(bottomBeamStart.x, Mathf.Max(startPoint.y, endPoint.y), bottomBeamStart.z), -1f * bottomBeamBinormal, Vector3.up);
                     crossTieExtruder_left.extrude(new Vector3(bottomBeamEnd.x, Mathf.Max(startPoint.y, endPoint.y), bottomBeamEnd.z), -1f * bottomBeamBinormal, Vector3.up);
+                    crossTieExtruder_left.extrude(new Vector3(bottomBeamStart.x, Mathf.Max(startPoint.y, endPoint.y), bottomBeamStart.z), -1f * bottomBeamBinormal, Vector3.up);
                     crossTieExtruder_left.end();
-                    crossTieExtruder_right.extrude(new Vector3(bottomBeamStart.x, Mathf.Max(startPoint.y, endPoint.y), bottomBeamStart.z), -1f * bottomBeamBinormal, Vector3.up);
                     crossTieExtruder_right.extrude(new Vector3(bottomBeamEnd.x, Mathf.Max(startPoint.y, endPoint.y), bottomBeamEnd.z), -1f * bottomBeamBinormal, Vector3.up);
+                    crossTieExtruder_right.extrude(new Vector3(bottomBeamStart.x, Mathf.Max(startPoint.y, endPoint.y), bottomBeamStart.z), -1f * bottomBeamBinormal, Vector3.up);
                     crossTieExtruder_right.end();
                 }
                 LandPatch terrain = GameController.Instance.park.getTerrain(trackPivot);
@@ -223,30 +232,21 @@ public class IboxCoasterMeshGenerator : MeshGenerator
                     Vector3 projectedTangentDirection = tangentPoint;
                     projectedTangentDirection.y = 0;
                     projectedTangentDirection.Normalize();
-                    Vector3 leftPost = new Vector3(startPoint.x, startPoint.y + supportBeamExtension, startPoint.z);
-                    Vector3 rightPost = new Vector3(endPoint.x, endPoint.y + supportBeamExtension, endPoint.z);
+                    Vector3 rightPost = new Vector3(bottomBeamStart.x, endPoint.y + supportBeamExtension, bottomBeamStart.z);
+                    Vector3 leftPost = new Vector3(bottomBeamEnd.x, startPoint.y + supportBeamExtension, bottomBeamEnd.z);
 
-                    if ((normal.x > errorMargin90deg && normal.y < errorMargin90deg) || (normal.x < errorMargin90deg && normal.y > errorMargin90deg))
-                    {
-                        leftPost.x = bottomBeamEnd.x;
-                        leftPost.z = bottomBeamEnd.z;
-                    } else
-                    {
-                        rightPost.x = bottomBeamStart.x;
-                        rightPost.z = bottomBeamStart.z;
-                    }
                     if(normal.y > errorMargin90deg)
                     {
                         leftPost.y = Mathf.Max(startPoint.y, endPoint.y) + supportBeamExtension;
                         rightPost.y = Mathf.Max(startPoint.y, endPoint.y) + supportBeamExtension;
                     }
-                    
+
                     //left post
                     supportBeamExtruder.extrude(leftPost, new Vector3(0, -1, 0), projectedTangentDirection);
                     supportBeamExtruder.extrude(new Vector3(leftPost.x, lowest, leftPost.z), new Vector3(0, -1, 0), projectedTangentDirection);
                     supportBeamExtruder.end();
                     //right post
-                    supportBeamExtruder.extrude(RightPost, new Vector3(0, -1, 0), projectedTangentDirection);
+                    supportBeamExtruder.extrude(rightPost, new Vector3(0, -1, 0), projectedTangentDirection);
                     supportBeamExtruder.extrude(new Vector3(rightPost.x, lowest, rightPost.z), new Vector3(0, -1, 0), projectedTangentDirection);
                     supportBeamExtruder.end();
                 }
