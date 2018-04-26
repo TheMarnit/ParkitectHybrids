@@ -38,6 +38,8 @@ public class IboxCoasterMeshGenerator : MeshGenerator
 
     private float supportBeamExtension = 0.2f;
 
+    private float iBeamBankingSwitch = 30.0f;
+
     public string path;
 
     protected override void Initialize()
@@ -223,86 +225,106 @@ public class IboxCoasterMeshGenerator : MeshGenerator
             Vector3 tangentPoint = trackSegment.getTangentPoint(tForDistance);
             Vector3 binormal = Vector3.Cross(normal, tangentPoint).normalized;
             Vector3 trackPivot = base.getTrackPivot(trackSegment.getPoint(tForDistance, 0), normal);
+            
+            bool trainFacingXPositive = tangentPoint.x > Mathf.Abs(tangentPoint.z);
+            bool trainFacingXNegative = tangentPoint.x < -Mathf.Abs(tangentPoint.z);
+            bool trainFacingZPositive = tangentPoint.z > Mathf.Abs(tangentPoint.x);
+            bool trainFacingZNegative = tangentPoint.z < -Mathf.Abs(tangentPoint.x);
+
+            float trackBanking = 0f;
+
+            Vector3 bottomBeamDirection = new Vector3();
+
+            if (trainFacingXPositive)
+            {
+                trackBanking = Mathf.Repeat(Mathf.Atan2(normal.z, -normal.y), Mathf.PI * 2.0f) * Mathf.Rad2Deg;
+                if (trackBanking > 180)
+                    trackBanking -= 360;
+                bottomBeamDirection.z = Math.Abs(trackBanking) <= 90 ? -1.0f : 1.0f;
+            }
+            if (trainFacingXNegative)
+            {
+                trackBanking = Mathf.Repeat(Mathf.Atan2(-normal.z, -normal.y), Mathf.PI * 2.0f) * Mathf.Rad2Deg;
+                if (trackBanking > 180)
+                    trackBanking -= 360;
+                bottomBeamDirection.z = Math.Abs(trackBanking) <= 90 ? 1.0f : -1.0f;
+            }
+            if (trainFacingZPositive)
+            {
+                trackBanking = Mathf.Repeat(Mathf.Atan2(normal.x, -normal.y), Mathf.PI * 2.0f) * Mathf.Rad2Deg;
+                if (trackBanking > 180)
+                    trackBanking -= 360;
+                bottomBeamDirection.x = Math.Abs(trackBanking) > 90 ? -1.0f : 1.0f;
+            }
+            if (trainFacingZNegative)
+            {
+                trackBanking = Mathf.Repeat(Mathf.Atan2(-normal.x, -normal.y), Mathf.PI * 2.0f) * Mathf.Rad2Deg;
+                if (trackBanking > 180)
+                    trackBanking -= 360;
+                bottomBeamDirection.x = Math.Abs(trackBanking) > 90 ? 1.0f : -1.0f;
+            }
 
             //track beam
             Vector3 startPoint = trackPivot + normal * 0.159107f + binormal * .49f;
             Vector3 endPoint = trackPivot + normal * 0.159107f - binormal * .49f;
 
             bool equalHeight = Mathf.Abs(startPoint.y - endPoint.y) < 0.97f;
-            //bool equalHeight = (normal.y < 0.01f && normal.y > -0.01f) || ((startPoint.y - endPoint.y) < 0.97 && (startPoint.y - endPoint.y) > -0.97f);
 
-            metalIBeamExtrude(startPoint, -1f * binormal, equalHeight ? Vector3.up : normal);
-            metalIBeamExtrude(endPoint, -1f * binormal, equalHeight ? Vector3.up : normal);
-            metalIBeamEnd();
-
+            if (Mathf.Abs(trackBanking) > iBeamBankingSwitch)
+            {
+                metalIBeamExtrude(startPoint, -1f * binormal, equalHeight ? Vector3.up : normal);
+                metalIBeamExtrude(endPoint, -1f * binormal, equalHeight ? Vector3.up : normal);
+                metalIBeamEnd();
+            }
+            else
+            {
+                metalCrossTieExtrude(startPoint, -1f * binormal, equalHeight ? Vector3.up : normal);
+                metalCrossTieExtrude(endPoint, -1f * binormal, equalHeight ? Vector3.up : normal);
+                metalCrossTieEnd();
+            }
 
             if (!(trackSegment is Station))
             {
                 //Bottom beam calculation
                 Vector3 bottomBeamPivot = new Vector3(trackPivot.x, Mathf.Min(startPoint.y, endPoint.y), trackPivot.z);
-                Vector3 bottomBeamDirection = normal + binormal;
-                bottomBeamDirection.y = 0;
-                bottomBeamDirection.Normalize();
 
                 Vector3 bottomBeamStart = new Vector3();
                 Vector3 bottomBeamEnd = new Vector3();
+
                 Vector3 bottomBeamBinormal = bottomBeamDirection.normalized;
-
-                bool trainFacingXPositive = tangentPoint.x > Mathf.Abs(tangentPoint.z);
-                bool trainFacingXNegative = tangentPoint.x < -Mathf.Abs(tangentPoint.z);
-                bool trainFacingZPositive = tangentPoint.z > Mathf.Abs(tangentPoint.x);
-                bool trainFacingZNegative = tangentPoint.z < -Mathf.Abs(tangentPoint.x);
-
-                float trainBanking = 0f;
-                if (trainFacingXPositive)
-                {
-                    trainBanking = Mathf.Repeat(Mathf.Atan2(normal.z, -normal.y), Mathf.PI * 2.0f) * Mathf.Rad2Deg;
-                }
-                if (trainFacingXNegative)
-                {
-                    trainBanking = Mathf.Repeat(Mathf.Atan2(normal.z, -normal.y), Mathf.PI * 2.0f) * Mathf.Rad2Deg;
-                }
-                if (trainFacingZPositive)
-                {
-                    trainBanking = Mathf.Repeat(Mathf.Atan2(normal.x, -normal.y), Mathf.PI * 2.0f) * Mathf.Rad2Deg;
-                }
-                if (trainFacingZNegative)
-                {
-                    trainBanking = Mathf.Repeat(Mathf.Atan2(normal.x, -normal.y), Mathf.PI * 2.0f) * Mathf.Rad2Deg;
-                }
-                WriteToFile("ANGLE:" + trainBanking);
-
-
-                if (true)
+                if (((trainFacingXNegative || trainFacingXPositive) ? -1.0f : 1.0) * ((Mathf.Abs(trackBanking) <= 90) ? -1.0f : 1.0f) * trackBanking < 0)
                 {
                     bottomBeamStart.x = endPoint.x;
                     bottomBeamStart.z = endPoint.z;
                     bottomBeamStart.y = endPoint.y > startPoint.y ? startPoint.y : endPoint.y;
 
                     bottomBeamEnd = bottomBeamStart - bottomBeamDirection.normalized * 0.98f;
-                } else
+                }
+                else
                 {
                     bottomBeamEnd.x = startPoint.x;
                     bottomBeamEnd.z = startPoint.z;
                     bottomBeamEnd.y = endPoint.y > startPoint.y ? startPoint.y : endPoint.y;
 
-                    bottomBeamStart = bottomBeamEnd - bottomBeamDirection.normalized * 0.98f;
+                    bottomBeamStart = bottomBeamEnd + bottomBeamDirection.normalized * 0.98f;
                 }
 
-                if (normal.y > errorMargin90deg)
+                if (trackBanking > 90 || trackBanking < -90)
                 {
-                    bottomBeamStart.y -= normal.normalized.y * 1f;
-                    bottomBeamEnd.y -= normal.normalized.y * 1f;
+                    bottomBeamStart.y -= ((Mathf.Abs(trackBanking)/90)-1) * 1f;
+                    bottomBeamEnd.y -= ((Mathf.Abs(trackBanking) / 90) - 1) * 1f;
                 }
 
                 //Bottom beam extruding
-                metalCrossTieExtrude(bottomBeamEnd, -1f * bottomBeamBinormal, Vector3.up);
-                metalCrossTieExtrude(bottomBeamStart, -1f * bottomBeamBinormal, Vector3.up);
-                metalCrossTieEnd();
-
+                if (Mathf.Abs(trackBanking) > iBeamBankingSwitch)
+                {
+                    metalCrossTieExtrude(bottomBeamEnd, -1f * bottomBeamBinormal, Vector3.up);
+                    metalCrossTieExtrude(bottomBeamStart, -1f * bottomBeamBinormal, Vector3.up);
+                    metalCrossTieEnd();
+                }
 
                 //Top beam extruding
-                if (normal.y > errorMargin90deg)
+                if (trackBanking > 90 || trackBanking < -90)
                 {
                     metalCrossTieExtrude(new Vector3(bottomBeamEnd.x, Mathf.Max(startPoint.y, endPoint.y), bottomBeamEnd.z), -1f * bottomBeamBinormal, Vector3.up);
                     metalCrossTieExtrude(new Vector3(bottomBeamStart.x, Mathf.Max(startPoint.y, endPoint.y), bottomBeamStart.z), -1f * bottomBeamBinormal, Vector3.up);
@@ -317,10 +339,10 @@ public class IboxCoasterMeshGenerator : MeshGenerator
                     Vector3 projectedTangentDirection = tangentPoint;
                     projectedTangentDirection.y = 0;
                     projectedTangentDirection.Normalize();
-                    Vector3 rightVerticalSupportPost = new Vector3(bottomBeamStart.x, endPoint.y + supportBeamExtension, bottomBeamStart.z);
                     Vector3 leftVerticalSupportPost = new Vector3(bottomBeamEnd.x, startPoint.y + supportBeamExtension, bottomBeamEnd.z);
+                    Vector3 rightVerticalSupportPost = new Vector3(bottomBeamStart.x, endPoint.y + supportBeamExtension, bottomBeamStart.z);
 
-                    if(normal.y > errorMargin90deg)
+                    if (normal.y > errorMargin90deg)
                     {
                         leftVerticalSupportPost.y = Mathf.Max(startPoint.y, endPoint.y) + supportBeamExtension;
                         rightVerticalSupportPost.y = Mathf.Max(startPoint.y, endPoint.y) + supportBeamExtension;
