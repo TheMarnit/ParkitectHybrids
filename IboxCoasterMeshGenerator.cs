@@ -38,6 +38,10 @@ public class IboxCoasterMeshGenerator : MeshGenerator
 
     private float supportBeamExtension = 0.2f;
 
+    private float beamWidth = 0.98f;
+
+    private float invertHeadSpace = 1f;
+
     private float iBeamBankingSwitch = 30.0f;
 
     public string path;
@@ -265,9 +269,9 @@ public class IboxCoasterMeshGenerator : MeshGenerator
             }
 
             //track beam
-            Vector3 startPoint = trackPivot + normal * 0.159107f + binormal * .49f;
-            Vector3 endPoint = trackPivot + normal * 0.159107f - binormal * .49f;
-
+            Vector3 startPoint = trackPivot + normal * 0.159107f + binormal * (beamWidth / 2);
+            Vector3 endPoint = trackPivot + normal * 0.159107f - binormal * (beamWidth / 2);
+            
             bool equalHeight = Mathf.Abs(startPoint.y - endPoint.y) < 0.97f;
 
             if (Mathf.Abs(trackBanking) > iBeamBankingSwitch)
@@ -278,6 +282,8 @@ public class IboxCoasterMeshGenerator : MeshGenerator
             }
             else
             {
+                float distance = (beamWidth) / Mathf.Sin((90-Mathf.Abs(trackBanking)) * Mathf.Deg2Rad) - (beamWidth/2);
+                endPoint = trackPivot + normal * 0.159107f - binormal * distance;
                 metalCrossTieExtrude(startPoint, -1f * binormal, equalHeight ? Vector3.up : normal);
                 metalCrossTieExtrude(endPoint, -1f * binormal, equalHeight ? Vector3.up : normal);
                 metalCrossTieEnd();
@@ -298,7 +304,7 @@ public class IboxCoasterMeshGenerator : MeshGenerator
                     bottomBeamStart.z = endPoint.z;
                     bottomBeamStart.y = endPoint.y > startPoint.y ? startPoint.y : endPoint.y;
 
-                    bottomBeamEnd = bottomBeamStart - bottomBeamDirection.normalized * 0.98f;
+                    bottomBeamEnd = bottomBeamStart - bottomBeamDirection.normalized * beamWidth;
                 }
                 else
                 {
@@ -306,13 +312,13 @@ public class IboxCoasterMeshGenerator : MeshGenerator
                     bottomBeamEnd.z = startPoint.z;
                     bottomBeamEnd.y = endPoint.y > startPoint.y ? startPoint.y : endPoint.y;
 
-                    bottomBeamStart = bottomBeamEnd + bottomBeamDirection.normalized * 0.98f;
+                    bottomBeamStart = bottomBeamEnd + bottomBeamDirection.normalized * beamWidth;
                 }
 
-                if (trackBanking > 90 || trackBanking < -90)
+                if (Mathf.Abs(trackBanking) > 90)
                 {
-                    bottomBeamStart.y -= ((Mathf.Abs(trackBanking)/90)-1) * 1f;
-                    bottomBeamEnd.y -= ((Mathf.Abs(trackBanking) / 90) - 1) * 1f;
+                    bottomBeamStart.y -= ((Mathf.Abs(trackBanking)/90)-1) * invertHeadSpace;
+                    bottomBeamEnd.y -= ((Mathf.Abs(trackBanking) / 90) - 1) * invertHeadSpace;
                 }
 
                 //Bottom beam extruding
