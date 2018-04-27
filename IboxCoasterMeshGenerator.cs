@@ -42,7 +42,7 @@ public class IboxCoasterMeshGenerator : MeshGenerator
 
     private float iBeamBankingSwitch = 30.0f;
 
-    //    private float iBeamBankingSwitch = -1f;
+    public bool useTopperTrack = false;
 
     public string path;
 
@@ -203,8 +203,15 @@ public class IboxCoasterMeshGenerator : MeshGenerator
         Vector3 middlePoint = trackPivot + normalized * trackWidth / 2f;
         Vector3 middlePoint2 = trackPivot - normalized * trackWidth / 2f;
         Vector3 vector = trackPivot + normal * getCenterPointOffsetY();
-        leftRailExtruder.extrude(middlePoint, tangentPoint, normal);
-        rightRailExtruder.extrude(middlePoint2, tangentPoint, normal);
+        if (useTopperTrack)
+        {
+            //todo
+        }
+        else
+        { 
+            leftRailExtruder.extrude(middlePoint, tangentPoint, normal);
+            rightRailExtruder.extrude(middlePoint2, tangentPoint, normal);
+        }
         collisionMeshExtruder.extrude(trackPivot, tangentPoint, normal);
         if (liftExtruder != null)
         {
