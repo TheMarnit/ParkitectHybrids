@@ -419,6 +419,34 @@ public class IboxCoasterMeshGenerator : MeshGenerator
             }
         }
     }
+    
+    public Vector3 IntersectLineAndPlane(Vector3 planePoint, Vector3 planeSpanVector1, Vector3 planeSpanVector2, Vector3 linePoint, Vector3 lineSpanVector) {
+        //Parametric plane to cartesian form:
+        Vector3 planeNormal = Vector3.Cross(planeSpanVector1, planeSpanVector2).normalized;
+        //Cartesian form would be planeNormal.x * x + planeNormal.y * y + planeNormal.z * z - Vector3.Dot(planeNormal, planePoint) == 0;
+        float intersectionX = linePoint.x - (lineSpanVector.x * (planeNormal.x * linePoint.x
+                                            + planeNormal.y * linePoint.y 
+                                            + planeNormal.z * linePoint.z
+                                            - Vector3.Dot(planeNormal, planePoint))
+                                            / (planeNormal.x * lineSpanVector.x 
+                                            + planeNormal.y * lineSpanVector.y 
+                                            + planeNormal.z * lineSpanVector.z);
+       float intersectionY = linePoint.y - (lineSpanVector.y * (planeNormal.x * linePoint.x
+                                            + planeNormal.y * linePoint.y 
+                                            + planeNormal.z * linePoint.z
+                                            - Vector3.Dot(planeNormal, planePoint))
+                                            / (planeNormal.x * lineSpanVector.x 
+                                            + planeNormal.y * lineSpanVector.y 
+                                            + planeNormal.z * lineSpanVector.z);
+       float intersectionZ = linePoint.z - (lineSpanVector.z * (planeNormal.x * linePoint.x
+                                            + planeNormal.y * linePoint.y 
+                                            + planeNormal.z * linePoint.z
+                                            - Vector3.Dot(planeNormal, planePoint))
+                                            / (planeNormal.x * lineSpanVector.x 
+                                            + planeNormal.y * lineSpanVector.y 
+                                            + planeNormal.z * lineSpanVector.z);
+       return Vector3(intersectionX, intersectionY, intersectionZ);
+    }
 
     public Vector2 Rotate(Vector2 vector, float degrees) {
       float sin = Mathf.Sin(degrees * Mathf.Deg2Rad);
