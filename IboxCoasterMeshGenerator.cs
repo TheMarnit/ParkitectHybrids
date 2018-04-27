@@ -6,9 +6,37 @@ public class IboxCoasterMeshGenerator : MeshGenerator
 {
     private const float buildVolumeHeight = 0.8f;
 
-    private ShapeExtruder leftRailExtruder;
+    private ShapeExtruder iboxLeftRailExtruder;
 
-    private ShapeExtruder rightRailExtruder;
+    private ShapeExtruder iboxRightRailExtruder;
+
+    private ShapeExtruder topperLeftRailExtruder;
+
+    private ShapeExtruder topperRightRailExtruder;
+
+    private BoxExtruder topperLeftPlankExtruder_1;
+
+    private BoxExtruder topperLeftPlankExtruder_2;
+
+    private BoxExtruder topperLeftPlankExtruder_3;
+
+    private BoxExtruder topperLeftPlankExtruder_4;
+
+    private BoxExtruder topperLeftPlankExtruder_5;
+
+    private BoxExtruder topperLeftPlankExtruder_6;
+
+    private BoxExtruder topperRightPlankExtruder_1;
+
+    private BoxExtruder topperRightPlankExtruder_2;
+
+    private BoxExtruder topperRightPlankExtruder_3;
+
+    private BoxExtruder topperRightPlankExtruder_4;
+
+    private BoxExtruder topperRightPlankExtruder_5;
+
+    private BoxExtruder topperRightPlankExtruder_6;
 
     private ShapeExtruder metalFrontCrossTieExtruder_1;
 
@@ -56,44 +84,94 @@ public class IboxCoasterMeshGenerator : MeshGenerator
     {
         base.prepare(trackSegment, putMeshOnGO);
         putMeshOnGO.GetComponent<Renderer>().sharedMaterial = material;
-        leftRailExtruder = new ShapeExtruder();
-        leftRailExtruder.setShape(new Vector3[14]
-        {
-            new Vector3(0.046103f, 0f, 0f),
-            new Vector3(0.048103f, -0.002f, 0f),
-            new Vector3(0.048103f, -0.026f, 0f),
-            new Vector3(0.046103f, -0.028f, 0f),
-            new Vector3(0.021286f, -0.028f, 0f),
-            new Vector3(0.021286f, -0.1144f, 0f),
-            new Vector3(0.048772f, -0.1144f, 0f),
-            new Vector3(0.048772f, -0.119108f, 0f),
-            new Vector3(-0.054515f, -0.119108f, 0f),
-            new Vector3(-0.054515f, -0.1144f, 0f),
-            new Vector3(-0.032771f, -0.1144f, 0f),
-            new Vector3(-0.032771f, -0.0065f, 0f),
-            new Vector3(-0.054515f, -0.0065f, 0f),
-            new Vector3(-0.054515f, 0f, 0f)
-        }, true);
-        leftRailExtruder.setUV(15, 15);
-        rightRailExtruder = new ShapeExtruder();
-        rightRailExtruder.setShape(new Vector3[14]
-        {
-            new Vector3(0.054515f, 0f, 0f),
-            new Vector3(0.054515f, -0.0065f, 0f),
-            new Vector3(0.032771f, -0.0065f, 0f),
-            new Vector3(0.032771f, -0.1144f, 0f),
-            new Vector3(0.054515f, -0.1144f, 0f),
-            new Vector3(0.054515f, -0.119108f, 0f),
-            new Vector3(-0.048772f, -0.119108f, 0f),
-            new Vector3(-0.048772f, -0.1144f, 0f),
-            new Vector3(-0.021286f, -0.1144f, 0f),
-            new Vector3(-0.021286f, -0.028f, 0f),
-            new Vector3(-0.046103f, -0.028f, 0f),
-            new Vector3(-0.048103f, -0.026f, 0f),
-            new Vector3(-0.048103f, -0.002f, 0f),
-            new Vector3(-0.046103f, 0f, 0f)
-        }, true);
-        rightRailExtruder.setUV(14, 15);
+            topperLeftRailExtruder = new ShapeExtruder();
+            topperLeftRailExtruder.setShape(new Vector3[8]
+            {
+                new Vector3(0.053846f, -0.002f, 0f),
+                new Vector3(0.053846f, -0.026f, 0f),
+                new Vector3(0.051846f, -0.028f, 0f),
+                new Vector3(-0.027029f, -0.028f, 0f),
+                new Vector3(-0.027029f, -0.0065f, 0f),
+                new Vector3(-0.048772f, -0.0065f, 0f),
+                new Vector3(-0.048772f, 0f, 0f),
+                new Vector3(0.051845f, 0f, 0f)
+            }, true);
+            topperLeftRailExtruder.setUV(15, 15);
+            topperRightRailExtruder = new ShapeExtruder();
+            topperRightRailExtruder.setShape(new Vector3[8]
+            {
+                new Vector3(0.048772f, -0.0065f, 0f),
+                new Vector3(0.027029f, -0.0065f, 0f),
+                new Vector3(0.027028f, -0.028f, 0f),
+                new Vector3(-0.051846f, -0.028f, 0f),
+                new Vector3(-0.053845f, -0.026f, 0f),
+                new Vector3(-0.053846f, -0.002f, 0f),
+                new Vector3(-0.051845f, 0f, 0f),
+                new Vector3(0.048772f, 0f, 0f)
+            }, true);
+            topperRightRailExtruder.setUV(14, 15);
+            topperLeftPlankExtruder_1 = new BoxExtruder(0.054058f, 0.013286f);
+            topperLeftPlankExtruder_1.setUV(14, 14);
+            topperLeftPlankExtruder_2 = new BoxExtruder(0.054058f, 0.013286f);
+            topperLeftPlankExtruder_2.setUV(14, 14);
+            topperLeftPlankExtruder_3 = new BoxExtruder(0.054058f, 0.013286f);
+            topperLeftPlankExtruder_3.setUV(14, 14);
+            topperLeftPlankExtruder_4 = new BoxExtruder(0.054058f, 0.013286f);
+            topperLeftPlankExtruder_4.setUV(14, 14);
+            topperLeftPlankExtruder_5 = new BoxExtruder(0.054058f, 0.013286f);
+            topperLeftPlankExtruder_5.setUV(14, 14);
+            topperLeftPlankExtruder_6 = new BoxExtruder(0.054058f, 0.013286f);
+            topperLeftPlankExtruder_6.setUV(14, 14);
+            topperRightPlankExtruder_1 = new BoxExtruder(0.054058f, 0.013286f);
+            topperRightPlankExtruder_1.setUV(14, 14);
+            topperRightPlankExtruder_2 = new BoxExtruder(0.054058f, 0.013286f);
+            topperRightPlankExtruder_2.setUV(14, 14);
+            topperRightPlankExtruder_3 = new BoxExtruder(0.054058f, 0.013286f);
+            topperRightPlankExtruder_3.setUV(14, 14);
+            topperRightPlankExtruder_4 = new BoxExtruder(0.054058f, 0.013286f);
+            topperRightPlankExtruder_4.setUV(14, 14);
+            topperRightPlankExtruder_5 = new BoxExtruder(0.054058f, 0.013286f);
+            topperRightPlankExtruder_5.setUV(14, 14);
+            topperRightPlankExtruder_6 = new BoxExtruder(0.054058f, 0.013286f);
+            topperRightPlankExtruder_6.setUV(14, 14);
+            iboxLeftRailExtruder = new ShapeExtruder();
+            iboxLeftRailExtruder.setShape(new Vector3[14]
+            {
+                new Vector3(0.046103f, 0f, 0f),
+                new Vector3(0.048103f, -0.002f, 0f),
+                new Vector3(0.048103f, -0.026f, 0f),
+                new Vector3(0.046103f, -0.028f, 0f),
+                new Vector3(0.021286f, -0.028f, 0f),
+                new Vector3(0.021286f, -0.1144f, 0f),
+                new Vector3(0.048772f, -0.1144f, 0f),
+                new Vector3(0.048772f, -0.119108f, 0f),
+                new Vector3(-0.054515f, -0.119108f, 0f),
+                new Vector3(-0.054515f, -0.1144f, 0f),
+                new Vector3(-0.032771f, -0.1144f, 0f),
+                new Vector3(-0.032771f, -0.0065f, 0f),
+                new Vector3(-0.054515f, -0.0065f, 0f),
+                new Vector3(-0.054515f, 0f, 0f)
+            }, true);
+            iboxLeftRailExtruder.setUV(15, 15);
+            iboxRightRailExtruder = new ShapeExtruder();
+            iboxRightRailExtruder.setShape(new Vector3[14]
+            {
+                new Vector3(0.054515f, 0f, 0f),
+                new Vector3(0.054515f, -0.0065f, 0f),
+                new Vector3(0.032771f, -0.0065f, 0f),
+                new Vector3(0.032771f, -0.1144f, 0f),
+                new Vector3(0.054515f, -0.1144f, 0f),
+                new Vector3(0.054515f, -0.119108f, 0f),
+                new Vector3(-0.048772f, -0.119108f, 0f),
+                new Vector3(-0.048772f, -0.1144f, 0f),
+                new Vector3(-0.021286f, -0.1144f, 0f),
+                new Vector3(-0.021286f, -0.028f, 0f),
+                new Vector3(-0.046103f, -0.028f, 0f),
+                new Vector3(-0.048103f, -0.026f, 0f),
+                new Vector3(-0.048103f, -0.002f, 0f),
+                new Vector3(-0.046103f, 0f, 0f)
+            }, true);
+            iboxRightRailExtruder.setUV(14, 15);
         metalFrontCrossTieExtruder_1 = new ShapeExtruder();
         metalFrontCrossTieExtruder_1.setShape(new Vector3[4]
         {
@@ -190,7 +268,7 @@ public class IboxCoasterMeshGenerator : MeshGenerator
         woodenVerticalSupportPostExtruder = new BoxExtruder(0.043f, 0.043f);
         woodenVerticalSupportPostExtruder.closeEnds = true;
         woodenVerticalSupportPostExtruder.setUV(14, 14);
-        base.setModelExtruders(leftRailExtruder, rightRailExtruder, metalFrontCrossTieExtruder_1, metalFrontCrossTieExtruder_2, metalFrontCrossTieExtruder_3, metalRearCrossTieExtruder_1, metalRearCrossTieExtruder_2, metalRearCrossTieExtruder_3, metalIBeamExtruder_1, metalIBeamExtruder_2, metalIBeamExtruder_3, woodenVerticalSupportPostExtruder);
+        base.setModelExtruders(iboxLeftRailExtruder, iboxRightRailExtruder, topperLeftRailExtruder, topperLeftPlankExtruder_1, topperLeftPlankExtruder_2, topperLeftPlankExtruder_3, topperLeftPlankExtruder_4, topperLeftPlankExtruder_5, topperLeftPlankExtruder_6, topperRightRailExtruder, topperRightPlankExtruder_1, topperRightPlankExtruder_2, topperRightPlankExtruder_3, topperRightPlankExtruder_4, topperRightPlankExtruder_5, topperRightPlankExtruder_6, metalFrontCrossTieExtruder_1, metalFrontCrossTieExtruder_2, metalFrontCrossTieExtruder_3, metalRearCrossTieExtruder_1, metalRearCrossTieExtruder_2, metalRearCrossTieExtruder_3, metalIBeamExtruder_1, metalIBeamExtruder_2, metalIBeamExtruder_3, woodenVerticalSupportPostExtruder);
     }
 
     public override void sampleAt(TrackSegment4 trackSegment, float t)
@@ -205,12 +283,25 @@ public class IboxCoasterMeshGenerator : MeshGenerator
         Vector3 vector = trackPivot + normal * getCenterPointOffsetY();
         if (useTopperTrack)
         {
-            //todo
+            topperLeftRailExtruder.extrude(middlePoint, tangentPoint, normal);
+            topperLeftPlankExtruder_1.extrude(middlePoint - (normal * -0.034561f), tangentPoint, normal);
+            topperLeftPlankExtruder_2.extrude(middlePoint - (normal * -0.050133f), tangentPoint, normal);
+            topperLeftPlankExtruder_3.extrude(middlePoint - (normal * -0.065763f), tangentPoint, normal);
+            topperLeftPlankExtruder_4.extrude(middlePoint - (normal * -0.081394f), tangentPoint, normal);
+            topperLeftPlankExtruder_5.extrude(middlePoint - (normal * -0.097025f), tangentPoint, normal);
+            topperLeftPlankExtruder_6.extrude(middlePoint - (normal * -0.112511f), tangentPoint, normal);
+            topperRightRailExtruder.extrude(middlePoint2, tangentPoint, normal);
+            topperRightPlankExtruder_1.extrude(middlePoint2 - (normal * -0.034561f), tangentPoint, normal);
+            topperRightPlankExtruder_2.extrude(middlePoint2 - (normal * -0.050133f), tangentPoint, normal);
+            topperRightPlankExtruder_3.extrude(middlePoint2 - (normal * -0.065763f), tangentPoint, normal);
+            topperRightPlankExtruder_4.extrude(middlePoint2 - (normal * -0.081394f), tangentPoint, normal);
+            topperRightPlankExtruder_5.extrude(middlePoint2 - (normal * -0.097025f), tangentPoint, normal);
+            topperRightPlankExtruder_6.extrude(middlePoint2 - (normal * -0.112511f), tangentPoint, normal);
         }
         else
         { 
-            leftRailExtruder.extrude(middlePoint, tangentPoint, normal);
-            rightRailExtruder.extrude(middlePoint2, tangentPoint, normal);
+            iboxLeftRailExtruder.extrude(middlePoint, tangentPoint, normal);
+            iboxRightRailExtruder.extrude(middlePoint2, tangentPoint, normal);
         }
         collisionMeshExtruder.extrude(trackPivot, tangentPoint, normal);
         if (liftExtruder != null)
@@ -504,7 +595,7 @@ public class IboxCoasterMeshGenerator : MeshGenerator
 
     public override Mesh getMesh(GameObject putMeshOnGO)
     {
-        return MeshCombiner.start().add(leftRailExtruder, rightRailExtruder, metalFrontCrossTieExtruder_1, metalFrontCrossTieExtruder_2, metalFrontCrossTieExtruder_3, metalRearCrossTieExtruder_1, metalRearCrossTieExtruder_2, metalRearCrossTieExtruder_3, metalIBeamExtruder_1, metalIBeamExtruder_2, metalIBeamExtruder_3, woodenVerticalSupportPostExtruder).end(putMeshOnGO.transform.worldToLocalMatrix);
+        return MeshCombiner.start().add(topperLeftRailExtruder, topperLeftPlankExtruder_1, topperLeftPlankExtruder_2, topperLeftPlankExtruder_3, topperLeftPlankExtruder_4, topperLeftPlankExtruder_5, topperLeftPlankExtruder_6, topperRightRailExtruder, topperRightPlankExtruder_1, topperRightPlankExtruder_2, topperRightPlankExtruder_3, topperRightPlankExtruder_4, topperRightPlankExtruder_5, topperRightPlankExtruder_6, iboxLeftRailExtruder, iboxRightRailExtruder, metalFrontCrossTieExtruder_1, metalFrontCrossTieExtruder_2, metalFrontCrossTieExtruder_3, metalRearCrossTieExtruder_1, metalRearCrossTieExtruder_2, metalRearCrossTieExtruder_3, metalIBeamExtruder_1, metalIBeamExtruder_2, metalIBeamExtruder_3, woodenVerticalSupportPostExtruder).end(putMeshOnGO.transform.worldToLocalMatrix);
     }
 
     public override Mesh getCollisionMesh(GameObject putMeshOnGO)
