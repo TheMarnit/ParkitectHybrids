@@ -44,6 +44,8 @@ public class IboxCoasterMeshGenerator : MeshGenerator
 
     private float iBeamBankingSwitch = 30.0f;
 
+//    private float iBeamBankingSwitch = -1f;
+
     public string path;
 
     protected override void Initialize()
@@ -229,11 +231,23 @@ public class IboxCoasterMeshGenerator : MeshGenerator
             Vector3 tangentPoint = trackSegment.getTangentPoint(tForDistance);
             Vector3 binormal = Vector3.Cross(normal, tangentPoint).normalized;
             Vector3 trackPivot = base.getTrackPivot(trackSegment.getPoint(tForDistance, 0), normal);
-            
-            bool trainFacingXPositive = tangentPoint.x > Mathf.Abs(tangentPoint.z);
-            bool trainFacingXNegative = tangentPoint.x < -Mathf.Abs(tangentPoint.z);
-            bool trainFacingZPositive = tangentPoint.z > Mathf.Abs(tangentPoint.x);
-            bool trainFacingZNegative = tangentPoint.z < -Mathf.Abs(tangentPoint.x);
+
+            float trainDirection = Mathf.Repeat(Mathf.Atan2(tangentPoint.x, tangentPoint.z) * Mathf.Rad2Deg, 360.0f);
+            trainDirection += 45;
+            bool trainFacingXPositive = false;
+            bool trainFacingXNegative = false;
+            bool trainFacingZPositive = false;
+            bool trainFacingZNegative = false;
+            if (trainDirection < 90)
+              trainFacingZPositive = true;
+            else if(trainDirection < 180)
+              trainFacingXPositive = true;
+            else if(trainDirection < 270)
+              trainFacingZNegative = true;
+            else
+              trainFacingXNegative = true;
+
+            WriteToFile("Traindirection:" + trainDirection);
 
             float trackBanking = 0f;
 
@@ -244,34 +258,71 @@ public class IboxCoasterMeshGenerator : MeshGenerator
                 trackBanking = Mathf.Repeat(Mathf.Atan2(normal.z, -normal.y), Mathf.PI * 2.0f) * Mathf.Rad2Deg;
                 if (trackBanking > 180)
                     trackBanking -= 360;
-                bottomBeamDirection.z = Math.Abs(trackBanking) <= 90 ? -1.0f : 1.0f;
+                Vector2 tangentProjection = new Vector2(tangentPoint.x, tangentPoint.z);
+
+                Vector2 normalProjection = Rotate(tangentProjection, 90);
+                bottomBeamDirection.z = normalProjection.y;
+                bottomBeamDirection.x = normalProjection.x;
+                bottomBeamDirection.Normalize();
+                bottomBeamDirection *= Math.Abs(trackBanking) > 90 ? 1.0f : -1.0f;
             }
             if (trainFacingXNegative)
             {
                 trackBanking = Mathf.Repeat(Mathf.Atan2(-normal.z, -normal.y), Mathf.PI * 2.0f) * Mathf.Rad2Deg;
                 if (trackBanking > 180)
                     trackBanking -= 360;
-                bottomBeamDirection.z = Math.Abs(trackBanking) <= 90 ? 1.0f : -1.0f;
+
+                bottomBeamDirection.z = tangentPoint.x;
+                bottomBeamDirection.x = tangentPoint.z;
+
+                Vector2 tangentProjection = new Vector2(tangentPoint.x, tangentPoint.z);
+
+                Vector2 normalProjection = Rotate(tangentProjection, 90);
+                bottomBeamDirection.z = normalProjection.y;
+                bottomBeamDirection.x = normalProjection.x;
+                bottomBeamDirection.Normalize();
+                bottomBeamDirection *= Math.Abs(trackBanking) > 90 ? 1.0f : -1.0f;
             }
             if (trainFacingZPositive)
             {
                 trackBanking = Mathf.Repeat(Mathf.Atan2(normal.x, -normal.y), Mathf.PI * 2.0f) * Mathf.Rad2Deg;
                 if (trackBanking > 180)
                     trackBanking -= 360;
-                bottomBeamDirection.x = Math.Abs(trackBanking) > 90 ? -1.0f : 1.0f;
+
+                bottomBeamDirection.z = tangentPoint.x;
+                bottomBeamDirection.x = tangentPoint.z;
+
+                Vector2 tangentProjection = new Vector2(tangentPoint.x, tangentPoint.z);
+
+                Vector2 normalProjection = Rotate(tangentProjection, 90);
+                bottomBeamDirection.z = normalProjection.y;
+                bottomBeamDirection.x = normalProjection.x;
+                bottomBeamDirection.Normalize();
+                bottomBeamDirection *= Math.Abs(trackBanking) <= 90 ? -1.0f : 1.0f;
             }
             if (trainFacingZNegative)
             {
                 trackBanking = Mathf.Repeat(Mathf.Atan2(-normal.x, -normal.y), Mathf.PI * 2.0f) * Mathf.Rad2Deg;
                 if (trackBanking > 180)
                     trackBanking -= 360;
-                bottomBeamDirection.x = Math.Abs(trackBanking) > 90 ? 1.0f : -1.0f;
+
+                bottomBeamDirection.z = tangentPoint.x;
+                bottomBeamDirection.x = tangentPoint.z;
+
+                Vector2 tangentProjection = new Vector2(tangentPoint.x, tangentPoint.z);
+
+                Vector2 normalProjection = Rotate(tangentProjection, 90);
+                bottomBeamDirection.z = normalProjection.y;
+                bottomBeamDirection.x = normalProjection.x;
+                bottomBeamDirection.Normalize();
+                bottomBeamDirection *= Math.Abs(trackBanking) > 90 ? 1.0f : -1.0f;
             }
 
             //track beam
             Vector3 startPoint = trackPivot + normal * 0.159107f + binormal * (beamWidth / 2);
             Vector3 endPoint = trackPivot + normal * 0.159107f - binormal * (beamWidth / 2);
-            
+;
+
             bool equalHeight = Mathf.Abs(startPoint.y - endPoint.y) < 0.97f;
 
             if (Mathf.Abs(trackBanking) > iBeamBankingSwitch)
@@ -368,6 +419,18 @@ public class IboxCoasterMeshGenerator : MeshGenerator
             }
         }
     }
+
+    public Vector2 Rotate(Vector2 vector, float degrees) {
+      float sin = Mathf.Sin(degrees * Mathf.Deg2Rad);
+      float cos = Mathf.Cos(degrees * Mathf.Deg2Rad);
+
+      float tempX = vector.x;
+      float tempY = vector.y;
+      vector.x = (cos * tempX) - (sin * tempY);
+      vector.y = (sin * tempX) + (cos * tempY);
+      return vector;
+    }
+
 
     public override Mesh getMesh(GameObject putMeshOnGO)
     {
