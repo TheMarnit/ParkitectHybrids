@@ -34,8 +34,6 @@ public class IboxCoasterMeshGenerator : MeshGenerator
 
     private StreamWriter streamWriter;
 
-    private float errorMargin90deg = 0.001f;
-
     private float supportBeamExtension = 0.2f;
 
     private float beamWidth = 0.98f;
@@ -44,7 +42,7 @@ public class IboxCoasterMeshGenerator : MeshGenerator
 
     private float iBeamBankingSwitch = 30.0f;
 
-//    private float iBeamBankingSwitch = -1f;
+    //    private float iBeamBankingSwitch = -1f;
 
     public string path;
 
@@ -232,28 +230,26 @@ public class IboxCoasterMeshGenerator : MeshGenerator
             Vector3 binormal = Vector3.Cross(normal, tangentPoint).normalized;
             Vector3 trackPivot = base.getTrackPivot(trackSegment.getPoint(tForDistance, 0), normal);
 
-            float trainDirection = Mathf.Repeat(Mathf.Atan2(tangentPoint.x, tangentPoint.z) * Mathf.Rad2Deg, 360.0f);
-            trainDirection += 45;
-            bool trainFacingXPositive = false;
-            bool trainFacingXNegative = false;
-            bool trainFacingZPositive = false;
-            bool trainFacingZNegative = false;
-            if (trainDirection < 90)
-              trainFacingZPositive = true;
-            else if(trainDirection < 180)
-              trainFacingXPositive = true;
-            else if(trainDirection < 270)
-              trainFacingZNegative = true;
+            float trackDirection = Mathf.Repeat(Mathf.Atan2(tangentPoint.x, tangentPoint.z) * Mathf.Rad2Deg, 360.0f);
+            trackDirection += 45;
+            bool trackFacingXPositive = false;
+            bool trackFacingXNegative = false;
+            bool trackFacingZPositive = false;
+            bool trackFacingZNegative = false;
+            if (trackDirection < 90)
+                trackFacingZPositive = true;
+            else if (trackDirection < 180)
+                trackFacingXPositive = true;
+            else if (trackDirection < 270)
+                trackFacingZNegative = true;
             else
-              trainFacingXNegative = true;
-
-            WriteToFile("Traindirection:" + trainDirection);
+                trackFacingXNegative = true;
 
             float trackBanking = 0f;
 
             Vector3 bottomBeamDirection = new Vector3();
 
-            if (trainFacingXPositive)
+            if (trackFacingXPositive)
             {
                 trackBanking = Mathf.Repeat(Mathf.Atan2(normal.z, -normal.y), Mathf.PI * 2.0f) * Mathf.Rad2Deg;
                 if (trackBanking > 180)
@@ -266,7 +262,7 @@ public class IboxCoasterMeshGenerator : MeshGenerator
                 bottomBeamDirection.Normalize();
                 bottomBeamDirection *= Math.Abs(trackBanking) > 90 ? 1.0f : -1.0f;
             }
-            if (trainFacingXNegative)
+            if (trackFacingXNegative)
             {
                 trackBanking = Mathf.Repeat(Mathf.Atan2(-normal.z, -normal.y), Mathf.PI * 2.0f) * Mathf.Rad2Deg;
                 if (trackBanking > 180)
@@ -283,7 +279,7 @@ public class IboxCoasterMeshGenerator : MeshGenerator
                 bottomBeamDirection.Normalize();
                 bottomBeamDirection *= Math.Abs(trackBanking) > 90 ? 1.0f : -1.0f;
             }
-            if (trainFacingZPositive)
+            if (trackFacingZPositive)
             {
                 trackBanking = Mathf.Repeat(Mathf.Atan2(normal.x, -normal.y), Mathf.PI * 2.0f) * Mathf.Rad2Deg;
                 if (trackBanking > 180)
@@ -300,7 +296,7 @@ public class IboxCoasterMeshGenerator : MeshGenerator
                 bottomBeamDirection.Normalize();
                 bottomBeamDirection *= Math.Abs(trackBanking) <= 90 ? -1.0f : 1.0f;
             }
-            if (trainFacingZNegative)
+            if (trackFacingZNegative)
             {
                 trackBanking = Mathf.Repeat(Mathf.Atan2(-normal.x, -normal.y), Mathf.PI * 2.0f) * Mathf.Rad2Deg;
                 if (trackBanking > 180)
@@ -321,55 +317,62 @@ public class IboxCoasterMeshGenerator : MeshGenerator
             //track beam
             Vector3 startPoint = trackPivot + normal * 0.159107f + binormal * (beamWidth / 2);
             Vector3 endPoint = trackPivot + normal * 0.159107f - binormal * (beamWidth / 2);
-;
 
             bool equalHeight = Mathf.Abs(startPoint.y - endPoint.y) < 0.97f;
 
-            if (Mathf.Abs(trackBanking) > iBeamBankingSwitch)
+            //Bottom beam calculation
+            Vector3 bottomBeamPivot = new Vector3(trackPivot.x, Mathf.Min(startPoint.y, endPoint.y), trackPivot.z);
+
+            Vector3 bottomBeamStart = new Vector3();
+            Vector3 bottomBeamEnd = new Vector3();
+
+            Vector3 bottomBeamBinormal = bottomBeamDirection.normalized;
+
+            Vector3 planePosition = new Vector3();
+            Vector3 planeSpanVector1 = endPoint - startPoint;
+            Vector3 planeSpanVector2 = tangentPoint;
+            Vector3 linePosition = new Vector3();
+            Vector3 lineSpanVector = bottomBeamDirection;
+
+            bool attachToStartPoint = false;
+            if (((trackFacingXNegative || trackFacingXPositive) ? -1.0f : 1.0) * ((Mathf.Abs(trackBanking) <= 90) ? -1.0f : 1.0f) * trackBanking < 0)
             {
-                metalIBeamExtrude(startPoint, -1f * binormal, equalHeight ? Vector3.up : normal);
-                metalIBeamExtrude(endPoint, -1f * binormal, equalHeight ? Vector3.up : normal);
-                metalIBeamEnd();
+                bottomBeamStart.x = endPoint.x;
+                bottomBeamStart.z = endPoint.z;
+                bottomBeamStart.y = endPoint.y > startPoint.y ? startPoint.y : endPoint.y;
+
+                bottomBeamEnd = bottomBeamStart - bottomBeamDirection.normalized * beamWidth;
+
+                planePosition = endPoint;
+                linePosition = bottomBeamStart;
+                attachToStartPoint = false;
             }
             else
             {
-                float distance = (beamWidth) / Mathf.Sin((90-Mathf.Abs(trackBanking)) * Mathf.Deg2Rad) - (beamWidth/2);
-                endPoint = trackPivot + normal * 0.159107f - binormal * distance;
-                metalCrossTieExtrude(startPoint, -1f * binormal, equalHeight ? Vector3.up : normal);
-                metalCrossTieExtrude(endPoint, -1f * binormal, equalHeight ? Vector3.up : normal);
-                metalCrossTieEnd();
+                bottomBeamEnd.x = startPoint.x;
+                bottomBeamEnd.z = startPoint.z;
+                bottomBeamEnd.y = endPoint.y > startPoint.y ? startPoint.y : endPoint.y;
+
+                bottomBeamStart = bottomBeamEnd + bottomBeamDirection.normalized * beamWidth;
+
+                planePosition = startPoint;
+                linePosition = bottomBeamEnd;
+                attachToStartPoint = true;
             }
+
+
 
             if (!(trackSegment is Station))
             {
-                //Bottom beam calculation
-                Vector3 bottomBeamPivot = new Vector3(trackPivot.x, Mathf.Min(startPoint.y, endPoint.y), trackPivot.z);
-
-                Vector3 bottomBeamStart = new Vector3();
-                Vector3 bottomBeamEnd = new Vector3();
-
-                Vector3 bottomBeamBinormal = bottomBeamDirection.normalized;
-                if (((trainFacingXNegative || trainFacingXPositive) ? -1.0f : 1.0) * ((Mathf.Abs(trackBanking) <= 90) ? -1.0f : 1.0f) * trackBanking < 0)
-                {
-                    bottomBeamStart.x = endPoint.x;
-                    bottomBeamStart.z = endPoint.z;
-                    bottomBeamStart.y = endPoint.y > startPoint.y ? startPoint.y : endPoint.y;
-
-                    bottomBeamEnd = bottomBeamStart - bottomBeamDirection.normalized * beamWidth;
-                }
-                else
-                {
-                    bottomBeamEnd.x = startPoint.x;
-                    bottomBeamEnd.z = startPoint.z;
-                    bottomBeamEnd.y = endPoint.y > startPoint.y ? startPoint.y : endPoint.y;
-
-                    bottomBeamStart = bottomBeamEnd + bottomBeamDirection.normalized * beamWidth;
-                }
 
                 if (Mathf.Abs(trackBanking) > 90)
                 {
-                    bottomBeamStart.y -= ((Mathf.Abs(trackBanking)/90)-1) * invertHeadSpace;
+                    bottomBeamStart.y -= ((Mathf.Abs(trackBanking) / 90) - 1) * invertHeadSpace;
                     bottomBeamEnd.y -= ((Mathf.Abs(trackBanking) / 90) - 1) * invertHeadSpace;
+                    //Top beam extruding
+                    metalCrossTieExtrude(new Vector3(bottomBeamEnd.x, Mathf.Max(startPoint.y, endPoint.y), bottomBeamEnd.z), -1f * bottomBeamBinormal, Vector3.up);
+                    metalCrossTieExtrude(new Vector3(bottomBeamStart.x, Mathf.Max(startPoint.y, endPoint.y), bottomBeamStart.z), -1f * bottomBeamBinormal, Vector3.up);
+                    metalCrossTieEnd();
                 }
 
                 //Bottom beam extruding
@@ -380,13 +383,6 @@ public class IboxCoasterMeshGenerator : MeshGenerator
                     metalCrossTieEnd();
                 }
 
-                //Top beam extruding
-                if (trackBanking > 90 || trackBanking < -90)
-                {
-                    metalCrossTieExtrude(new Vector3(bottomBeamEnd.x, Mathf.Max(startPoint.y, endPoint.y), bottomBeamEnd.z), -1f * bottomBeamBinormal, Vector3.up);
-                    metalCrossTieExtrude(new Vector3(bottomBeamStart.x, Mathf.Max(startPoint.y, endPoint.y), bottomBeamStart.z), -1f * bottomBeamBinormal, Vector3.up);
-                    metalCrossTieEnd();
-                }
                 LandPatch terrain = GameController.Instance.park.getTerrain(trackPivot);
 
                 if (terrain != null)
@@ -399,12 +395,11 @@ public class IboxCoasterMeshGenerator : MeshGenerator
                     Vector3 leftVerticalSupportPost = new Vector3(bottomBeamEnd.x, startPoint.y + supportBeamExtension, bottomBeamEnd.z);
                     Vector3 rightVerticalSupportPost = new Vector3(bottomBeamStart.x, endPoint.y + supportBeamExtension, bottomBeamStart.z);
 
-                    if (normal.y > errorMargin90deg)
+                    if (Mathf.Abs(trackBanking) > 90)
                     {
                         leftVerticalSupportPost.y = Mathf.Max(startPoint.y, endPoint.y) + supportBeamExtension;
                         rightVerticalSupportPost.y = Mathf.Max(startPoint.y, endPoint.y) + supportBeamExtension;
                     }
-
                     //left post
                     woodenVerticalSupportPostExtruder.extrude(leftVerticalSupportPost, new Vector3(0, -1, 0), projectedTangentDirection);
                     woodenVerticalSupportPostExtruder.extrude(new Vector3(leftVerticalSupportPost.x, lowest, leftVerticalSupportPost.z), new Vector3(0, -1, 0), projectedTangentDirection);
@@ -417,46 +412,86 @@ public class IboxCoasterMeshGenerator : MeshGenerator
                 }
 
             }
+
+            if (Math.Abs(trackBanking) > 0.001)
+            {
+                Vector3 intersectionPoint = IntersectLineAndPlane(planePosition, planeSpanVector1, planeSpanVector2, linePosition, lineSpanVector);
+                if (!float.IsNaN(intersectionPoint.x))
+                {
+                    if (attachToStartPoint)
+                    {
+                        endPoint = intersectionPoint;
+                    }
+                    else
+                    {
+                        startPoint = intersectionPoint;
+                    }
+                }
+            }
+
+            if (Mathf.Abs(trackBanking) > iBeamBankingSwitch)
+            {
+                metalIBeamExtrude(startPoint, -1f * binormal, equalHeight ? Vector3.up : normal);
+                metalIBeamExtrude(endPoint, -1f * binormal, equalHeight ? Vector3.up : normal);
+                metalIBeamEnd();
+            }
+            else
+            {
+                float distance = 1 / Mathf.Sin((90 - Mathf.Abs(trackBanking)) * Mathf.Deg2Rad);
+                if (attachToStartPoint)
+                {
+                    endPoint = startPoint - ((startPoint - endPoint) * distance);
+                }
+                else
+                {
+                    startPoint = endPoint - ((endPoint - startPoint) * distance);
+                }
+                metalCrossTieExtrude(startPoint, -1f * binormal, equalHeight ? Vector3.up : normal);
+                metalCrossTieExtrude(endPoint, -1f * binormal, equalHeight ? Vector3.up : normal);
+                metalCrossTieEnd();
+            }
         }
     }
-    
-    public Vector3 IntersectLineAndPlane(Vector3 planePoint, Vector3 planeSpanVector1, Vector3 planeSpanVector2, Vector3 linePoint, Vector3 lineSpanVector) {
+
+    public Vector3 IntersectLineAndPlane(Vector3 planePoint, Vector3 planeSpanVector1, Vector3 planeSpanVector2, Vector3 linePoint, Vector3 lineSpanVector)
+    {
         //Parametric plane to cartesian form:
         Vector3 planeNormal = Vector3.Cross(planeSpanVector1, planeSpanVector2).normalized;
         //Cartesian form would be planeNormal.x * x + planeNormal.y * y + planeNormal.z * z - Vector3.Dot(planeNormal, planePoint) == 0;
         float intersectionX = linePoint.x - (lineSpanVector.x * (planeNormal.x * linePoint.x
-                                            + planeNormal.y * linePoint.y 
+                                            + planeNormal.y * linePoint.y
                                             + planeNormal.z * linePoint.z
-                                            - Vector3.Dot(planeNormal, planePoint))
-                                            / (planeNormal.x * lineSpanVector.x 
-                                            + planeNormal.y * lineSpanVector.y 
+                                            - Vector3.Dot(planeNormal, planePoint)))
+                                            / (planeNormal.x * lineSpanVector.x
+                                            + planeNormal.y * lineSpanVector.y
                                             + planeNormal.z * lineSpanVector.z);
-       float intersectionY = linePoint.y - (lineSpanVector.y * (planeNormal.x * linePoint.x
-                                            + planeNormal.y * linePoint.y 
-                                            + planeNormal.z * linePoint.z
-                                            - Vector3.Dot(planeNormal, planePoint))
-                                            / (planeNormal.x * lineSpanVector.x 
-                                            + planeNormal.y * lineSpanVector.y 
-                                            + planeNormal.z * lineSpanVector.z);
-       float intersectionZ = linePoint.z - (lineSpanVector.z * (planeNormal.x * linePoint.x
-                                            + planeNormal.y * linePoint.y 
-                                            + planeNormal.z * linePoint.z
-                                            - Vector3.Dot(planeNormal, planePoint))
-                                            / (planeNormal.x * lineSpanVector.x 
-                                            + planeNormal.y * lineSpanVector.y 
-                                            + planeNormal.z * lineSpanVector.z);
-       return Vector3(intersectionX, intersectionY, intersectionZ);
+        float intersectionY = linePoint.y - (lineSpanVector.y * (planeNormal.x * linePoint.x
+                                             + planeNormal.y * linePoint.y
+                                             + planeNormal.z * linePoint.z
+                                             - Vector3.Dot(planeNormal, planePoint)))
+                                             / (planeNormal.x * lineSpanVector.x
+                                             + planeNormal.y * lineSpanVector.y
+                                             + planeNormal.z * lineSpanVector.z);
+        float intersectionZ = linePoint.z - (lineSpanVector.z * (planeNormal.x * linePoint.x
+                                             + planeNormal.y * linePoint.y
+                                             + planeNormal.z * linePoint.z
+                                             - Vector3.Dot(planeNormal, planePoint)))
+                                             / (planeNormal.x * lineSpanVector.x
+                                             + planeNormal.y * lineSpanVector.y
+                                             + planeNormal.z * lineSpanVector.z);
+        return new Vector3(intersectionX, intersectionY, intersectionZ);
     }
 
-    public Vector2 Rotate(Vector2 vector, float degrees) {
-      float sin = Mathf.Sin(degrees * Mathf.Deg2Rad);
-      float cos = Mathf.Cos(degrees * Mathf.Deg2Rad);
+    public Vector2 Rotate(Vector2 vector, float degrees)
+    {
+        float sin = Mathf.Sin(degrees * Mathf.Deg2Rad);
+        float cos = Mathf.Cos(degrees * Mathf.Deg2Rad);
 
-      float tempX = vector.x;
-      float tempY = vector.y;
-      vector.x = (cos * tempX) - (sin * tempY);
-      vector.y = (sin * tempX) + (cos * tempY);
-      return vector;
+        float tempX = vector.x;
+        float tempY = vector.y;
+        vector.x = (cos * tempX) - (sin * tempY);
+        vector.y = (sin * tempX) + (cos * tempY);
+        return vector;
     }
 
 
