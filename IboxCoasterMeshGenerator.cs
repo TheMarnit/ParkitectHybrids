@@ -538,6 +538,12 @@ public class IboxCoasterMeshGenerator : MeshGenerator
     {
         return 0.115f;
     }
+    /*
+    public override float getLSMOffsetY()
+    {
+        return 0.115f;
+    }
+    */
     protected override float railHalfHeight()
     {
         return 0.02666f;
