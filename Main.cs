@@ -9,21 +9,23 @@ namespace HybridCoasters
     {
         private TrackRiderBinder binder;
         private AssetBundle assetBundle;
-        
+
         public GameObject FrontCartGo;
         public GameObject CartGo;
+        public GameObject SideCrossBeamsGo;
 
-        
         GameObject _go;
 
         public void onEnabled()
         {
             var dsc = System.IO.Path.DirectorySeparatorChar;
-            assetBundle = AssetBundle.LoadFromFile( Path + dsc + "assetbundle" + dsc + "assetpack");
+            //assetBundle = AssetBundle.LoadFromFile(Path + dsc + "assetbundle" + dsc + "assetpack");
+            //SideCrossBeamsGo = assetBundle.LoadAsset<GameObject>("21a3f09b79e34f147a2b6017d2b6c05b");
+            assetBundle = AssetBundle.LoadFromFile(Path + dsc + "assetbundle" + dsc + "corkscrewassetpack");
+            SideCrossBeamsGo = assetBundle.LoadAsset<GameObject>("c184c4f392587465f9bf2c86e6615e78");
+            FrontCartGo = assetBundle.LoadAsset<GameObject>("01be2cec49bbb476381a537d75ad047e");
+            CartGo = assetBundle.LoadAsset<GameObject>("7c1045f838c59460db2bfebd3df04a47");
 
-            FrontCartGo =  assetBundle.LoadAsset<GameObject> ("01be2cec49bbb476381a537d75ad047e");
-            CartGo =  assetBundle.LoadAsset<GameObject> ("7c1045f838c59460db2bfebd3df04a47");
-            
             binder = new TrackRiderBinder("kvwQwhKWWG");
             TrackedRide iboxCoaster =
                 binder.RegisterTrackedRide<TrackedRide>("Floorless Coaster", "IboxCoaster", "RMC IBox");
@@ -74,13 +76,13 @@ namespace HybridCoasters
             topperCoaster.accelerationImportanceExcitement = 0.525f;
 
             CoasterCarInstantiator iboxCoasterCarInstantiator =
-                binder.RegisterCoasterCarInstaniator<CoasterCarInstantiator>(iboxCoaster, "CorkscrewCoasterInsantiator",
+                binder.RegisterCoasterCarInstaniator<CoasterCarInstantiator>(iboxCoaster, "RmcCoasterInsantiator",
                     "RMC Train", 1, 15, 6);
             CoasterCarInstantiator topperCoasterCarInstantiator =
-                binder.RegisterCoasterCarInstaniator<CoasterCarInstantiator>(topperCoaster, "CorkscrewCoasterInsantiator",
+                binder.RegisterCoasterCarInstaniator<CoasterCarInstantiator>(topperCoaster, "RmcCoasterInsantiator",
                     "RMC Train", 1, 15, 6);
 
-            BaseCar frontCar = binder.RegisterCar<BaseCar>(Object.Instantiate(FrontCartGo), "CorkScrewCoaster_Front_Car",
+            BaseCar frontCar = binder.RegisterCar<BaseCar>(Object.Instantiate(FrontCartGo), "RmcCoaster_Front_Car",
                 .35f, 0f, true, new[]
                 {
                     new Color(168f / 255, 14f / 255, 14f / 255), new Color(234f / 255, 227f / 255, 227f / 255),
@@ -101,7 +103,7 @@ namespace HybridCoasters
                 transform.gameObject.AddComponent<FrictionWheelAnimator>();
             }
 
-            BaseCar backCar = binder.RegisterCar<BaseCar>(Object.Instantiate(CartGo), "CorkScrewCoaster_Back_Car", .35f,
+            BaseCar backCar = binder.RegisterCar<BaseCar>(Object.Instantiate(CartGo), "RmcCoaster_Back_Car", .35f,
                 -.3f, false, new[]
                 {
                     new Color(168f / 255, 14f / 255, 14f / 255), new Color(234f / 255, 227f / 255, 227f / 255),

@@ -77,7 +77,7 @@ public class IboxCoasterMeshGenerator : MeshGenerator
     protected override void Initialize()
     {
         base.Initialize();
-        trackWidth = 0.41f;
+        trackWidth = 0.427692f;
     }
 
     public override void prepare(TrackSegment4 trackSegment, GameObject putMeshOnGO)
