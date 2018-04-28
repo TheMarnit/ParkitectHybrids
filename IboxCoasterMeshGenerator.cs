@@ -76,6 +76,8 @@ public class IboxCoasterMeshGenerator : MeshGenerator
 
     public bool useTopperTrack = false;
 
+    private float groundHeight;
+
     public string path;
 
     protected override void Initialize()
@@ -272,7 +274,7 @@ public class IboxCoasterMeshGenerator : MeshGenerator
         woodenVerticalSupportPostExtruder = new BoxExtruder(0.043f, 0.043f);
         woodenVerticalSupportPostExtruder.closeEnds = true;
         woodenVerticalSupportPostExtruder.setUV(14, 14);
-        base.setModelExtruders(topperLeftPlankExtruder_1, topperLeftPlankExtruder_2, topperLeftPlankExtruder_3, topperLeftPlankExtruder_4, topperLeftPlankExtruder_5, topperLeftPlankExtruder_6, topperRightPlankExtruder_1, topperRightPlankExtruder_2, topperRightPlankExtruder_3, topperRightPlankExtruder_4, topperRightPlankExtruder_5, topperRightPlankExtruder_6, metalFrontCrossTieExtruder_1, metalFrontCrossTieExtruder_2, metalFrontCrossTieExtruder_3, metalRearCrossTieExtruder_1, metalRearCrossTieExtruder_2, metalRearCrossTieExtruder_3, metalIBeamExtruder_1, metalIBeamExtruder_2, metalIBeamExtruder_3, woodenVerticalSupportPostExtruder);
+        base.setModelExtruders(topperLeftPlankExtruder_1, topperLeftPlankExtruder_2, topperLeftPlankExtruder_3, topperLeftPlankExtruder_4, topperLeftPlankExtruder_5, topperLeftPlankExtruder_6, topperRightPlankExtruder_1, topperRightPlankExtruder_2, topperRightPlankExtruder_3, topperRightPlankExtruder_4, topperRightPlankExtruder_5, topperRightPlankExtruder_6, woodenVerticalSupportPostExtruder);
     }
 
     public override void sampleAt(TrackSegment4 trackSegment, float t)
@@ -317,7 +319,7 @@ public class IboxCoasterMeshGenerator : MeshGenerator
     public override void afterExtrusion(TrackSegment4 trackSegment, GameObject putMeshOnGO)
     {
         base.afterExtrusion(trackSegment, putMeshOnGO);
-        float sample = trackSegment.getLength(0) / ((float)Mathf.RoundToInt(trackSegment.getLength(0) / this.crossBeamSpacing)*2);
+        float sample = trackSegment.getLength(0) / ((float)Mathf.RoundToInt(trackSegment.getLength(0) / this.crossBeamSpacing) * 2);
         float pos = 0f;
         bool isTopperCrosstie = false;
         int index = 0;
@@ -455,7 +457,7 @@ public class IboxCoasterMeshGenerator : MeshGenerator
 
                     planePosition = endPoint;
                     bottomLinePosition = bottomBeamStart;
-                    topLinePosition =  new Vector3(bottomLinePosition.x, Mathf.Max(startPoint.y, endPoint.y), bottomLinePosition.z);
+                    topLinePosition = new Vector3(bottomLinePosition.x, Mathf.Max(startPoint.y, endPoint.y), bottomLinePosition.z);
                     attachToStartPoint = false;
                 }
                 else
@@ -468,7 +470,7 @@ public class IboxCoasterMeshGenerator : MeshGenerator
 
                     planePosition = startPoint;
                     bottomLinePosition = bottomBeamEnd;
-                    topLinePosition =  new Vector3(bottomLinePosition.x, Mathf.Max(startPoint.y, endPoint.y), bottomLinePosition.z);
+                    topLinePosition = new Vector3(bottomLinePosition.x, Mathf.Max(startPoint.y, endPoint.y), bottomLinePosition.z);
                     attachToStartPoint = true;
                 }
 
@@ -499,29 +501,33 @@ public class IboxCoasterMeshGenerator : MeshGenerator
 
                     if (terrain != null)
                     {
-                        float lowest = terrain.getLowestHeight();
-
-                        Vector3 projectedTangentDirection = tangentPoint;
-                        projectedTangentDirection.y = 0;
-                        projectedTangentDirection.Normalize();
-                        Vector3 leftVerticalSupportPost = new Vector3(bottomBeamEnd.x, startPoint.y + supportBeamExtension, bottomBeamEnd.z);
-                        Vector3 rightVerticalSupportPost = new Vector3(bottomBeamStart.x, endPoint.y + supportBeamExtension, bottomBeamStart.z);
-
-                        if (Mathf.Abs(trackBanking) > 90)
-                        {
-                            leftVerticalSupportPost.y = Mathf.Max(startPoint.y, endPoint.y) + supportBeamExtension;
-                            rightVerticalSupportPost.y = Mathf.Max(startPoint.y, endPoint.y) + supportBeamExtension;
-                        }
-                        //left post
-                        woodenVerticalSupportPostExtruder.extrude(leftVerticalSupportPost, new Vector3(0, -1, 0), projectedTangentDirection);
-                        woodenVerticalSupportPostExtruder.extrude(new Vector3(leftVerticalSupportPost.x, lowest, leftVerticalSupportPost.z), new Vector3(0, -1, 0), projectedTangentDirection);
-                        woodenVerticalSupportPostExtruder.end();
-
-                        //right post
-                        woodenVerticalSupportPostExtruder.extrude(rightVerticalSupportPost, new Vector3(0, -1, 0), projectedTangentDirection);
-                        woodenVerticalSupportPostExtruder.extrude(new Vector3(rightVerticalSupportPost.x, lowest, rightVerticalSupportPost.z), new Vector3(0, -1, 0), projectedTangentDirection);
-                        woodenVerticalSupportPostExtruder.end();
+                        groundHeight = terrain.getLowestHeight();
                     }
+                    else
+                    {
+                        groundHeight = 0;
+                    }
+                    Vector3 projectedTangentDirection = tangentPoint;
+                    projectedTangentDirection.y = 0;
+                    projectedTangentDirection.Normalize();
+                    Vector3 leftVerticalSupportPost = new Vector3(bottomBeamEnd.x, startPoint.y + supportBeamExtension, bottomBeamEnd.z);
+                    Vector3 rightVerticalSupportPost = new Vector3(bottomBeamStart.x, endPoint.y + supportBeamExtension, bottomBeamStart.z);
+
+                    if (Mathf.Abs(trackBanking) > 90)
+                    {
+                        leftVerticalSupportPost.y = Mathf.Max(startPoint.y, endPoint.y) + supportBeamExtension;
+                        rightVerticalSupportPost.y = Mathf.Max(startPoint.y, endPoint.y) + supportBeamExtension;
+                    }
+
+                    //left post
+                    woodenVerticalSupportPostExtruder.extrude(leftVerticalSupportPost, new Vector3(0, -1, 0), projectedTangentDirection);
+                    woodenVerticalSupportPostExtruder.extrude(new Vector3(leftVerticalSupportPost.x, groundHeight, leftVerticalSupportPost.z), new Vector3(0, -1, 0), projectedTangentDirection);
+                    woodenVerticalSupportPostExtruder.end();
+
+                    //right post
+                    woodenVerticalSupportPostExtruder.extrude(rightVerticalSupportPost, new Vector3(0, -1, 0), projectedTangentDirection);
+                    woodenVerticalSupportPostExtruder.extrude(new Vector3(rightVerticalSupportPost.x, groundHeight, rightVerticalSupportPost.z), new Vector3(0, -1, 0), projectedTangentDirection);
+                    woodenVerticalSupportPostExtruder.end();
 
                 }
 
@@ -529,9 +535,9 @@ public class IboxCoasterMeshGenerator : MeshGenerator
 
                 if (Math.Abs(trackBanking) > 90)
                 {
-                   intersectionPoint = IntersectLineAndPlane(planePosition, planeSpanVector1, planeSpanVector2, topLinePosition, lineSpanVector);
-                   if (!float.IsNaN(intersectionPoint.x))
-                   {
+                    intersectionPoint = IntersectLineAndPlane(planePosition, planeSpanVector1, planeSpanVector2, topLinePosition, lineSpanVector);
+                    if (!float.IsNaN(intersectionPoint.x))
+                    {
                         if (attachToStartPoint)
                         {
                             endPoint = intersectionPoint;
@@ -544,7 +550,7 @@ public class IboxCoasterMeshGenerator : MeshGenerator
                 }
                 else if (Math.Abs(trackBanking) > 0.001)
                 {
-                    intersectionPoint = IntersectLineAndPlane(planePosition, planeSpanVector1, planeSpanVector2, bottomLinePosition, lineSpanVector);                
+                    intersectionPoint = IntersectLineAndPlane(planePosition, planeSpanVector1, planeSpanVector2, bottomLinePosition, lineSpanVector);
                 }
                 if (Mathf.Abs(trackBanking) > 0.001 && !float.IsNaN(intersectionPoint.x))
                 {
@@ -582,51 +588,44 @@ public class IboxCoasterMeshGenerator : MeshGenerator
                 }
             }
         }
+        List<ShapeExtruder> metalShapeExtruders = new List<ShapeExtruder>();
         if (useTopperTrack)
         {
-            GameObject gameObject = new GameObject("TopperLeftRail");
-            gameObject.transform.parent = putMeshOnGO.transform;
-            gameObject.transform.localPosition = Vector3.zero;
-            gameObject.transform.localRotation = Quaternion.identity;
-            MeshRenderer meshRenderer = gameObject.AddComponent<MeshRenderer>();
-            meshRenderer.sharedMaterial = metalMaterial;
-            MeshFilter meshFilter = gameObject.AddComponent<MeshFilter>();
-            Mesh mesh = topperLeftRailExtruder.getMesh(putMeshOnGO.transform.worldToLocalMatrix);
-            trackSegment.addGeneratedMesh(mesh);
-            meshFilter.mesh = mesh;
-            GameObject gameObject2 = new GameObject("TopperRightRail");
-            gameObject2.transform.parent = putMeshOnGO.transform;
-            gameObject2.transform.localPosition = Vector3.zero;
-            gameObject2.transform.localRotation = Quaternion.identity;
-            MeshRenderer meshRenderer2 = gameObject2.AddComponent<MeshRenderer>();
-            meshRenderer2.sharedMaterial = metalMaterial;
-            MeshFilter meshFilter2 = gameObject2.AddComponent<MeshFilter>();
-            Mesh mesh2 = topperRightRailExtruder.getMesh(putMeshOnGO.transform.worldToLocalMatrix);
-            trackSegment.addGeneratedMesh(mesh2);
-            meshFilter2.mesh = mesh2;
+            metalShapeExtruders.Add(topperLeftRailExtruder);
+            metalShapeExtruders.Add(topperRightRailExtruder);
         }
         else
         {
-            GameObject gameObject = new GameObject("IboxLeftRail");
+            metalShapeExtruders.Add(iboxLeftRailExtruder);
+            metalShapeExtruders.Add(iboxRightRailExtruder);
+        }
+        if (metalFrontCrossTieExtruder_1.vertices.Count > 0)
+        { 
+            metalShapeExtruders.Add(metalFrontCrossTieExtruder_1);
+            metalShapeExtruders.Add(metalFrontCrossTieExtruder_2);
+            metalShapeExtruders.Add(metalFrontCrossTieExtruder_3);
+            metalShapeExtruders.Add(metalRearCrossTieExtruder_1);
+            metalShapeExtruders.Add(metalRearCrossTieExtruder_2);
+            metalShapeExtruders.Add(metalRearCrossTieExtruder_3);
+        }
+        if (metalIBeamExtruder_1.vertices.Count > 0)
+        {
+            metalShapeExtruders.Add(metalIBeamExtruder_1);
+            metalShapeExtruders.Add(metalIBeamExtruder_2);
+            metalShapeExtruders.Add(metalIBeamExtruder_3);
+        }
+        foreach (ShapeExtruder extruder in metalShapeExtruders)
+        {
+            GameObject gameObject = new GameObject("metalObject");
             gameObject.transform.parent = putMeshOnGO.transform;
             gameObject.transform.localPosition = Vector3.zero;
             gameObject.transform.localRotation = Quaternion.identity;
             MeshRenderer meshRenderer = gameObject.AddComponent<MeshRenderer>();
             meshRenderer.sharedMaterial = metalMaterial;
             MeshFilter meshFilter = gameObject.AddComponent<MeshFilter>();
-            Mesh mesh = iboxLeftRailExtruder.getMesh(putMeshOnGO.transform.worldToLocalMatrix);
+            Mesh mesh = extruder.getMesh(putMeshOnGO.transform.worldToLocalMatrix);
             trackSegment.addGeneratedMesh(mesh);
             meshFilter.mesh = mesh;
-            GameObject gameObject2 = new GameObject("IboxRightRail");
-            gameObject2.transform.parent = putMeshOnGO.transform;
-            gameObject2.transform.localPosition = Vector3.zero;
-            gameObject2.transform.localRotation = Quaternion.identity;
-            MeshRenderer meshRenderer2 = gameObject2.AddComponent<MeshRenderer>();
-            meshRenderer2.sharedMaterial = metalMaterial;
-            MeshFilter meshFilter2 = gameObject2.AddComponent<MeshFilter>();
-            Mesh mesh2 = iboxRightRailExtruder.getMesh(putMeshOnGO.transform.worldToLocalMatrix);
-            trackSegment.addGeneratedMesh(mesh2);
-            meshFilter2.mesh = mesh2;
         }
     }
 
@@ -674,7 +673,7 @@ public class IboxCoasterMeshGenerator : MeshGenerator
 
     public override Mesh getMesh(GameObject putMeshOnGO)
     {
-        return MeshCombiner.start().add(topperLeftPlankExtruder_1, topperLeftPlankExtruder_2, topperLeftPlankExtruder_3, topperLeftPlankExtruder_4, topperLeftPlankExtruder_5, topperLeftPlankExtruder_6, topperRightPlankExtruder_1, topperRightPlankExtruder_2, topperRightPlankExtruder_3, topperRightPlankExtruder_4, topperRightPlankExtruder_5, topperRightPlankExtruder_6, metalFrontCrossTieExtruder_1, metalFrontCrossTieExtruder_2, metalFrontCrossTieExtruder_3, metalRearCrossTieExtruder_1, metalRearCrossTieExtruder_2, metalRearCrossTieExtruder_3, metalIBeamExtruder_1, metalIBeamExtruder_2, metalIBeamExtruder_3, woodenVerticalSupportPostExtruder).end(putMeshOnGO.transform.worldToLocalMatrix);
+        return MeshCombiner.start().add(topperLeftPlankExtruder_1, topperLeftPlankExtruder_2, topperLeftPlankExtruder_3, topperLeftPlankExtruder_4, topperLeftPlankExtruder_5, topperLeftPlankExtruder_6, topperRightPlankExtruder_1, topperRightPlankExtruder_2, topperRightPlankExtruder_3, topperRightPlankExtruder_4, topperRightPlankExtruder_5, topperRightPlankExtruder_6, woodenVerticalSupportPostExtruder).end(putMeshOnGO.transform.worldToLocalMatrix);
     }
 
     public override Mesh getCollisionMesh(GameObject putMeshOnGO)
