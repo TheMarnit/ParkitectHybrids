@@ -313,8 +313,9 @@ public class IboxCoasterMeshGenerator : MeshGenerator
     public override void afterExtrusion(TrackSegment4 trackSegment, GameObject putMeshOnGO)
     {
         base.afterExtrusion(trackSegment, putMeshOnGO);
-        float sample = trackSegment.getLength(0) / (float)Mathf.RoundToInt(trackSegment.getLength(0) / this.crossBeamSpacing);
-        float pos = 0.25f;
+        float sample = trackSegment.getLength(0) / ((float)Mathf.RoundToInt(trackSegment.getLength(0) / this.crossBeamSpacing)*2);
+        float pos = 0f;
+        bool isTopperCrosstie = false;
         int index = 0;
         while (pos < trackSegment.getLength(0))
         {
@@ -322,231 +323,238 @@ public class IboxCoasterMeshGenerator : MeshGenerator
 
             index++;
             pos += sample;
-
+            isTopperCrosstie = !isTopperCrosstie;
             Vector3 normal = trackSegment.getNormal(tForDistance);
             Vector3 tangentPoint = trackSegment.getTangentPoint(tForDistance);
             Vector3 binormal = Vector3.Cross(normal, tangentPoint).normalized;
             Vector3 trackPivot = base.getTrackPivot(trackSegment.getPoint(tForDistance, 0), normal);
 
-            float trackDirection = Mathf.Repeat(Mathf.Atan2(tangentPoint.x, tangentPoint.z) * Mathf.Rad2Deg, 360.0f);
-            trackDirection += 45;
-            bool trackFacingXPositive = false;
-            bool trackFacingXNegative = false;
-            bool trackFacingZPositive = false;
-            bool trackFacingZNegative = false;
-            if (trackDirection < 90)
-                trackFacingZPositive = true;
-            else if (trackDirection < 180)
-                trackFacingXPositive = true;
-            else if (trackDirection < 270)
-                trackFacingZNegative = true;
-            else
-                trackFacingXNegative = true;
-
-            float trackBanking = 0f;
-
-            Vector3 bottomBeamDirection = new Vector3();
-
-            if (trackFacingXPositive)
+            if (isTopperCrosstie)
             {
-                trackBanking = Mathf.Repeat(Mathf.Atan2(normal.z, -normal.y), Mathf.PI * 2.0f) * Mathf.Rad2Deg;
-                if (trackBanking > 180)
-                    trackBanking -= 360;
-                Vector2 tangentProjection = new Vector2(tangentPoint.x, tangentPoint.z);
 
-                Vector2 normalProjection = Rotate(tangentProjection, 90);
-                bottomBeamDirection.z = normalProjection.y;
-                bottomBeamDirection.x = normalProjection.x;
-                bottomBeamDirection.Normalize();
-                bottomBeamDirection *= Math.Abs(trackBanking) > 90 ? 1.0f : -1.0f;
-            }
-            if (trackFacingXNegative)
-            {
-                trackBanking = Mathf.Repeat(Mathf.Atan2(-normal.z, -normal.y), Mathf.PI * 2.0f) * Mathf.Rad2Deg;
-                if (trackBanking > 180)
-                    trackBanking -= 360;
-
-                bottomBeamDirection.z = tangentPoint.x;
-                bottomBeamDirection.x = tangentPoint.z;
-
-                Vector2 tangentProjection = new Vector2(tangentPoint.x, tangentPoint.z);
-
-                Vector2 normalProjection = Rotate(tangentProjection, 90);
-                bottomBeamDirection.z = normalProjection.y;
-                bottomBeamDirection.x = normalProjection.x;
-                bottomBeamDirection.Normalize();
-                bottomBeamDirection *= Math.Abs(trackBanking) > 90 ? 1.0f : -1.0f;
-            }
-            if (trackFacingZPositive)
-            {
-                trackBanking = Mathf.Repeat(Mathf.Atan2(normal.x, -normal.y), Mathf.PI * 2.0f) * Mathf.Rad2Deg;
-                if (trackBanking > 180)
-                    trackBanking -= 360;
-
-                bottomBeamDirection.z = tangentPoint.x;
-                bottomBeamDirection.x = tangentPoint.z;
-
-                Vector2 tangentProjection = new Vector2(tangentPoint.x, tangentPoint.z);
-
-                Vector2 normalProjection = Rotate(tangentProjection, 90);
-                bottomBeamDirection.z = normalProjection.y;
-                bottomBeamDirection.x = normalProjection.x;
-                bottomBeamDirection.Normalize();
-                bottomBeamDirection *= Math.Abs(trackBanking) <= 90 ? -1.0f : 1.0f;
-            }
-            if (trackFacingZNegative)
-            {
-                trackBanking = Mathf.Repeat(Mathf.Atan2(-normal.x, -normal.y), Mathf.PI * 2.0f) * Mathf.Rad2Deg;
-                if (trackBanking > 180)
-                    trackBanking -= 360;
-
-                bottomBeamDirection.z = tangentPoint.x;
-                bottomBeamDirection.x = tangentPoint.z;
-
-                Vector2 tangentProjection = new Vector2(tangentPoint.x, tangentPoint.z);
-
-                Vector2 normalProjection = Rotate(tangentProjection, 90);
-                bottomBeamDirection.z = normalProjection.y;
-                bottomBeamDirection.x = normalProjection.x;
-                bottomBeamDirection.Normalize();
-                bottomBeamDirection *= Math.Abs(trackBanking) > 90 ? 1.0f : -1.0f;
-            }
-
-            //track beam
-            Vector3 startPoint = trackPivot + normal * 0.159107f + binormal * (beamWidth / 2);
-            Vector3 endPoint = trackPivot + normal * 0.159107f - binormal * (beamWidth / 2);
-
-            bool equalHeight = Mathf.Abs(startPoint.y - endPoint.y) < 0.97f;
-
-            //Bottom beam calculation
-            Vector3 bottomBeamPivot = new Vector3(trackPivot.x, Mathf.Min(startPoint.y, endPoint.y), trackPivot.z);
-
-            Vector3 bottomBeamStart = new Vector3();
-            Vector3 bottomBeamEnd = new Vector3();
-
-            Vector3 bottomBeamBinormal = bottomBeamDirection.normalized;
-
-            Vector3 planePosition = new Vector3();
-            Vector3 planeSpanVector1 = endPoint - startPoint;
-            Vector3 planeSpanVector2 = tangentPoint;
-            Vector3 linePosition = new Vector3();
-            Vector3 lineSpanVector = bottomBeamDirection;
-
-            bool attachToStartPoint = false;
-            if (((trackFacingXNegative || trackFacingXPositive) ? -1.0f : 1.0) * ((Mathf.Abs(trackBanking) <= 90) ? -1.0f : 1.0f) * trackBanking < 0)
-            {
-                bottomBeamStart.x = endPoint.x;
-                bottomBeamStart.z = endPoint.z;
-                bottomBeamStart.y = endPoint.y > startPoint.y ? startPoint.y : endPoint.y;
-
-                bottomBeamEnd = bottomBeamStart - bottomBeamDirection.normalized * beamWidth;
-
-                planePosition = endPoint;
-                linePosition = bottomBeamStart;
-                attachToStartPoint = false;
             }
             else
             {
-                bottomBeamEnd.x = startPoint.x;
-                bottomBeamEnd.z = startPoint.z;
-                bottomBeamEnd.y = endPoint.y > startPoint.y ? startPoint.y : endPoint.y;
+                float trackDirection = Mathf.Repeat(Mathf.Atan2(tangentPoint.x, tangentPoint.z) * Mathf.Rad2Deg, 360.0f);
+                trackDirection += 45;
+                bool trackFacingXPositive = false;
+                bool trackFacingXNegative = false;
+                bool trackFacingZPositive = false;
+                bool trackFacingZNegative = false;
+                if (trackDirection < 90)
+                    trackFacingZPositive = true;
+                else if (trackDirection < 180)
+                    trackFacingXPositive = true;
+                else if (trackDirection < 270)
+                    trackFacingZNegative = true;
+                else
+                    trackFacingXNegative = true;
 
-                bottomBeamStart = bottomBeamEnd + bottomBeamDirection.normalized * beamWidth;
+                float trackBanking = 0f;
 
-                planePosition = startPoint;
-                linePosition = bottomBeamEnd;
-                attachToStartPoint = true;
-            }
+                Vector3 bottomBeamDirection = new Vector3();
 
-
-
-            if (!(trackSegment is Station))
-            {
-
-                if (Mathf.Abs(trackBanking) > 90)
+                if (trackFacingXPositive)
                 {
-                    bottomBeamStart.y -= ((Mathf.Abs(trackBanking) / 90) - 1) * invertHeadSpace;
-                    bottomBeamEnd.y -= ((Mathf.Abs(trackBanking) / 90) - 1) * invertHeadSpace;
-                    //Top beam extruding
-                    metalCrossTieExtrude(new Vector3(bottomBeamEnd.x, Mathf.Max(startPoint.y, endPoint.y), bottomBeamEnd.z), -1f * bottomBeamBinormal, Vector3.up);
-                    metalCrossTieExtrude(new Vector3(bottomBeamStart.x, Mathf.Max(startPoint.y, endPoint.y), bottomBeamStart.z), -1f * bottomBeamBinormal, Vector3.up);
-                    metalCrossTieEnd();
+                    trackBanking = Mathf.Repeat(Mathf.Atan2(normal.z, -normal.y), Mathf.PI * 2.0f) * Mathf.Rad2Deg;
+                    if (trackBanking > 180)
+                        trackBanking -= 360;
+                    Vector2 tangentProjection = new Vector2(tangentPoint.x, tangentPoint.z);
+
+                    Vector2 normalProjection = Rotate(tangentProjection, 90);
+                    bottomBeamDirection.z = normalProjection.y;
+                    bottomBeamDirection.x = normalProjection.x;
+                    bottomBeamDirection.Normalize();
+                    bottomBeamDirection *= Math.Abs(trackBanking) > 90 ? 1.0f : -1.0f;
+                }
+                if (trackFacingXNegative)
+                {
+                    trackBanking = Mathf.Repeat(Mathf.Atan2(-normal.z, -normal.y), Mathf.PI * 2.0f) * Mathf.Rad2Deg;
+                    if (trackBanking > 180)
+                        trackBanking -= 360;
+
+                    bottomBeamDirection.z = tangentPoint.x;
+                    bottomBeamDirection.x = tangentPoint.z;
+
+                    Vector2 tangentProjection = new Vector2(tangentPoint.x, tangentPoint.z);
+
+                    Vector2 normalProjection = Rotate(tangentProjection, 90);
+                    bottomBeamDirection.z = normalProjection.y;
+                    bottomBeamDirection.x = normalProjection.x;
+                    bottomBeamDirection.Normalize();
+                    bottomBeamDirection *= Math.Abs(trackBanking) > 90 ? 1.0f : -1.0f;
+                }
+                if (trackFacingZPositive)
+                {
+                    trackBanking = Mathf.Repeat(Mathf.Atan2(normal.x, -normal.y), Mathf.PI * 2.0f) * Mathf.Rad2Deg;
+                    if (trackBanking > 180)
+                        trackBanking -= 360;
+
+                    bottomBeamDirection.z = tangentPoint.x;
+                    bottomBeamDirection.x = tangentPoint.z;
+
+                    Vector2 tangentProjection = new Vector2(tangentPoint.x, tangentPoint.z);
+
+                    Vector2 normalProjection = Rotate(tangentProjection, 90);
+                    bottomBeamDirection.z = normalProjection.y;
+                    bottomBeamDirection.x = normalProjection.x;
+                    bottomBeamDirection.Normalize();
+                    bottomBeamDirection *= Math.Abs(trackBanking) <= 90 ? -1.0f : 1.0f;
+                }
+                if (trackFacingZNegative)
+                {
+                    trackBanking = Mathf.Repeat(Mathf.Atan2(-normal.x, -normal.y), Mathf.PI * 2.0f) * Mathf.Rad2Deg;
+                    if (trackBanking > 180)
+                        trackBanking -= 360;
+
+                    bottomBeamDirection.z = tangentPoint.x;
+                    bottomBeamDirection.x = tangentPoint.z;
+
+                    Vector2 tangentProjection = new Vector2(tangentPoint.x, tangentPoint.z);
+
+                    Vector2 normalProjection = Rotate(tangentProjection, 90);
+                    bottomBeamDirection.z = normalProjection.y;
+                    bottomBeamDirection.x = normalProjection.x;
+                    bottomBeamDirection.Normalize();
+                    bottomBeamDirection *= Math.Abs(trackBanking) > 90 ? 1.0f : -1.0f;
                 }
 
-                //Bottom beam extruding
-                if (Mathf.Abs(trackBanking) > iBeamBankingSwitch)
+                //track beam
+                Vector3 startPoint = trackPivot + normal * 0.159107f + binormal * (beamWidth / 2);
+                Vector3 endPoint = trackPivot + normal * 0.159107f - binormal * (beamWidth / 2);
+
+                bool equalHeight = Mathf.Abs(startPoint.y - endPoint.y) < 0.97f;
+
+                //Bottom beam calculation
+                Vector3 bottomBeamPivot = new Vector3(trackPivot.x, Mathf.Min(startPoint.y, endPoint.y), trackPivot.z);
+
+                Vector3 bottomBeamStart = new Vector3();
+                Vector3 bottomBeamEnd = new Vector3();
+
+                Vector3 bottomBeamBinormal = bottomBeamDirection.normalized;
+
+                Vector3 planePosition = new Vector3();
+                Vector3 planeSpanVector1 = endPoint - startPoint;
+                Vector3 planeSpanVector2 = tangentPoint;
+                Vector3 linePosition = new Vector3();
+                Vector3 lineSpanVector = bottomBeamDirection;
+
+                bool attachToStartPoint = false;
+                if (((trackFacingXNegative || trackFacingXPositive) ? -1.0f : 1.0) * ((Mathf.Abs(trackBanking) <= 90) ? -1.0f : 1.0f) * trackBanking < 0)
                 {
-                    metalCrossTieExtrude(bottomBeamEnd, -1f * bottomBeamBinormal, Vector3.up);
-                    metalCrossTieExtrude(bottomBeamStart, -1f * bottomBeamBinormal, Vector3.up);
-                    metalCrossTieEnd();
-                }
+                    bottomBeamStart.x = endPoint.x;
+                    bottomBeamStart.z = endPoint.z;
+                    bottomBeamStart.y = endPoint.y > startPoint.y ? startPoint.y : endPoint.y;
 
-                LandPatch terrain = GameController.Instance.park.getTerrain(trackPivot);
+                    bottomBeamEnd = bottomBeamStart - bottomBeamDirection.normalized * beamWidth;
 
-                if (terrain != null)
-                {
-                    float lowest = terrain.getLowestHeight();
-
-                    Vector3 projectedTangentDirection = tangentPoint;
-                    projectedTangentDirection.y = 0;
-                    projectedTangentDirection.Normalize();
-                    Vector3 leftVerticalSupportPost = new Vector3(bottomBeamEnd.x, startPoint.y + supportBeamExtension, bottomBeamEnd.z);
-                    Vector3 rightVerticalSupportPost = new Vector3(bottomBeamStart.x, endPoint.y + supportBeamExtension, bottomBeamStart.z);
-
-                    if (Mathf.Abs(trackBanking) > 90)
-                    {
-                        leftVerticalSupportPost.y = Mathf.Max(startPoint.y, endPoint.y) + supportBeamExtension;
-                        rightVerticalSupportPost.y = Mathf.Max(startPoint.y, endPoint.y) + supportBeamExtension;
-                    }
-                    //left post
-                    woodenVerticalSupportPostExtruder.extrude(leftVerticalSupportPost, new Vector3(0, -1, 0), projectedTangentDirection);
-                    woodenVerticalSupportPostExtruder.extrude(new Vector3(leftVerticalSupportPost.x, lowest, leftVerticalSupportPost.z), new Vector3(0, -1, 0), projectedTangentDirection);
-                    woodenVerticalSupportPostExtruder.end();
-
-                    //right post
-                    woodenVerticalSupportPostExtruder.extrude(rightVerticalSupportPost, new Vector3(0, -1, 0), projectedTangentDirection);
-                    woodenVerticalSupportPostExtruder.extrude(new Vector3(rightVerticalSupportPost.x, lowest, rightVerticalSupportPost.z), new Vector3(0, -1, 0), projectedTangentDirection);
-                    woodenVerticalSupportPostExtruder.end();
-                }
-
-            }
-
-            if (Math.Abs(trackBanking) > 0.001)
-            {
-                Vector3 intersectionPoint = IntersectLineAndPlane(planePosition, planeSpanVector1, planeSpanVector2, linePosition, lineSpanVector);
-                if (!float.IsNaN(intersectionPoint.x))
-                {
-                    if (attachToStartPoint)
-                    {
-                        endPoint = intersectionPoint;
-                    }
-                    else
-                    {
-                        startPoint = intersectionPoint;
-                    }
-                }
-            }
-
-            if (Mathf.Abs(trackBanking) > iBeamBankingSwitch)
-            {
-                metalIBeamExtrude(startPoint, -1f * binormal, equalHeight ? Vector3.up : normal);
-                metalIBeamExtrude(endPoint, -1f * binormal, equalHeight ? Vector3.up : normal);
-                metalIBeamEnd();
-            }
-            else
-            {
-                float distance = 1 / Mathf.Sin((90 - Mathf.Abs(trackBanking)) * Mathf.Deg2Rad);
-                if (attachToStartPoint)
-                {
-                    endPoint = startPoint - ((startPoint - endPoint) * distance);
+                    planePosition = endPoint;
+                    linePosition = bottomBeamStart;
+                    attachToStartPoint = false;
                 }
                 else
                 {
-                    startPoint = endPoint - ((endPoint - startPoint) * distance);
+                    bottomBeamEnd.x = startPoint.x;
+                    bottomBeamEnd.z = startPoint.z;
+                    bottomBeamEnd.y = endPoint.y > startPoint.y ? startPoint.y : endPoint.y;
+
+                    bottomBeamStart = bottomBeamEnd + bottomBeamDirection.normalized * beamWidth;
+
+                    planePosition = startPoint;
+                    linePosition = bottomBeamEnd;
+                    attachToStartPoint = true;
                 }
-                metalCrossTieExtrude(startPoint, -1f * binormal, equalHeight ? Vector3.up : normal);
-                metalCrossTieExtrude(endPoint, -1f * binormal, equalHeight ? Vector3.up : normal);
-                metalCrossTieEnd();
+
+
+
+                if (!(trackSegment is Station))
+                {
+
+                    if (Mathf.Abs(trackBanking) > 90)
+                    {
+                        bottomBeamStart.y -= ((Mathf.Abs(trackBanking) / 90) - 1) * invertHeadSpace;
+                        bottomBeamEnd.y -= ((Mathf.Abs(trackBanking) / 90) - 1) * invertHeadSpace;
+                        //Top beam extruding
+                        metalCrossTieExtrude(new Vector3(bottomBeamEnd.x, Mathf.Max(startPoint.y, endPoint.y), bottomBeamEnd.z), -1f * bottomBeamBinormal, Vector3.up);
+                        metalCrossTieExtrude(new Vector3(bottomBeamStart.x, Mathf.Max(startPoint.y, endPoint.y), bottomBeamStart.z), -1f * bottomBeamBinormal, Vector3.up);
+                        metalCrossTieEnd();
+                    }
+
+                    //Bottom beam extruding
+                    if (Mathf.Abs(trackBanking) > iBeamBankingSwitch)
+                    {
+                        metalCrossTieExtrude(bottomBeamEnd, -1f * bottomBeamBinormal, Vector3.up);
+                        metalCrossTieExtrude(bottomBeamStart, -1f * bottomBeamBinormal, Vector3.up);
+                        metalCrossTieEnd();
+                    }
+
+                    LandPatch terrain = GameController.Instance.park.getTerrain(trackPivot);
+
+                    if (terrain != null)
+                    {
+                        float lowest = terrain.getLowestHeight();
+
+                        Vector3 projectedTangentDirection = tangentPoint;
+                        projectedTangentDirection.y = 0;
+                        projectedTangentDirection.Normalize();
+                        Vector3 leftVerticalSupportPost = new Vector3(bottomBeamEnd.x, startPoint.y + supportBeamExtension, bottomBeamEnd.z);
+                        Vector3 rightVerticalSupportPost = new Vector3(bottomBeamStart.x, endPoint.y + supportBeamExtension, bottomBeamStart.z);
+
+                        if (Mathf.Abs(trackBanking) > 90)
+                        {
+                            leftVerticalSupportPost.y = Mathf.Max(startPoint.y, endPoint.y) + supportBeamExtension;
+                            rightVerticalSupportPost.y = Mathf.Max(startPoint.y, endPoint.y) + supportBeamExtension;
+                        }
+                        //left post
+                        woodenVerticalSupportPostExtruder.extrude(leftVerticalSupportPost, new Vector3(0, -1, 0), projectedTangentDirection);
+                        woodenVerticalSupportPostExtruder.extrude(new Vector3(leftVerticalSupportPost.x, lowest, leftVerticalSupportPost.z), new Vector3(0, -1, 0), projectedTangentDirection);
+                        woodenVerticalSupportPostExtruder.end();
+
+                        //right post
+                        woodenVerticalSupportPostExtruder.extrude(rightVerticalSupportPost, new Vector3(0, -1, 0), projectedTangentDirection);
+                        woodenVerticalSupportPostExtruder.extrude(new Vector3(rightVerticalSupportPost.x, lowest, rightVerticalSupportPost.z), new Vector3(0, -1, 0), projectedTangentDirection);
+                        woodenVerticalSupportPostExtruder.end();
+                    }
+
+                }
+
+                if (Math.Abs(trackBanking) > 0.001)
+                {
+                    Vector3 intersectionPoint = IntersectLineAndPlane(planePosition, planeSpanVector1, planeSpanVector2, linePosition, lineSpanVector);
+                    if (!float.IsNaN(intersectionPoint.x))
+                    {
+                        if (attachToStartPoint)
+                        {
+                            endPoint = intersectionPoint;
+                        }
+                        else
+                        {
+                            startPoint = intersectionPoint;
+                        }
+                    }
+                }
+
+                if (Mathf.Abs(trackBanking) > iBeamBankingSwitch)
+                {
+                    metalIBeamExtrude(startPoint, -1f * binormal, equalHeight ? Vector3.up : normal);
+                    metalIBeamExtrude(endPoint, -1f * binormal, equalHeight ? Vector3.up : normal);
+                    metalIBeamEnd();
+                }
+                else
+                {
+                    float distance = 1 / Mathf.Sin((90 - Mathf.Abs(trackBanking)) * Mathf.Deg2Rad);
+                    if (attachToStartPoint)
+                    {
+                        endPoint = startPoint - ((startPoint - endPoint) * distance);
+                    }
+                    else
+                    {
+                        startPoint = endPoint - ((endPoint - startPoint) * distance);
+                    }
+                    metalCrossTieExtrude(startPoint, -1f * binormal, equalHeight ? Vector3.up : normal);
+                    metalCrossTieExtrude(endPoint, -1f * binormal, equalHeight ? Vector3.up : normal);
+                    metalCrossTieEnd();
+                }
             }
         }
     }
