@@ -436,7 +436,8 @@ public class IboxCoasterMeshGenerator : MeshGenerator
                 Vector3 planePosition = new Vector3();
                 Vector3 planeSpanVector1 = endPoint - startPoint;
                 Vector3 planeSpanVector2 = tangentPoint;
-                Vector3 linePosition = new Vector3();
+                Vector3 bottomLinePosition = new Vector3();
+                Vector3 topLinePosition = new Vector3();
                 Vector3 lineSpanVector = bottomBeamDirection;
 
                 bool attachToStartPoint = false;
@@ -449,7 +450,8 @@ public class IboxCoasterMeshGenerator : MeshGenerator
                     bottomBeamEnd = bottomBeamStart - bottomBeamDirection.normalized * beamWidth;
 
                     planePosition = endPoint;
-                    linePosition = bottomBeamStart;
+                    bottomLinePosition = bottomBeamStart;
+                    topLinePosition =  new Vector3(bottomLinePosition.x, Mathf.Max(startPoint.y, endPoint.y), bottomLinePosition.z);
                     attachToStartPoint = false;
                 }
                 else
@@ -461,7 +463,8 @@ public class IboxCoasterMeshGenerator : MeshGenerator
                     bottomBeamStart = bottomBeamEnd + bottomBeamDirection.normalized * beamWidth;
 
                     planePosition = startPoint;
-                    linePosition = bottomBeamEnd;
+                    bottomLinePosition = bottomBeamEnd;
+                    topLinePosition =  new Vector3(bottomLinePosition.x, Mathf.Max(startPoint.y, endPoint.y), bottomLinePosition.z);
                     attachToStartPoint = true;
                 }
 
@@ -517,12 +520,12 @@ public class IboxCoasterMeshGenerator : MeshGenerator
                     }
 
                 }
-
-                if (Math.Abs(trackBanking) > 0.001)
+                
+                if (Math.Abs(trackBanking) > 90)
                 {
-                    Vector3 intersectionPoint = IntersectLineAndPlane(planePosition, planeSpanVector1, planeSpanVector2, linePosition, lineSpanVector);
-                    if (!float.IsNaN(intersectionPoint.x))
-                    {
+                   Vector3 intersectionPoint = IntersectLineAndPlan(planePosition, planeSpanVector1, planeSpanVector2, topLinePosition, lineSpanVector);
+                   if (!float.IsNaN(intersectionPoint.x))
+                   {
                         if (attachToStartPoint)
                         {
                             endPoint = intersectionPoint;
@@ -533,6 +536,22 @@ public class IboxCoasterMeshGenerator : MeshGenerator
                         }
                     }
                 }
+                else if (Math.Abs(trackBanking) > 0.001)
+                {
+                    Vector3 intersectionPoint = IntersectLineAndPlane(planePosition, planeSpanVector1, planeSpanVector2, bottomLinePosition, lineSpanVector);
+                    if (!float.IsNaN(intersectionPoint.x))
+                    {
+                        if (attachToStartPoint)
+                        {
+                            endPoint = intersectionPoint;
+                        }
+                        else
+                        {
+                            startPoint = intersectionPoint;
+                        }
+                    }                   
+                }
+                
 
                 if (Mathf.Abs(trackBanking) > iBeamBankingSwitch)
                 {
