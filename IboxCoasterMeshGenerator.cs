@@ -542,7 +542,7 @@ public class IboxCoasterMeshGenerator : MeshGenerator
                 {
                     intersectionPoint = IntersectLineAndPlane(planePosition, planeSpanVector1, planeSpanVector2, bottomLinePosition, lineSpanVector);                
                 }
-                if (!float.IsNaN(intersectionPoint.x))
+                if (Mathf.Abs(trackBanking) > 0.001 && !float.IsNaN(intersectionPoint.x))
                 {
                     if (attachToStartPoint)
                     {
