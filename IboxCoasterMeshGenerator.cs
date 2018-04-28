@@ -1,6 +1,8 @@
 ﻿using UnityEngine;
 using System;
 using System.IO;
+using TrackedRiderUtility;
+using System.Collections.Generic;
 
 public class IboxCoasterMeshGenerator : MeshGenerator
 {
@@ -61,6 +63,8 @@ public class IboxCoasterMeshGenerator : MeshGenerator
     private BoxExtruder collisionMeshExtruder;
 
     private StreamWriter streamWriter;
+
+    public Material metalMaterial;
 
     private float supportBeamExtension = 0.2f;
 
@@ -268,7 +272,7 @@ public class IboxCoasterMeshGenerator : MeshGenerator
         woodenVerticalSupportPostExtruder = new BoxExtruder(0.043f, 0.043f);
         woodenVerticalSupportPostExtruder.closeEnds = true;
         woodenVerticalSupportPostExtruder.setUV(14, 14);
-        base.setModelExtruders(iboxLeftRailExtruder, iboxRightRailExtruder, topperLeftRailExtruder, topperLeftPlankExtruder_1, topperLeftPlankExtruder_2, topperLeftPlankExtruder_3, topperLeftPlankExtruder_4, topperLeftPlankExtruder_5, topperLeftPlankExtruder_6, topperRightRailExtruder, topperRightPlankExtruder_1, topperRightPlankExtruder_2, topperRightPlankExtruder_3, topperRightPlankExtruder_4, topperRightPlankExtruder_5, topperRightPlankExtruder_6, metalFrontCrossTieExtruder_1, metalFrontCrossTieExtruder_2, metalFrontCrossTieExtruder_3, metalRearCrossTieExtruder_1, metalRearCrossTieExtruder_2, metalRearCrossTieExtruder_3, metalIBeamExtruder_1, metalIBeamExtruder_2, metalIBeamExtruder_3, woodenVerticalSupportPostExtruder);
+        base.setModelExtruders(topperLeftPlankExtruder_1, topperLeftPlankExtruder_2, topperLeftPlankExtruder_3, topperLeftPlankExtruder_4, topperLeftPlankExtruder_5, topperLeftPlankExtruder_6, topperRightPlankExtruder_1, topperRightPlankExtruder_2, topperRightPlankExtruder_3, topperRightPlankExtruder_4, topperRightPlankExtruder_5, topperRightPlankExtruder_6, metalFrontCrossTieExtruder_1, metalFrontCrossTieExtruder_2, metalFrontCrossTieExtruder_3, metalRearCrossTieExtruder_1, metalRearCrossTieExtruder_2, metalRearCrossTieExtruder_3, metalIBeamExtruder_1, metalIBeamExtruder_2, metalIBeamExtruder_3, woodenVerticalSupportPostExtruder);
     }
 
     public override void sampleAt(TrackSegment4 trackSegment, float t)
@@ -578,6 +582,52 @@ public class IboxCoasterMeshGenerator : MeshGenerator
                 }
             }
         }
+        if (useTopperTrack)
+        {
+            GameObject gameObject = new GameObject("TopperLeftRail");
+            gameObject.transform.parent = putMeshOnGO.transform;
+            gameObject.transform.localPosition = Vector3.zero;
+            gameObject.transform.localRotation = Quaternion.identity;
+            MeshRenderer meshRenderer = gameObject.AddComponent<MeshRenderer>();
+            meshRenderer.sharedMaterial = metalMaterial;
+            MeshFilter meshFilter = gameObject.AddComponent<MeshFilter>();
+            Mesh mesh = topperLeftRailExtruder.getMesh(putMeshOnGO.transform.worldToLocalMatrix);
+            trackSegment.addGeneratedMesh(mesh);
+            meshFilter.mesh = mesh;
+            GameObject gameObject2 = new GameObject("TopperRightRail");
+            gameObject2.transform.parent = putMeshOnGO.transform;
+            gameObject2.transform.localPosition = Vector3.zero;
+            gameObject2.transform.localRotation = Quaternion.identity;
+            MeshRenderer meshRenderer2 = gameObject2.AddComponent<MeshRenderer>();
+            meshRenderer2.sharedMaterial = metalMaterial;
+            MeshFilter meshFilter2 = gameObject2.AddComponent<MeshFilter>();
+            Mesh mesh2 = topperRightRailExtruder.getMesh(putMeshOnGO.transform.worldToLocalMatrix);
+            trackSegment.addGeneratedMesh(mesh2);
+            meshFilter2.mesh = mesh2;
+        }
+        else
+        {
+            GameObject gameObject = new GameObject("IboxLeftRail");
+            gameObject.transform.parent = putMeshOnGO.transform;
+            gameObject.transform.localPosition = Vector3.zero;
+            gameObject.transform.localRotation = Quaternion.identity;
+            MeshRenderer meshRenderer = gameObject.AddComponent<MeshRenderer>();
+            meshRenderer.sharedMaterial = metalMaterial;
+            MeshFilter meshFilter = gameObject.AddComponent<MeshFilter>();
+            Mesh mesh = iboxLeftRailExtruder.getMesh(putMeshOnGO.transform.worldToLocalMatrix);
+            trackSegment.addGeneratedMesh(mesh);
+            meshFilter.mesh = mesh;
+            GameObject gameObject2 = new GameObject("IboxRightRail");
+            gameObject2.transform.parent = putMeshOnGO.transform;
+            gameObject2.transform.localPosition = Vector3.zero;
+            gameObject2.transform.localRotation = Quaternion.identity;
+            MeshRenderer meshRenderer2 = gameObject2.AddComponent<MeshRenderer>();
+            meshRenderer2.sharedMaterial = metalMaterial;
+            MeshFilter meshFilter2 = gameObject2.AddComponent<MeshFilter>();
+            Mesh mesh2 = iboxRightRailExtruder.getMesh(putMeshOnGO.transform.worldToLocalMatrix);
+            trackSegment.addGeneratedMesh(mesh2);
+            meshFilter2.mesh = mesh2;
+        }
     }
 
     public Vector3 IntersectLineAndPlane(Vector3 planePoint, Vector3 planeSpanVector1, Vector3 planeSpanVector2, Vector3 linePoint, Vector3 lineSpanVector)
@@ -624,7 +674,7 @@ public class IboxCoasterMeshGenerator : MeshGenerator
 
     public override Mesh getMesh(GameObject putMeshOnGO)
     {
-        return MeshCombiner.start().add(topperLeftRailExtruder, topperLeftPlankExtruder_1, topperLeftPlankExtruder_2, topperLeftPlankExtruder_3, topperLeftPlankExtruder_4, topperLeftPlankExtruder_5, topperLeftPlankExtruder_6, topperRightRailExtruder, topperRightPlankExtruder_1, topperRightPlankExtruder_2, topperRightPlankExtruder_3, topperRightPlankExtruder_4, topperRightPlankExtruder_5, topperRightPlankExtruder_6, iboxLeftRailExtruder, iboxRightRailExtruder, metalFrontCrossTieExtruder_1, metalFrontCrossTieExtruder_2, metalFrontCrossTieExtruder_3, metalRearCrossTieExtruder_1, metalRearCrossTieExtruder_2, metalRearCrossTieExtruder_3, metalIBeamExtruder_1, metalIBeamExtruder_2, metalIBeamExtruder_3, woodenVerticalSupportPostExtruder).end(putMeshOnGO.transform.worldToLocalMatrix);
+        return MeshCombiner.start().add(topperLeftPlankExtruder_1, topperLeftPlankExtruder_2, topperLeftPlankExtruder_3, topperLeftPlankExtruder_4, topperLeftPlankExtruder_5, topperLeftPlankExtruder_6, topperRightPlankExtruder_1, topperRightPlankExtruder_2, topperRightPlankExtruder_3, topperRightPlankExtruder_4, topperRightPlankExtruder_5, topperRightPlankExtruder_6, metalFrontCrossTieExtruder_1, metalFrontCrossTieExtruder_2, metalFrontCrossTieExtruder_3, metalRearCrossTieExtruder_1, metalRearCrossTieExtruder_2, metalRearCrossTieExtruder_3, metalIBeamExtruder_1, metalIBeamExtruder_2, metalIBeamExtruder_3, woodenVerticalSupportPostExtruder).end(putMeshOnGO.transform.worldToLocalMatrix);
     }
 
     public override Mesh getCollisionMesh(GameObject putMeshOnGO)
