@@ -299,7 +299,7 @@ public class IboxCoasterMeshGenerator : MeshGenerator
             topperRightPlankExtruder_6.extrude(middlePoint2 - (normal * -0.112511f), tangentPoint, normal);
         }
         else
-        { 
+        {
             iboxLeftRailExtruder.extrude(middlePoint, tangentPoint, normal);
             iboxRightRailExtruder.extrude(middlePoint2, tangentPoint, normal);
         }
@@ -520,38 +520,29 @@ public class IboxCoasterMeshGenerator : MeshGenerator
                     }
 
                 }
-                
+
+                Vector3 intersectionPoint = new Vector3();
+
                 if (Math.Abs(trackBanking) > 90)
                 {
-                   Vector3 intersectionPoint = IntersectLineAndPlan(planePosition, planeSpanVector1, planeSpanVector2, topLinePosition, lineSpanVector);
-                   if (!float.IsNaN(intersectionPoint.x))
-                   {
-                        if (attachToStartPoint)
-                        {
-                            endPoint = intersectionPoint;
-                        }
-                        else
-                        {
-                            startPoint = intersectionPoint;
-                        }
-                    }
+                    intersectionPoint = IntersectLineAndPlan(planePosition, planeSpanVector1, planeSpanVector2, topLinePosition, lineSpanVector);
                 }
                 else if (Math.Abs(trackBanking) > 0.001)
                 {
-                    Vector3 intersectionPoint = IntersectLineAndPlane(planePosition, planeSpanVector1, planeSpanVector2, bottomLinePosition, lineSpanVector);
-                    if (!float.IsNaN(intersectionPoint.x))
-                    {
-                        if (attachToStartPoint)
-                        {
-                            endPoint = intersectionPoint;
-                        }
-                        else
-                        {
-                            startPoint = intersectionPoint;
-                        }
-                    }                   
+                    intersectionPoint = IntersectLineAndPlane(planePosition, planeSpanVector1, planeSpanVector2, bottomLinePosition, lineSpanVector);                
                 }
-                
+                if (!float.IsNaN(intersectionPoint.x))
+                {
+                    if (attachToStartPoint)
+                    {
+                        endPoint = intersectionPoint;
+                    }
+                    else
+                    {
+                        startPoint = intersectionPoint;
+                    }
+                }
+
 
                 if (Mathf.Abs(trackBanking) > iBeamBankingSwitch)
                 {
