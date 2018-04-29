@@ -58,6 +58,10 @@ public class IboxCoasterMeshGenerator : MeshGenerator
 
     private ShapeExtruder metalIBeamExtruder_3;
 
+    private ShapeExtruder metalTopperCrossTie_1;
+
+    private ShapeExtruder metalTopperCrossTie_2;
+
     private BoxExtruder woodenVerticalSupportPostExtruder;
 
     private BoxExtruder collisionMeshExtruder;
@@ -268,6 +272,26 @@ public class IboxCoasterMeshGenerator : MeshGenerator
         }, true);
         metalIBeamExtruder_3.setUV(15, 14);
         metalIBeamExtruder_3.closeEnds = true;
+        metalTopperCrossTie_1 = new ShapeExtruder();
+        metalTopperCrossTie_1.setShape(new Vector3[4]
+        {
+            new Vector3(-0.030167f, -0.120113f, 0f),
+            new Vector3(0f, -0.120113f, 0f),
+            new Vector3(-0.002167f, -0.12228f, 0f),
+            new Vector3(-0.030167f, -0.12228f, 0f)
+        }, true);
+        metalTopperCrossTie_1.setUV(15, 14);
+        metalTopperCrossTie_1.closeEnds = true;
+        metalTopperCrossTie_2 = new ShapeExtruder();
+        metalTopperCrossTie_2.setShape(new Vector3[4]
+        {
+            new Vector3(0f, -0.120113f, 0f),
+            new Vector3(0f, -0.150113f, 0f),
+            new Vector3(-0.002167f, -0.150113f, 0f),
+            new Vector3(-0.002167f, -0.12228f, 0f)
+        }, true);
+        metalTopperCrossTie_2.setUV(15, 14);
+        metalTopperCrossTie_2.closeEnds = true;
         collisionMeshExtruder = new BoxExtruder(trackWidth, 0.02666f);
         buildVolumeMeshExtruder = new BoxExtruder(trackWidth, 0.8f);
         buildVolumeMeshExtruder.closeEnds = true;
@@ -337,7 +361,12 @@ public class IboxCoasterMeshGenerator : MeshGenerator
 
             if (isTopperCrosstie)
             {
-
+                metalTopperCrossTie_1.extrude(trackPivot + binormal * .3f, -1f * binormal, normal);
+                metalTopperCrossTie_1.extrude(trackPivot - binormal * .3f, -1f * binormal, normal);
+                metalTopperCrossTie_1.end();
+                metalTopperCrossTie_2.extrude(trackPivot + binormal * .3f, -1f * binormal, normal);
+                metalTopperCrossTie_2.extrude(trackPivot - binormal * .3f, -1f * binormal, normal);
+                metalTopperCrossTie_2.end();
             }
             else
             {
@@ -593,6 +622,8 @@ public class IboxCoasterMeshGenerator : MeshGenerator
         {
             metalShapeExtruders.Add(topperLeftRailExtruder);
             metalShapeExtruders.Add(topperRightRailExtruder);
+            metalShapeExtruders.Add(metalTopperCrossTie_1);
+            metalShapeExtruders.Add(metalTopperCrossTie_2);
         }
         else
         {

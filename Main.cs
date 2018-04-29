@@ -28,9 +28,9 @@ namespace HybridCoasters
 
             binder = new TrackRiderBinder("kvwQwhKWWG");
             TrackedRide iboxCoaster =
-                binder.RegisterTrackedRide<TrackedRide>("Floorless Coaster", "IboxCoaster", "RMC IBox");
+                binder.RegisterTrackedRide<TrackedRide>("Floorless Coaster", "IboxCoaster", "Steel Hybrid Coaster");
             TrackedRide topperCoaster =
-                binder.RegisterTrackedRide<TrackedRide>("Floorless Coaster", "TopperCoaster", "RMC Topper Track");
+                binder.RegisterTrackedRide<TrackedRide>("Floorless Coaster", "TopperCoaster", "Wooden Hybrid Coaster");
             IboxCoasterMeshGenerator iboxTrackGenerator =
                 binder.RegisterMeshGenerator<IboxCoasterMeshGenerator>(iboxCoaster);
             IboxCoasterMeshGenerator topperTrackGenerator =
@@ -81,10 +81,10 @@ namespace HybridCoasters
 
             CoasterCarInstantiator iboxCoasterCarInstantiator =
                 binder.RegisterCoasterCarInstaniator<CoasterCarInstantiator>(iboxCoaster, "RmcCoasterInsantiator",
-                    "RMC Train", 1, 15, 6);
+                    "Hybrid Coaster Cars", 1, 15, 6);
             CoasterCarInstantiator topperCoasterCarInstantiator =
                 binder.RegisterCoasterCarInstaniator<CoasterCarInstantiator>(topperCoaster, "RmcCoasterInsantiator",
-                    "RMC Train", 1, 15, 6);
+                    "Hybrid Coaster Cars", 1, 15, 6);
 
             BaseCar frontCar = binder.RegisterCar<BaseCar>(Object.Instantiate(FrontCartGo), "RmcCoaster_Front_Car",
                 .35f, 0f, true, new[]
