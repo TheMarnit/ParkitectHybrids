@@ -40,6 +40,10 @@ namespace HybridCoasters
             TrackRideHelper.PassMeshGeneratorProperties(TrackRideHelper.GetTrackedRide("Floorless Coaster").meshGenerator,
                 topperCoaster.meshGenerator);
 
+            iboxCoaster.canCurveLifts = true;
+            topperCoaster.canCurveLifts = true;
+            iboxCoaster.description = "A rollercoaster combining a steel track and a mix of wooden and steel supports to allow elements not normally found on wooden coasters.";
+            topperCoaster.description = "A rollercoaster combining a wooden track and a mix of wooden and steel supports to allow elements not normally found on wooden coasters.";
             iboxTrackGenerator.path = Path;
             topperTrackGenerator.path = Path;
             iboxTrackGenerator.crossBeamGO = null;

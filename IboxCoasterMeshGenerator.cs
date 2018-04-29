@@ -379,7 +379,7 @@ public class IboxCoasterMeshGenerator : MeshGenerator
         woodenVerticalSupportPostExtruder = new BoxExtruder(0.043f, 0.043f);
         woodenVerticalSupportPostExtruder.closeEnds = true;
         woodenVerticalSupportPostExtruder.setUV(14, 14);
-        base.setModelExtruders(topperLeftPlankExtruder_1, topperLeftPlankExtruder_2, topperLeftPlankExtruder_3, topperLeftPlankExtruder_4, topperLeftPlankExtruder_5, topperLeftPlankExtruder_6, topperRightPlankExtruder_1, topperRightPlankExtruder_2, topperRightPlankExtruder_3, topperRightPlankExtruder_4, topperRightPlankExtruder_5, topperRightPlankExtruder_6, woodenVerticalSupportPostExtruder, metalTopperCrossTie_7, metalTopperCrossTie_8);
+        base.setModelExtruders(topperLeftPlankExtruder_1, topperLeftPlankExtruder_2, topperLeftPlankExtruder_3, topperLeftPlankExtruder_4, topperLeftPlankExtruder_5, topperLeftPlankExtruder_6, topperRightPlankExtruder_1, topperRightPlankExtruder_2, topperRightPlankExtruder_3, topperRightPlankExtruder_4, topperRightPlankExtruder_5, topperRightPlankExtruder_6, woodenVerticalSupportPostExtruder);
     }
 
     public override void sampleAt(TrackSegment4 trackSegment, float t)
@@ -723,12 +723,16 @@ public class IboxCoasterMeshGenerator : MeshGenerator
         {
             metalShapeExtruders.Add(topperLeftRailExtruder);
             metalShapeExtruders.Add(topperRightRailExtruder);
+            /*
             metalShapeExtruders.Add(metalTopperCrossTie_1);
             metalShapeExtruders.Add(metalTopperCrossTie_2);
             metalShapeExtruders.Add(metalTopperCrossTie_3);
             metalShapeExtruders.Add(metalTopperCrossTie_4);
             metalShapeExtruders.Add(metalTopperCrossTie_5);
             metalShapeExtruders.Add(metalTopperCrossTie_6);
+            metalShapeExtruders.Add(metalTopperCrossTie_7);
+            metalShapeExtruders.Add(metalTopperCrossTie_8);
+            */
         }
         else
         {
@@ -809,7 +813,7 @@ public class IboxCoasterMeshGenerator : MeshGenerator
 
     public override Mesh getMesh(GameObject putMeshOnGO)
     {
-        return MeshCombiner.start().add(topperLeftPlankExtruder_1, topperLeftPlankExtruder_2, topperLeftPlankExtruder_3, topperLeftPlankExtruder_4, topperLeftPlankExtruder_5, topperLeftPlankExtruder_6, topperRightPlankExtruder_1, topperRightPlankExtruder_2, topperRightPlankExtruder_3, topperRightPlankExtruder_4, topperRightPlankExtruder_5, topperRightPlankExtruder_6, woodenVerticalSupportPostExtruder, metalTopperCrossTie_7, metalTopperCrossTie_8).end(putMeshOnGO.transform.worldToLocalMatrix);
+        return MeshCombiner.start().add(topperLeftPlankExtruder_1, topperLeftPlankExtruder_2, topperLeftPlankExtruder_3, topperLeftPlankExtruder_4, topperLeftPlankExtruder_5, topperLeftPlankExtruder_6, topperRightPlankExtruder_1, topperRightPlankExtruder_2, topperRightPlankExtruder_3, topperRightPlankExtruder_4, topperRightPlankExtruder_5, topperRightPlankExtruder_6, woodenVerticalSupportPostExtruder).end(putMeshOnGO.transform.worldToLocalMatrix);
     }
 
     public override Mesh getCollisionMesh(GameObject putMeshOnGO)
