@@ -62,6 +62,18 @@ public class IboxCoasterMeshGenerator : MeshGenerator
 
     private ShapeExtruder metalTopperCrossTie_2;
 
+    private ShapeExtruder metalTopperCrossTie_3;
+
+    private ShapeExtruder metalTopperCrossTie_4;
+
+    private ShapeExtruder metalTopperCrossTie_5;
+
+    private ShapeExtruder metalTopperCrossTie_6;
+
+    private ShapeExtruder metalTopperCrossTie_7;
+
+    private ShapeExtruder metalTopperCrossTie_8;
+
     private BoxExtruder woodenVerticalSupportPostExtruder;
 
     private BoxExtruder collisionMeshExtruder;
@@ -275,30 +287,99 @@ public class IboxCoasterMeshGenerator : MeshGenerator
         metalTopperCrossTie_1 = new ShapeExtruder();
         metalTopperCrossTie_1.setShape(new Vector3[4]
         {
-            new Vector3(-0.030167f, -0.120113f, 0f),
-            new Vector3(0f, -0.120113f, 0f),
+            new Vector3(-0.030167f, -0.12228f, 0f),
             new Vector3(-0.002167f, -0.12228f, 0f),
-            new Vector3(-0.030167f, -0.12228f, 0f)
+            new Vector3(-0.000001f, -0.120113f, 0f),
+            new Vector3(-0.030167f, -0.120113f, 0f)
         }, true);
         metalTopperCrossTie_1.setUV(15, 14);
         metalTopperCrossTie_1.closeEnds = true;
         metalTopperCrossTie_2 = new ShapeExtruder();
         metalTopperCrossTie_2.setShape(new Vector3[4]
         {
-            new Vector3(0f, -0.120113f, 0f),
-            new Vector3(0f, -0.150113f, 0f),
+            new Vector3(-0.002167f, -0.12228f, 0f),
             new Vector3(-0.002167f, -0.150113f, 0f),
-            new Vector3(-0.002167f, -0.12228f, 0f)
+            new Vector3(-0.000001f, -0.150113f, 0f),
+            new Vector3(-0.000001f, -0.120113f, 0f)
         }, true);
         metalTopperCrossTie_2.setUV(15, 14);
         metalTopperCrossTie_2.closeEnds = true;
+        metalTopperCrossTie_3 = new ShapeExtruder();
+        metalTopperCrossTie_3.setShape(new Vector3[4]
+        {
+            new Vector3(0.000001f, 0.290799f, 0f),
+            new Vector3(0.030166f, 0.290799f, 0f),
+            new Vector3(0.030166f, 0.288799f, 0f),
+            new Vector3(0.002166f, 0.288799f, 0f)
+        }, true);
+        metalTopperCrossTie_3.setUV(15, 14);
+        metalTopperCrossTie_3.closeEnds = true;
+        metalTopperCrossTie_4 = new ShapeExtruder();
+        metalTopperCrossTie_4.setShape(new Vector3[4]
+        {
+            new Vector3(0.000001f, 0.290799f, 0f),
+            new Vector3(0.002166f, 0.288799f, 0f),
+            new Vector3(0.002166f, 0.250466f, 0f),
+            new Vector3(0.000001f, 0.250466f, 0f)
+        }, true);
+        metalTopperCrossTie_4.setUV(15, 14);
+        metalTopperCrossTie_4.closeEnds = true;
+        metalTopperCrossTie_5 = new ShapeExtruder();
+        metalTopperCrossTie_5.setShape(new Vector3[4]
+        {
+            new Vector3(0f, -0.250868f, 0f),
+            new Vector3(0.002166f, -0.250868f, 0f),
+            new Vector3(0.002166f, -0.289201f, 0f),
+            new Vector3(0f, -0.291201f, 0f)
+        }, true);
+        metalTopperCrossTie_5.setUV(15, 14);
+        metalTopperCrossTie_5.closeEnds = true;
+        metalTopperCrossTie_6 = new ShapeExtruder();
+        metalTopperCrossTie_6.setShape(new Vector3[4]
+        {
+            new Vector3(0.002166f, -0.289201f, 0f),
+            new Vector3(0.030166f, -0.289201f, 0f),
+            new Vector3(0.030166f, -0.291201f, 0f),
+            new Vector3(0f, -0.291201f, 0f)
+        }, true);
+        metalTopperCrossTie_6.setUV(15, 14);
+        metalTopperCrossTie_6.closeEnds = true;
+        metalTopperCrossTie_7 = new ShapeExtruder();
+        metalTopperCrossTie_7.setShape(new Vector3[5]
+        {
+            /*
+            new Vector3(0.274786f, -0.006497f, 0f),
+            new Vector3(0.240674f, -0.006497f, 0f),
+            new Vector3(0.240674f, -0.02686f, 0f),
+            new Vector3(0.250466f, -0.042196f, 0f),
+            new Vector3(0.250466f, -0.042196f, 0f)
+            */
+            new Vector3(-0.275188f, -0.006497f, 0f),
+            new Vector3(-0.275188f, -0.042196f, 0f),
+            new Vector3(-0.250868f, -0.042196f, 0f),
+            new Vector3(-0.241076f, -0.02686f, 0f),
+            new Vector3(-0.241076f, -0.006497f, 0f)
+        }, true);
+        metalTopperCrossTie_7.setUV(14, 15);
+        metalTopperCrossTie_7.closeEnds = true;
+        metalTopperCrossTie_8 = new ShapeExtruder();
+        metalTopperCrossTie_8.setShape(new Vector3[5]
+        {
+            new Vector3(-0.275188f, -0.006497f, 0f),
+            new Vector3(-0.275188f, -0.042196f, 0f),
+            new Vector3(-0.250868f, -0.042196f, 0f),
+            new Vector3(-0.241076f, -0.02686f, 0f),
+            new Vector3(-0.241076f, -0.006497f, 0f)
+        }, true);
+        metalTopperCrossTie_8.setUV(15, 15);
+        metalTopperCrossTie_8.closeEnds = true;
         collisionMeshExtruder = new BoxExtruder(trackWidth, 0.02666f);
         buildVolumeMeshExtruder = new BoxExtruder(trackWidth, 0.8f);
         buildVolumeMeshExtruder.closeEnds = true;
         woodenVerticalSupportPostExtruder = new BoxExtruder(0.043f, 0.043f);
         woodenVerticalSupportPostExtruder.closeEnds = true;
         woodenVerticalSupportPostExtruder.setUV(14, 14);
-        base.setModelExtruders(topperLeftPlankExtruder_1, topperLeftPlankExtruder_2, topperLeftPlankExtruder_3, topperLeftPlankExtruder_4, topperLeftPlankExtruder_5, topperLeftPlankExtruder_6, topperRightPlankExtruder_1, topperRightPlankExtruder_2, topperRightPlankExtruder_3, topperRightPlankExtruder_4, topperRightPlankExtruder_5, topperRightPlankExtruder_6, woodenVerticalSupportPostExtruder);
+        base.setModelExtruders(topperLeftPlankExtruder_1, topperLeftPlankExtruder_2, topperLeftPlankExtruder_3, topperLeftPlankExtruder_4, topperLeftPlankExtruder_5, topperLeftPlankExtruder_6, topperRightPlankExtruder_1, topperRightPlankExtruder_2, topperRightPlankExtruder_3, topperRightPlankExtruder_4, topperRightPlankExtruder_5, topperRightPlankExtruder_6, woodenVerticalSupportPostExtruder, metalTopperCrossTie_7, metalTopperCrossTie_8);
     }
 
     public override void sampleAt(TrackSegment4 trackSegment, float t)
@@ -361,12 +442,32 @@ public class IboxCoasterMeshGenerator : MeshGenerator
 
             if (isTopperCrosstie)
             {
-                metalTopperCrossTie_1.extrude(trackPivot + binormal * .3f, -1f * binormal, normal);
-                metalTopperCrossTie_1.extrude(trackPivot - binormal * .3f, -1f * binormal, normal);
+                /*
+                metalTopperCrossTie_1.extrude(trackPivot + binormal * .3f, binormal, normal);
+                metalTopperCrossTie_1.extrude(trackPivot - binormal * .3f, binormal, normal);
                 metalTopperCrossTie_1.end();
-                metalTopperCrossTie_2.extrude(trackPivot + binormal * .3f, -1f * binormal, normal);
-                metalTopperCrossTie_2.extrude(trackPivot - binormal * .3f, -1f * binormal, normal);
+                metalTopperCrossTie_2.extrude(trackPivot + binormal * .3f, binormal, normal);
+                metalTopperCrossTie_2.extrude(trackPivot - binormal * .3f, binormal, normal);
                 metalTopperCrossTie_2.end();
+                metalTopperCrossTie_3.extrude(trackPivot - normal * -0.021113f, normal, -1f * binormal);
+                metalTopperCrossTie_3.extrude(trackPivot - normal * -0.150113f, normal, -1f * binormal);
+                metalTopperCrossTie_3.end();
+                metalTopperCrossTie_4.extrude(trackPivot - normal * -0.021113f, normal, -1f * binormal);
+                metalTopperCrossTie_4.extrude(trackPivot - normal * -0.150113f, normal, -1f * binormal);
+                metalTopperCrossTie_4.end();
+                metalTopperCrossTie_5.extrude(trackPivot - normal * -0.021113f, normal, -1f * binormal);
+                metalTopperCrossTie_5.extrude(trackPivot - normal * -0.150113f, normal, -1f * binormal);
+                metalTopperCrossTie_5.end();
+                metalTopperCrossTie_6.extrude(trackPivot - normal * -0.021113f, normal, -1f * binormal);
+                metalTopperCrossTie_6.extrude(trackPivot - normal * -0.150113f, normal, -1f * binormal);
+                metalTopperCrossTie_6.end();
+                metalTopperCrossTie_7.extrude(trackPivot + tangentPoint * -0.00213f, tangentPoint * -1, normal);
+                metalTopperCrossTie_7.extrude(trackPivot + tangentPoint * -0.00001f, tangentPoint * -1, normal);
+                metalTopperCrossTie_7.end();
+                metalTopperCrossTie_8.extrude(trackPivot + tangentPoint * -0.00213f, tangentPoint, normal);
+                metalTopperCrossTie_8.extrude(trackPivot + tangentPoint * -0.00001f, tangentPoint, normal);
+                metalTopperCrossTie_8.end();
+                */
             }
             else
             {
@@ -624,6 +725,10 @@ public class IboxCoasterMeshGenerator : MeshGenerator
             metalShapeExtruders.Add(topperRightRailExtruder);
             metalShapeExtruders.Add(metalTopperCrossTie_1);
             metalShapeExtruders.Add(metalTopperCrossTie_2);
+            metalShapeExtruders.Add(metalTopperCrossTie_3);
+            metalShapeExtruders.Add(metalTopperCrossTie_4);
+            metalShapeExtruders.Add(metalTopperCrossTie_5);
+            metalShapeExtruders.Add(metalTopperCrossTie_6);
         }
         else
         {
@@ -704,7 +809,7 @@ public class IboxCoasterMeshGenerator : MeshGenerator
 
     public override Mesh getMesh(GameObject putMeshOnGO)
     {
-        return MeshCombiner.start().add(topperLeftPlankExtruder_1, topperLeftPlankExtruder_2, topperLeftPlankExtruder_3, topperLeftPlankExtruder_4, topperLeftPlankExtruder_5, topperLeftPlankExtruder_6, topperRightPlankExtruder_1, topperRightPlankExtruder_2, topperRightPlankExtruder_3, topperRightPlankExtruder_4, topperRightPlankExtruder_5, topperRightPlankExtruder_6, woodenVerticalSupportPostExtruder).end(putMeshOnGO.transform.worldToLocalMatrix);
+        return MeshCombiner.start().add(topperLeftPlankExtruder_1, topperLeftPlankExtruder_2, topperLeftPlankExtruder_3, topperLeftPlankExtruder_4, topperLeftPlankExtruder_5, topperLeftPlankExtruder_6, topperRightPlankExtruder_1, topperRightPlankExtruder_2, topperRightPlankExtruder_3, topperRightPlankExtruder_4, topperRightPlankExtruder_5, topperRightPlankExtruder_6, woodenVerticalSupportPostExtruder, metalTopperCrossTie_7, metalTopperCrossTie_8).end(putMeshOnGO.transform.worldToLocalMatrix);
     }
 
     public override Mesh getCollisionMesh(GameObject putMeshOnGO)
