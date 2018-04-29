@@ -50,8 +50,8 @@ namespace HybridCoasters
             topperTrackGenerator.crossBeamGO = null;
             iboxTrackGenerator.supportInstantiator = null;
             topperTrackGenerator.supportInstantiator = null;
-            iboxTrackGenerator.stationPlatformGO = TrackRideHelper.GetTrackedRide("Steel Coaster").meshGenerator.stationPlatformGO;
-            topperTrackGenerator.stationPlatformGO = TrackRideHelper.GetTrackedRide("Steel Coaster").meshGenerator.stationPlatformGO;
+            iboxTrackGenerator.stationPlatformGO = TrackRideHelper.GetTrackedRide("Spinning Coaster").meshGenerator.stationPlatformGO;
+            topperTrackGenerator.stationPlatformGO = TrackRideHelper.GetTrackedRide("Spinning Coaster").meshGenerator.stationPlatformGO;
             iboxTrackGenerator.frictionWheelsGO = TrackRideHelper.GetTrackedRide("Junior Coaster").meshGenerator.frictionWheelsGO;
             topperTrackGenerator.frictionWheelsGO = TrackRideHelper.GetTrackedRide("Junior Coaster").meshGenerator.frictionWheelsGO;
             iboxTrackGenerator.material = TrackRideHelper.GetTrackedRide("Wooden Coaster").meshGenerator.material;

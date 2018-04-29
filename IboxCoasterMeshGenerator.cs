@@ -425,15 +425,15 @@ public class IboxCoasterMeshGenerator : MeshGenerator
     {
         base.afterExtrusion(trackSegment, putMeshOnGO);
         float sample = trackSegment.getLength(0) / ((float)Mathf.RoundToInt(trackSegment.getLength(0) / this.crossBeamSpacing) * 2);
-        float pos = 0f;
+        float pos = sample;
         bool isTopperCrosstie = false;
         int index = 0;
-        while (pos < trackSegment.getLength(0))
+        while (pos <= trackSegment.getLength(0) + 0.000001f)
         {
-            float tForDistance = trackSegment.getTForDistance(pos, 0);
-
             index++;
+            float tForDistance = trackSegment.getTForDistance(pos, 0);
             pos += sample;
+
             isTopperCrosstie = !isTopperCrosstie;
             Vector3 normal = trackSegment.getNormal(tForDistance);
             Vector3 tangentPoint = trackSegment.getTangentPoint(tForDistance);
@@ -627,6 +627,21 @@ public class IboxCoasterMeshGenerator : MeshGenerator
                         metalCrossTieEnd();
                     }
 
+                    Vector3 leftVerticalSupportPost = bottomBeamEnd;
+                    Vector3 rightVerticalSupportPost = bottomBeamStart;
+
+                    if (Mathf.Abs(trackBanking) < 90)
+                    {
+                        if (trackBanking > -90 && trackBanking < iBeamBankingSwitch)
+                        {
+                            leftVerticalSupportPost = ((bottomBeamEnd - trackPivot) * 0.8f) + trackPivot;
+                        }
+                        if(trackBanking < 90 && trackBanking > iBeamBankingSwitch * -1)
+                        { 
+                            rightVerticalSupportPost = ((bottomBeamStart - trackPivot) * 0.8f) + trackPivot;
+                        }
+                    }
+
                     LandPatch terrain = GameController.Instance.park.getTerrain(trackPivot);
 
                     if (terrain != null)
@@ -640,13 +655,16 @@ public class IboxCoasterMeshGenerator : MeshGenerator
                     Vector3 projectedTangentDirection = tangentPoint;
                     projectedTangentDirection.y = 0;
                     projectedTangentDirection.Normalize();
-                    Vector3 leftVerticalSupportPost = new Vector3(bottomBeamEnd.x, startPoint.y + supportBeamExtension, bottomBeamEnd.z);
-                    Vector3 rightVerticalSupportPost = new Vector3(bottomBeamStart.x, endPoint.y + supportBeamExtension, bottomBeamStart.z);
 
                     if (Mathf.Abs(trackBanking) > 90)
                     {
                         leftVerticalSupportPost.y = Mathf.Max(startPoint.y, endPoint.y) + supportBeamExtension;
                         rightVerticalSupportPost.y = Mathf.Max(startPoint.y, endPoint.y) + supportBeamExtension;
+                    }
+                    else
+                    {
+                        leftVerticalSupportPost.y = startPoint.y + supportBeamExtension;
+                        rightVerticalSupportPost.y = endPoint.y + supportBeamExtension;
                     }
 
                     //left post
@@ -833,7 +851,7 @@ public class IboxCoasterMeshGenerator : MeshGenerator
 
     public override float trackOffsetY()
     {
-        return 0.24f;
+        return 0.23f;
     }
 
     public override float getTunnelOffsetY()
