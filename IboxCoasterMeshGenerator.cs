@@ -433,7 +433,7 @@ public override void afterExtrusion (TrackSegment4 trackSegment, GameObject putM
     Vector3 previousSupportRight = new Vector3 ();
     Vector3 previousSupportTangent = new Vector3 ();
     bool previousFlippedSupportPosts = false;
-    while (pos <= trackSegment.getLength (0) + 0.000001f) {
+    while (pos <= trackSegment.getLength (0) + 0.1f) {
         index++;
         float tForDistance = trackSegment.getTForDistance (pos, 0);
         pos += supportInterval;
@@ -671,13 +671,14 @@ public override void afterExtrusion (TrackSegment4 trackSegment, GameObject putM
                         previousSupportRight = temp;
                     }
                     //Horizontal beams
-                    float leftY = Mathf.Min (previousSupportLeft.y, leftVerticalSupportPost.y) - 0.05f;
-                    float rightY = Mathf.Min (previousSupportRight.y, rightVerticalSupportPost.y) - 0.05f;
+                    float leftY = Mathf.Min (previousSupportLeft.y, leftVerticalSupportPost.y) - 0.06f;
+                    float rightY = Mathf.Min (previousSupportRight.y, rightVerticalSupportPost.y) - 0.06f;
+                    float connectionY = Mathf.Min (leftY, rightY);
                     //left horizontal beams
                     bool first = true;
                     while (leftY > groundHeight) {
                         woodenHorizontalSupportPostExtruder.extrude (new Vector3 (previousSupportLeft.x, leftY, previousSupportLeft.z), previousSupportTangent, Vector3.up);
-                        woodenHorizontalSupportPostExtruder.extrude (new Vector3 (leftVerticalSupportPost.x, leftY, leftVerticalSupportPost.z), previousSupportTangent, Vector3.up);
+                        woodenHorizontalSupportPostExtruder.extrude (new Vector3 (leftVerticalSupportPost.x, leftY, leftVerticalSupportPost.z), projectedTangentDirection, Vector3.up);
                         woodenHorizontalSupportPostExtruder.end ();
                         if (first) {
                             leftY -= woodenHorizontalSupportPostExtruder.height * 1.5f;
@@ -692,7 +693,7 @@ public override void afterExtrusion (TrackSegment4 trackSegment, GameObject putM
                     //right horizontal beams
                     while (rightY > groundHeight) {
                         woodenHorizontalSupportPostExtruder.extrude (new Vector3 (previousSupportRight.x, rightY, previousSupportRight.z), previousSupportTangent, Vector3.up);
-                        woodenHorizontalSupportPostExtruder.extrude (new Vector3 (rightVerticalSupportPost.x, rightY, rightVerticalSupportPost.z), previousSupportTangent, Vector3.up);
+                        woodenHorizontalSupportPostExtruder.extrude (new Vector3 (rightVerticalSupportPost.x, rightY, rightVerticalSupportPost.z), projectedTangentDirection, Vector3.up);
                         woodenHorizontalSupportPostExtruder.end ();
                         if (first) {
                             rightY -= woodenHorizontalSupportPostExtruder.height * 1.5f;
@@ -701,6 +702,28 @@ public override void afterExtrusion (TrackSegment4 trackSegment, GameObject putM
                         }
                         else{
                             rightY -= supportVerticalGrid;
+                        }
+                    }
+                    first = true;
+                    //connector beams
+                    while (connectionY > groundHeight) {
+                        if (connectionY < bottomBeamEnd.y) {
+                            woodenHorizontalSupportPostExtruder.extrude (new Vector3 (rightVerticalSupportPost.x, connectionY, rightVerticalSupportPost.z), Vector3.Cross (projectedTangentDirection, Vector3.up), Vector3.up);
+                            woodenHorizontalSupportPostExtruder.extrude (new Vector3 (leftVerticalSupportPost.x, connectionY, leftVerticalSupportPost.z), Vector3.Cross (projectedTangentDirection, Vector3.up), Vector3.up);
+                            woodenHorizontalSupportPostExtruder.end ();
+                            if (!first && connectionY > supportVerticalGrid) {
+                                woodenHorizontalSupportPostExtruder.extrude (new Vector3 (rightVerticalSupportPost.x, connectionY, rightVerticalSupportPost.z), Vector3.Cross (projectedTangentDirection, Vector3.up), Vector3.up);
+                                woodenHorizontalSupportPostExtruder.extrude (new Vector3 (leftVerticalSupportPost.x, connectionY - supportVerticalGrid, leftVerticalSupportPost.z), Vector3.Cross (projectedTangentDirection, Vector3.up), Vector3.up);
+                                woodenHorizontalSupportPostExtruder.end ();
+                            }
+                        }
+                        if (first) {
+                            connectionY -= woodenHorizontalSupportPostExtruder.height * 1.5f;
+                            connectionY = Mathf.Floor (connectionY / supportVerticalGrid) * supportVerticalGrid;
+                            first = false;
+                        }
+                        else{
+                            connectionY -= supportVerticalGrid;
                         }
                     }
                 }
