@@ -61,6 +61,7 @@
   <ItemGroup>
     <Compile Include="HybridCoasterMeshGenerator.cs" />
     <Compile Include="HybridCoasterSupportInstantiator.cs" />
+    <Compile Include="HybridSupportLocation.cs" />
     <Compile Include="Main.cs" />
     <Compile Include="SupportHybridCoaster.cs" />
     <Compile Include="TrackRiderUtil\BaseCar.cs" />

@@ -53,9 +53,11 @@ namespace HybridCoasters
             iboxTrackGenerator.crossBeamGO = null;
             topperTrackGenerator.crossBeamGO = null;
             GameObject hybridSupportContainer = new GameObject("HybridCoasterSupports");
+            GameObject hybridSupportLocation = new GameObject("HybridCoasterSupportLocation");
             hybridSupportContainer.AddComponent<SupportHybridCoaster>();
+            hybridSupportLocation.AddComponent<HybridSupportLocation>();
             SupportConfiguration hybridSupportConfiguration = new SupportConfiguration();
-            hybridSupportConfiguration.supportLocationGO = iboxCoaster.supportConfiguration.supportLocationGO;
+            hybridSupportConfiguration.supportLocationGO = hybridSupportLocation.GetComponent<HybridSupportLocation>();
             hybridSupportConfiguration.supportSettings = new SupportSettings[1];
             hybridSupportConfiguration.supportSettings[0] = new SupportSettings();
             hybridSupportConfiguration.supportSettings[0].minimumHeightAboveGround = 0.25f;

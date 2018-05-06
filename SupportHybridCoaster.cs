@@ -1,5 +1,4 @@
-﻿// SupportInvertedTrain
-using System.IO;
+﻿using System.IO;
 using UnityEngine;
 
 public class SupportHybridCoaster : SupportTrackedRide
@@ -7,9 +6,10 @@ public class SupportHybridCoaster : SupportTrackedRide
 
     private StreamWriter streamWriter;
 
+    public TrackSegment4 trackSegment;
+
     protected override void build()
     {
-        WriteToFile("BUILD");
         base.boundingVolumes.AddRange(base.GetComponentsInChildren<BoundingVolume>());
         base.transform.position = base.origin;
         Vector3 tangent = base.tangent;
@@ -20,6 +20,7 @@ public class SupportHybridCoaster : SupportTrackedRide
 
     private void render()
     {
+        WriteToFile(trackSegment.ToString());
         Transform startPositionMarker = base.transform;
         LandPatch terrain = GameController.Instance.park.getTerrain(startPositionMarker.position);
 
