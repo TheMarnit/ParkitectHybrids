@@ -425,9 +425,6 @@ public override void sampleAt (TrackSegment4 trackSegment, float t)
 public override void afterExtrusion (TrackSegment4 trackSegment, GameObject putMeshOnGO)
 {
     base.afterExtrusion (trackSegment, putMeshOnGO);
-
-    WriteToFile (trackSegment.track.TrackedRide.supportConfiguration.supportSettings [0].supportGO.ToString ());
-    WriteToFile (trackSegment.track.TrackedRide.supportConfiguration.supportSettings [0].supportGO.GetType ().ToString ());
     float supportInterval = trackSegment.getLength (0) / ((float)Mathf.RoundToInt (trackSegment.getLength (0) / this.crossBeamSpacing) * 2);
     float pos = 0;
     bool isTopperCrosstie = true;
@@ -658,6 +655,7 @@ public override void afterExtrusion (TrackSegment4 trackSegment, GameObject putM
                     leftVerticalSupportPost.y = startPoint.y;
                     rightVerticalSupportPost.y = endPoint.y;
                 }
+                /*
                 if (pos > supportInterval) {
                     //left post
                     woodenVerticalSupportPostExtruder.extrude (new Vector3 (leftVerticalSupportPost.x, leftVerticalSupportPost.y + supportBeamExtension, leftVerticalSupportPost.z), new Vector3 (0, -1, 0), projectedTangentDirection);
@@ -735,6 +733,7 @@ public override void afterExtrusion (TrackSegment4 trackSegment, GameObject putM
                 previousSupportRight = rightVerticalSupportPost;
                 previousSupportTangent = projectedTangentDirection;
                 previousFlippedSupportPosts = Mathf.Abs (trackBanking) > 90;
+                */
             }
 
             Vector3 intersectionPoint = new Vector3 ();
