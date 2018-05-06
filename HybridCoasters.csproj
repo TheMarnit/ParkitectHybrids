@@ -59,8 +59,10 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="IboxCoasterMeshGenerator.cs" />
+    <Compile Include="HybridCoasterMeshGenerator.cs" />
+    <Compile Include="HybridCoasterSupportInstantiator.cs" />
     <Compile Include="Main.cs" />
+    <Compile Include="SupportHybridCoaster.cs" />
     <Compile Include="TrackRiderUtil\BaseCar.cs" />
     <Compile Include="TrackRiderUtil\GameObjectHelper.cs" />
     <Compile Include="TrackRiderUtil\TrackRideHelper.cs" />

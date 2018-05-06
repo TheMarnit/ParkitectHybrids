@@ -19,6 +19,7 @@ namespace HybridCoasters
         public void onEnabled()
         {
             var dsc = System.IO.Path.DirectorySeparatorChar;
+
             //assetBundle = AssetBundle.LoadFromFile(Path + dsc + "assetbundle" + dsc + "assetpack");
             //SideCrossBeamsGo = assetBundle.LoadAsset<GameObject>("21a3f09b79e34f147a2b6017d2b6c05b");
             assetBundle = AssetBundle.LoadFromFile(Path + dsc + "assetbundle" + dsc + "corkscrewassetpack");
@@ -31,14 +32,17 @@ namespace HybridCoasters
                 binder.RegisterTrackedRide<TrackedRide>("Floorless Coaster", "IboxCoaster", "Steel Hybrid Coaster");
             TrackedRide topperCoaster =
                 binder.RegisterTrackedRide<TrackedRide>("Floorless Coaster", "TopperCoaster", "Wooden Hybrid Coaster");
-            IboxCoasterMeshGenerator iboxTrackGenerator =
-                binder.RegisterMeshGenerator<IboxCoasterMeshGenerator>(iboxCoaster);
-            IboxCoasterMeshGenerator topperTrackGenerator =
-                binder.RegisterMeshGenerator<IboxCoasterMeshGenerator>(topperCoaster);
+            HybridCoasterMeshGenerator iboxTrackGenerator =
+                binder.RegisterMeshGenerator<HybridCoasterMeshGenerator>(iboxCoaster);
+            HybridCoasterMeshGenerator topperTrackGenerator =
+                binder.RegisterMeshGenerator<HybridCoasterMeshGenerator>(topperCoaster);
             TrackRideHelper.PassMeshGeneratorProperties(TrackRideHelper.GetTrackedRide("Floorless Coaster").meshGenerator,
                 iboxCoaster.meshGenerator);
             TrackRideHelper.PassMeshGeneratorProperties(TrackRideHelper.GetTrackedRide("Floorless Coaster").meshGenerator,
                 topperCoaster.meshGenerator);
+
+            HybridCoasterSupportInstantiator iboxSupportGenerator = binder.RegisterSupportGenerator<HybridCoasterSupportInstantiator>(iboxCoaster);
+            HybridCoasterSupportInstantiator topperSupportGenerator = binder.RegisterSupportGenerator<HybridCoasterSupportInstantiator>(topperCoaster);
 
             iboxCoaster.canCurveLifts = true;
             topperCoaster.canCurveLifts = true;
@@ -48,8 +52,18 @@ namespace HybridCoasters
             topperTrackGenerator.path = Path;
             iboxTrackGenerator.crossBeamGO = null;
             topperTrackGenerator.crossBeamGO = null;
-            iboxTrackGenerator.supportInstantiator = null;
-            topperTrackGenerator.supportInstantiator = null;
+            GameObject hybridSupportContainer = new GameObject("HybridCoasterSupports");
+            hybridSupportContainer.AddComponent<SupportHybridCoaster>();
+            SupportConfiguration hybridSupportConfiguration = new SupportConfiguration();
+            hybridSupportConfiguration.supportLocationGO = iboxCoaster.supportConfiguration.supportLocationGO;
+            hybridSupportConfiguration.supportSettings = new SupportSettings[1];
+            hybridSupportConfiguration.supportSettings[0] = new SupportSettings();
+            hybridSupportConfiguration.supportSettings[0].minimumHeightAboveGround = 0.25f;
+            hybridSupportConfiguration.supportSettings[0].supportGO = hybridSupportContainer.GetComponent<SupportHybridCoaster>();
+            iboxCoaster.supportConfiguration = hybridSupportConfiguration;
+            //iboxCoaster.supportConfiguration.supportSettings[0].supportGO = hybridSupportContainer.GetComponent<SupportHybridCoaster>();
+            //iboxTrackGenerator.supportInstantiator = null;
+            //topperTrackGenerator.supportInstantiator = null;
             iboxTrackGenerator.stationPlatformGO = TrackRideHelper.GetTrackedRide("Spinning Coaster").meshGenerator.stationPlatformGO;
             topperTrackGenerator.stationPlatformGO = TrackRideHelper.GetTrackedRide("Spinning Coaster").meshGenerator.stationPlatformGO;
             iboxTrackGenerator.frictionWheelsGO = TrackRideHelper.GetTrackedRide("Junior Coaster").meshGenerator.frictionWheelsGO;
@@ -60,20 +74,20 @@ namespace HybridCoasters
             topperTrackGenerator.metalMaterial = TrackRideHelper.GetTrackedRide("Steel Coaster").meshGenerator.material;
             topperTrackGenerator.useTopperTrack = true;
 
-            iboxCoaster.price = 1200;
-            topperCoaster.price = 1200;
+            iboxCoaster.price = 1650;
+            topperCoaster.price = 1700;
             iboxCoaster.carTypes = new CoasterCarInstantiator[] { };
             topperCoaster.carTypes = new CoasterCarInstantiator[] { };
             iboxCoaster.meshGenerator.customColors = new[]
             {
-                new Color(132f / 255f, 40f / 255f, 137f / 255f, 1), new Color(23f / 255f, 133f / 255f, 30f / 255f, 1),
-                new Color(180 / 255f, 180f / 255f, 180f / 255f, 1),new Color(108f / 255f, 70f / 255f, 23f / 255f, 1)
-            };
+        new Color (132f / 255f, 40f / 255f, 137f / 255f, 1), new Color (23f / 255f, 133f / 255f, 30f / 255f, 1),
+        new Color (180 / 255f, 180f / 255f, 180f / 255f, 1), new Color (108f / 255f, 70f / 255f, 23f / 255f, 1)
+    };
             topperCoaster.meshGenerator.customColors = new[]
             {
-                new Color(132f / 255f, 40f / 255f, 137f / 255f, 1), new Color(23f / 255f, 133f / 255f, 30f / 255f, 1),
-                new Color(180 / 255f, 180f / 255f, 180f / 255f, 1),new Color(108f / 255f, 70f / 255f, 23f / 255f, 1)
-            };
+        new Color (132f / 255f, 40f / 255f, 137f / 255f, 1), new Color (23f / 255f, 133f / 255f, 30f / 255f, 1),
+        new Color (180 / 255f, 180f / 255f, 180f / 255f, 1), new Color (108f / 255f, 70f / 255f, 23f / 255f, 1)
+    };
             iboxCoaster.dropsImportanceExcitement = 0.665f;
             topperCoaster.dropsImportanceExcitement = 0.665f;
             iboxCoaster.inversionsImportanceExcitement = 0.673f;
@@ -92,11 +106,11 @@ namespace HybridCoasters
 
             BaseCar frontCar = binder.RegisterCar<BaseCar>(Object.Instantiate(FrontCartGo), "RmcCoaster_Front_Car",
                 .35f, 0f, true, new[]
-                {
-                    new Color(168f / 255, 14f / 255, 14f / 255), new Color(234f / 255, 227f / 255, 227f / 255),
-                    new Color(73f / 255, 73f / 255, 73f / 255)
-                }
-            );
+                    {
+                new Color (168f / 255, 14f / 255, 14f / 255), new Color (234f / 255, 227f / 255, 227f / 255),
+                new Color (73f / 255, 73f / 255, 73f / 255)
+                    }
+                );
             iboxCoasterCarInstantiator.frontVehicleGO = frontCar;
             topperCoasterCarInstantiator.frontVehicleGO = frontCar;
             iboxCoasterCarInstantiator.frontVehicleGO.gameObject.AddComponent<RestraintRotationController>().closedAngles =
@@ -113,11 +127,11 @@ namespace HybridCoasters
 
             BaseCar backCar = binder.RegisterCar<BaseCar>(Object.Instantiate(CartGo), "RmcCoaster_Back_Car", .35f,
                 -.3f, false, new[]
-                {
-                    new Color(168f / 255, 14f / 255, 14f / 255), new Color(234f / 255, 227f / 255, 227f / 255),
-                    new Color(73f / 255, 73f / 255, 73f / 255)
-                }
-            );
+                    {
+                new Color (168f / 255, 14f / 255, 14f / 255), new Color (234f / 255, 227f / 255, 227f / 255),
+                new Color (73f / 255, 73f / 255, 73f / 255)
+                    }
+                );
             iboxCoasterCarInstantiator.vehicleGO = backCar;
             topperCoasterCarInstantiator.vehicleGO = backCar;
             iboxCoasterCarInstantiator.vehicleGO.gameObject.AddComponent<RestraintRotationController>().closedAngles =
@@ -139,14 +153,14 @@ namespace HybridCoasters
         {
             binder.Unload();
         }
-        
+
         public string Name => "Hybrid Coasters";
 
         public string Description => "Adds Hybrid Rollercoasters";
 
         string IMod.Identifier => "Marnit@ParkitectHybridCoasters";
-	
-	
+
+
         public string Path
         {
             get

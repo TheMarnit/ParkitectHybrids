@@ -4,7 +4,7 @@ using System.IO;
 using TrackedRiderUtility;
 using System.Collections.Generic;
 
-public class IboxCoasterMeshGenerator : MeshGenerator
+public class HybridCoasterMeshGenerator : MeshGenerator
 {
 private const float buildVolumeHeight = 0.8f;
 
@@ -425,6 +425,9 @@ public override void sampleAt (TrackSegment4 trackSegment, float t)
 public override void afterExtrusion (TrackSegment4 trackSegment, GameObject putMeshOnGO)
 {
     base.afterExtrusion (trackSegment, putMeshOnGO);
+
+    WriteToFile (trackSegment.track.TrackedRide.supportConfiguration.supportSettings [0].supportGO.ToString ());
+    WriteToFile (trackSegment.track.TrackedRide.supportConfiguration.supportSettings [0].supportGO.GetType ().ToString ());
     float supportInterval = trackSegment.getLength (0) / ((float)Mathf.RoundToInt (trackSegment.getLength (0) / this.crossBeamSpacing) * 2);
     float pos = 0;
     bool isTopperCrosstie = true;
@@ -638,6 +641,7 @@ public override void afterExtrusion (TrackSegment4 trackSegment, GameObject putM
 
                 if (terrain != null) {
                     groundHeight = terrain.getLowestHeight ();
+                    groundHeight = Mathf.Min(trackSegment.getStartpoint().y, trackSegment.getEndpoint().y);
                 }
                 else{
                     groundHeight = 0;
