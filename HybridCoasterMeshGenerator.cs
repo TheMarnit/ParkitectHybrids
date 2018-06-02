@@ -81,8 +81,6 @@ public class HybridCoasterMeshGenerator : MeshGenerator
 
     private BoxExtruder woodenVerticalSupportPostExtruder;
 
-    private BoxExtruder woodenHorizontalSupportPostExtruder;
-
     private BoxExtruder collisionMeshExtruder;
 
     private StreamWriter streamWriter;
@@ -384,10 +382,7 @@ public class HybridCoasterMeshGenerator : MeshGenerator
         woodenVerticalSupportPostExtruder = new BoxExtruder(0.043f, 0.043f);
         woodenVerticalSupportPostExtruder.closeEnds = true;
         woodenVerticalSupportPostExtruder.setUV(14, 14);
-        woodenHorizontalSupportPostExtruder = new BoxExtruder(0.03f, 0.06f);
-        woodenHorizontalSupportPostExtruder.closeEnds = true;
-        woodenHorizontalSupportPostExtruder.setUV(14, 14);
-        base.setModelExtruders(topperLeftPlankExtruder_1, topperLeftPlankExtruder_2, topperLeftPlankExtruder_3, topperLeftPlankExtruder_4, topperLeftPlankExtruder_5, topperLeftPlankExtruder_6, topperRightPlankExtruder_1, topperRightPlankExtruder_2, topperRightPlankExtruder_3, topperRightPlankExtruder_4, topperRightPlankExtruder_5, topperRightPlankExtruder_6, woodenVerticalSupportPostExtruder, woodenHorizontalSupportPostExtruder);
+        base.setModelExtruders(topperLeftPlankExtruder_1, topperLeftPlankExtruder_2, topperLeftPlankExtruder_3, topperLeftPlankExtruder_4, topperLeftPlankExtruder_5, topperLeftPlankExtruder_6, topperRightPlankExtruder_1, topperRightPlankExtruder_2, topperRightPlankExtruder_3, topperRightPlankExtruder_4, topperRightPlankExtruder_5, topperRightPlankExtruder_6, woodenVerticalSupportPostExtruder);
     }
 
     public override void sampleAt(TrackSegment4 trackSegment, float t)
@@ -427,22 +422,293 @@ public class HybridCoasterMeshGenerator : MeshGenerator
         {
             liftExtruder.extrude(vector - normal * (0.16f + chainLiftHeight / 2f), tangentPoint, normal);
         }
+        if (t == 0f)
+        {
+            WriteToFile("creating segment: " + trackSegment.getStartpoint().ToString());
+            supportPosts[trackSegment.getStartpoint()] = new List<supportPosition>();
+            float supportInterval = trackSegment.getLength(0) / (float)Mathf.RoundToInt(trackSegment.getLength(0) / this.beamSpacing);
+            float pos = 0;
+            while (pos <= trackSegment.getLength(0) + 0.1f)
+            {
+                float tForDistance = trackSegment.getTForDistance(pos, 0);
+                pos += supportInterval;
+                normal = trackSegment.getNormal(tForDistance);
+                tangentPoint = trackSegment.getTangentPoint(tForDistance);
+                Vector3 binormal = Vector3.Cross(normal, tangentPoint).normalized;
+                trackPivot = base.getTrackPivot(trackSegment.getPoint(tForDistance, 0), normal);
+
+                WriteToFile("Adding post to: " + trackSegment.getStartpoint().ToString());
+                supportPosition position = new supportPosition();
+                position.topBarVisible = false;
+                position.bottomBarVisible = false;
+                float trackDirection = Mathf.Repeat(Mathf.Atan2(tangentPoint.x, tangentPoint.z) * Mathf.Rad2Deg, 360.0f);
+                trackDirection += 45;
+                bool trackFacingXPositive = false;
+                bool trackFacingXNegative = false;
+                bool trackFacingZPositive = false;
+                bool trackFacingZNegative = false;
+                if (trackDirection < 90)
+                    trackFacingZPositive = true;
+                else if (trackDirection < 180)
+                    trackFacingXPositive = true;
+                else if (trackDirection < 270)
+                    trackFacingZNegative = true;
+                else
+                    trackFacingXNegative = true;
+
+                float trackBanking = 0f;
+
+                Vector3 bottomBeamDirection = new Vector3();
+
+                if (trackFacingXPositive)
+                {
+                    trackBanking = Mathf.Repeat(Mathf.Atan2(normal.z, -normal.y), Mathf.PI * 2.0f) * Mathf.Rad2Deg;
+                    if (trackBanking > 180)
+                        trackBanking -= 360;
+                    Vector2 tangentProjection = new Vector2(tangentPoint.x, tangentPoint.z);
+
+                    Vector2 normalProjection = Rotate(tangentProjection, 90);
+                    bottomBeamDirection.z = normalProjection.y;
+                    bottomBeamDirection.x = normalProjection.x;
+                    bottomBeamDirection.Normalize();
+                    bottomBeamDirection *= Math.Abs(trackBanking) > 90 ? 1.0f : -1.0f;
+                }
+                if (trackFacingXNegative)
+                {
+                    trackBanking = Mathf.Repeat(Mathf.Atan2(-normal.z, -normal.y), Mathf.PI * 2.0f) * Mathf.Rad2Deg;
+                    if (trackBanking > 180)
+                        trackBanking -= 360;
+
+                    bottomBeamDirection.z = tangentPoint.x;
+                    bottomBeamDirection.x = tangentPoint.z;
+
+                    Vector2 tangentProjection = new Vector2(tangentPoint.x, tangentPoint.z);
+
+                    Vector2 normalProjection = Rotate(tangentProjection, 90);
+                    bottomBeamDirection.z = normalProjection.y;
+                    bottomBeamDirection.x = normalProjection.x;
+                    bottomBeamDirection.Normalize();
+                    bottomBeamDirection *= Math.Abs(trackBanking) > 90 ? 1.0f : -1.0f;
+                }
+                if (trackFacingZPositive)
+                {
+                    trackBanking = Mathf.Repeat(Mathf.Atan2(normal.x, -normal.y), Mathf.PI * 2.0f) * Mathf.Rad2Deg;
+                    if (trackBanking > 180)
+                        trackBanking -= 360;
+
+                    bottomBeamDirection.z = tangentPoint.x;
+                    bottomBeamDirection.x = tangentPoint.z;
+
+                    Vector2 tangentProjection = new Vector2(tangentPoint.x, tangentPoint.z);
+
+                    Vector2 normalProjection = Rotate(tangentProjection, 90);
+                    bottomBeamDirection.z = normalProjection.y;
+                    bottomBeamDirection.x = normalProjection.x;
+                    bottomBeamDirection.Normalize();
+                    bottomBeamDirection *= Math.Abs(trackBanking) <= 90 ? -1.0f : 1.0f;
+                }
+                if (trackFacingZNegative)
+                {
+                    trackBanking = Mathf.Repeat(Mathf.Atan2(-normal.x, -normal.y), Mathf.PI * 2.0f) * Mathf.Rad2Deg;
+                    if (trackBanking > 180)
+                        trackBanking -= 360;
+
+                    bottomBeamDirection.z = tangentPoint.x;
+                    bottomBeamDirection.x = tangentPoint.z;
+
+                    Vector2 tangentProjection = new Vector2(tangentPoint.x, tangentPoint.z);
+
+                    Vector2 normalProjection = Rotate(tangentProjection, 90);
+                    bottomBeamDirection.z = normalProjection.y;
+                    bottomBeamDirection.x = normalProjection.x;
+                    bottomBeamDirection.Normalize();
+                    bottomBeamDirection *= Math.Abs(trackBanking) > 90 ? 1.0f : -1.0f;
+                }
+
+                //track beam
+                Vector3 startPoint = trackPivot + normal * 0.159107f + binormal * (beamWidth / 2);
+                Vector3 endPoint = trackPivot + normal * 0.159107f - binormal * (beamWidth / 2);
+
+                bool equalHeight = Mathf.Abs(startPoint.y - endPoint.y) < 0.97f;
+
+                //Bottom beam calculation
+                Vector3 bottomBeamPivot = new Vector3(trackPivot.x, Mathf.Min(startPoint.y, endPoint.y), trackPivot.z);
+
+                Vector3 bottomBeamStart = new Vector3();
+                Vector3 bottomBeamEnd = new Vector3();
+
+                Vector3 bottomBeamBinormal = bottomBeamDirection.normalized;
+
+                Vector3 planePosition = new Vector3();
+                Vector3 planeSpanVector1 = endPoint - startPoint;
+                Vector3 planeSpanVector2 = tangentPoint;
+                Vector3 bottomLinePosition = new Vector3();
+                Vector3 topLinePosition = new Vector3();
+                Vector3 lineSpanVector = bottomBeamDirection;
+                bool attachToStartPoint = false;
+                if (((trackFacingXNegative || trackFacingXPositive) ? -1.0f : 1.0) * ((Mathf.Abs(trackBanking) <= 90) ? -1.0f : 1.0f) * trackBanking < 0)
+                {
+                    bottomBeamStart.x = endPoint.x;
+                    bottomBeamStart.z = endPoint.z;
+                    bottomBeamStart.y = endPoint.y > startPoint.y ? startPoint.y : endPoint.y;
+
+                    bottomBeamEnd = bottomBeamStart - bottomBeamDirection.normalized * beamWidth;
+
+                    planePosition = endPoint;
+                    bottomLinePosition = bottomBeamStart;
+                    topLinePosition = new Vector3(bottomLinePosition.x, Mathf.Max(startPoint.y, endPoint.y), bottomLinePosition.z);
+                    attachToStartPoint = false;
+                }
+                else
+                {
+                    bottomBeamEnd.x = startPoint.x;
+                    bottomBeamEnd.z = startPoint.z;
+                    bottomBeamEnd.y = endPoint.y > startPoint.y ? startPoint.y : endPoint.y;
+
+                    bottomBeamStart = bottomBeamEnd + bottomBeamDirection.normalized * beamWidth;
+
+                    planePosition = startPoint;
+                    bottomLinePosition = bottomBeamEnd;
+                    topLinePosition = new Vector3(bottomLinePosition.x, Mathf.Max(startPoint.y, endPoint.y), bottomLinePosition.z);
+                    attachToStartPoint = true;
+                }
+
+
+
+                if (Mathf.Abs(trackBanking) > 90)
+                {
+                    bottomBeamStart.y -= ((Mathf.Abs(trackBanking) / 90) - 1) * invertHeadSpace;
+                    bottomBeamEnd.y -= ((Mathf.Abs(trackBanking) / 90) - 1) * invertHeadSpace;
+                    position.topBarVisible = true;
+                }
+                if (Mathf.Abs(trackBanking) > iBeamBankingSwitch)
+                {
+                    position.bottomBarVisible = true;
+                }
+                position.bottomBarLeft = bottomBeamStart;
+                position.bottomBarRight = bottomBeamEnd;
+                position.topBarLeft = new Vector3(bottomBeamEnd.x, Mathf.Max(startPoint.y, endPoint.y), bottomBeamEnd.z);
+                position.topBarRight = new Vector3(bottomBeamStart.x, Mathf.Max(startPoint.y, endPoint.y), bottomBeamStart.z);
+                position.barsTangent = -1f * bottomBeamBinormal;
+
+                Vector3 leftVerticalSupportPost = bottomBeamEnd;
+                Vector3 rightVerticalSupportPost = bottomBeamStart;
+
+                if (!position.topBarVisible)
+                {
+                    if (trackBanking < iBeamBankingSwitch && trackBanking > -90f)
+                    {
+                        leftVerticalSupportPost = ((bottomBeamEnd - trackPivot) * 0.8f) + trackPivot;
+                    }
+                    if (trackBanking > -iBeamBankingSwitch && trackBanking < 90f)
+                    {
+                        rightVerticalSupportPost = ((bottomBeamStart - trackPivot) * 0.8f) + trackPivot;
+                    }
+                }
+
+                LandPatch terrain = GameController.Instance.park.getTerrain(trackPivot);
+
+                if (terrain != null)
+                {
+                    groundHeight = terrain.getLowestHeight();
+                    groundHeight = Mathf.Min(trackSegment.getStartpoint().y, trackSegment.getEndpoint().y);
+                }
+                else
+                {
+                    groundHeight = 0;
+                }
+                Vector3 projectedTangentDirection = tangentPoint;
+                projectedTangentDirection.y = 0;
+                projectedTangentDirection.Normalize();
+
+                if (Mathf.Abs(trackBanking) > 90)
+                {
+                    leftVerticalSupportPost.y = Mathf.Max(startPoint.y, endPoint.y);
+                    rightVerticalSupportPost.y = Mathf.Max(startPoint.y, endPoint.y);
+                }
+                else
+                {
+                    leftVerticalSupportPost.y = startPoint.y;
+                    rightVerticalSupportPost.y = endPoint.y;
+                }
+
+                Vector3 intersectionPoint = new Vector3();
+
+                if (Math.Abs(trackBanking) > 90 && position.topBarVisible)
+                {
+                    intersectionPoint = IntersectLineAndPlane(planePosition, planeSpanVector1, planeSpanVector2, topLinePosition, lineSpanVector);
+                    if (!float.IsNaN(intersectionPoint.x))
+                    {
+                        if (attachToStartPoint)
+                        {
+                            endPoint = intersectionPoint;
+                        }
+                        else
+                        {
+                            startPoint = intersectionPoint;
+                        }
+                    }
+                }
+                else if (Math.Abs(trackBanking) > 0.1)
+                {
+                    intersectionPoint = IntersectLineAndPlane(planePosition, planeSpanVector1, planeSpanVector2, bottomLinePosition, lineSpanVector);
+                }
+
+                if (Mathf.Abs(trackBanking) > 5 && !float.IsNaN(intersectionPoint.x) && (intersectionPoint - planePosition).magnitude > 0.5 && (intersectionPoint - planePosition).magnitude < 1.5)
+                {
+                    WriteToFile("IntersectionPoint:" + intersectionPoint);
+                    WriteToFile("PlanePosition:" + planePosition);
+                    WriteToFile("Magnitude:" + (intersectionPoint - planePosition).magnitude);
+                    WriteToFile("Difference:" + (intersectionPoint - planePosition));
+                    WriteToFile("TrackBanking" + trackBanking);
+                    WriteToFile("planeSpanVector1" + planeSpanVector1);
+                    WriteToFile("planeSpanVector2" + planeSpanVector2);
+                    WriteToFile("topLinePosition" + topLinePosition);
+                    WriteToFile("bottomLinePasition" + bottomLinePosition);
+                    WriteToFile("lineSpanVector" + lineSpanVector);
+                    if (attachToStartPoint)
+                    {
+                        endPoint = intersectionPoint;
+                    }
+                    else
+                    {
+                        startPoint = intersectionPoint;
+                    }
+                }
+
+                if (pos > supportInterval)
+                {
+                    if (Mathf.Abs(trackBanking) <= iBeamBankingSwitch)
+                    {
+                        float distance = 1 / Mathf.Sin((90 - Mathf.Abs(trackBanking)) * Mathf.Deg2Rad);
+                        if (attachToStartPoint)
+                        {
+                            endPoint = startPoint - ((startPoint - endPoint) * distance);
+                        }
+                        else
+                        {
+                            startPoint = endPoint - ((endPoint - startPoint) * distance);
+                        }
+                    }
+                    position.iBeamLeft = startPoint;
+                    position.iBeamRight = endPoint;
+                    position.iBeamTangent = -1f * binormal;
+                    position.iBeamNormal = equalHeight ? Vector3.up : normal;
+                }
+                position.verticalSupportPostLeft = leftVerticalSupportPost;
+                position.verticalSupportPostRight = rightVerticalSupportPost;
+                position.verticalSupportPostTangent = projectedTangentDirection;
+                supportPosts[trackSegment.getStartpoint()].Add(position);
+            }
+            WriteToFile("Count " + trackSegment.getStartpoint().ToString() + ": " + supportPosts[trackSegment.getStartpoint()].Count);
+        }
     }
 
     public override void afterExtrusion(TrackSegment4 trackSegment, GameObject putMeshOnGO)
     {
         base.afterExtrusion(trackSegment, putMeshOnGO);
-        WriteToFile("creating segment: " + trackSegment.getStartpoint().ToString());
-        supportPosts[trackSegment.getStartpoint()] = new List<supportPosition>();
-        float supportInterval = trackSegment.getLength(0) / (float)Mathf.RoundToInt(trackSegment.getLength(0) / this.beamSpacing);
         float tieInterval = trackSegment.getLength(0) / (float)Mathf.RoundToInt(trackSegment.getLength(0) / this.tieSpacing);
         float pos = 0;
-        /*
-        Vector3 previousSupportLeft = new Vector3();
-        Vector3 previousSupportRight = new Vector3();
-        Vector3 previousSupportTangent = new Vector3();
-        bool previousFlippedSupportPosts = false;
-        */
 
         // Topper Crossties
         while (pos <= trackSegment.getLength(0) + 0.1f)
@@ -480,364 +746,6 @@ public class HybridCoasterMeshGenerator : MeshGenerator
             metalTopperCrossTie_8.end();
 
         }
-        pos = 0f;
-        while (pos <= trackSegment.getLength(0) + 0.1f)
-        {
-            float tForDistance = trackSegment.getTForDistance(pos, 0);
-            pos += supportInterval;
-            Vector3 normal = trackSegment.getNormal(tForDistance);
-            Vector3 tangentPoint = trackSegment.getTangentPoint(tForDistance);
-            Vector3 binormal = Vector3.Cross(normal, tangentPoint).normalized;
-            Vector3 trackPivot = base.getTrackPivot(trackSegment.getPoint(tForDistance, 0), normal);
-
-            WriteToFile("Adding post to: " + trackSegment.getStartpoint().ToString());
-            supportPosition position = new supportPosition();
-            position.topBarVisible = false;
-            position.bottomBarVisible = false;
-            float trackDirection = Mathf.Repeat(Mathf.Atan2(tangentPoint.x, tangentPoint.z) * Mathf.Rad2Deg, 360.0f);
-            trackDirection += 45;
-            bool trackFacingXPositive = false;
-            bool trackFacingXNegative = false;
-            bool trackFacingZPositive = false;
-            bool trackFacingZNegative = false;
-            if (trackDirection < 90)
-                trackFacingZPositive = true;
-            else if (trackDirection < 180)
-                trackFacingXPositive = true;
-            else if (trackDirection < 270)
-                trackFacingZNegative = true;
-            else
-                trackFacingXNegative = true;
-
-            float trackBanking = 0f;
-
-            Vector3 bottomBeamDirection = new Vector3();
-
-            if (trackFacingXPositive)
-            {
-                trackBanking = Mathf.Repeat(Mathf.Atan2(normal.z, -normal.y), Mathf.PI * 2.0f) * Mathf.Rad2Deg;
-                if (trackBanking > 180)
-                    trackBanking -= 360;
-                Vector2 tangentProjection = new Vector2(tangentPoint.x, tangentPoint.z);
-
-                Vector2 normalProjection = Rotate(tangentProjection, 90);
-                bottomBeamDirection.z = normalProjection.y;
-                bottomBeamDirection.x = normalProjection.x;
-                bottomBeamDirection.Normalize();
-                bottomBeamDirection *= Math.Abs(trackBanking) > 90 ? 1.0f : -1.0f;
-            }
-            if (trackFacingXNegative)
-            {
-                trackBanking = Mathf.Repeat(Mathf.Atan2(-normal.z, -normal.y), Mathf.PI * 2.0f) * Mathf.Rad2Deg;
-                if (trackBanking > 180)
-                    trackBanking -= 360;
-
-                bottomBeamDirection.z = tangentPoint.x;
-                bottomBeamDirection.x = tangentPoint.z;
-
-                Vector2 tangentProjection = new Vector2(tangentPoint.x, tangentPoint.z);
-
-                Vector2 normalProjection = Rotate(tangentProjection, 90);
-                bottomBeamDirection.z = normalProjection.y;
-                bottomBeamDirection.x = normalProjection.x;
-                bottomBeamDirection.Normalize();
-                bottomBeamDirection *= Math.Abs(trackBanking) > 90 ? 1.0f : -1.0f;
-            }
-            if (trackFacingZPositive)
-            {
-                trackBanking = Mathf.Repeat(Mathf.Atan2(normal.x, -normal.y), Mathf.PI * 2.0f) * Mathf.Rad2Deg;
-                if (trackBanking > 180)
-                    trackBanking -= 360;
-
-                bottomBeamDirection.z = tangentPoint.x;
-                bottomBeamDirection.x = tangentPoint.z;
-
-                Vector2 tangentProjection = new Vector2(tangentPoint.x, tangentPoint.z);
-
-                Vector2 normalProjection = Rotate(tangentProjection, 90);
-                bottomBeamDirection.z = normalProjection.y;
-                bottomBeamDirection.x = normalProjection.x;
-                bottomBeamDirection.Normalize();
-                bottomBeamDirection *= Math.Abs(trackBanking) <= 90 ? -1.0f : 1.0f;
-            }
-            if (trackFacingZNegative)
-            {
-                trackBanking = Mathf.Repeat(Mathf.Atan2(-normal.x, -normal.y), Mathf.PI * 2.0f) * Mathf.Rad2Deg;
-                if (trackBanking > 180)
-                    trackBanking -= 360;
-
-                bottomBeamDirection.z = tangentPoint.x;
-                bottomBeamDirection.x = tangentPoint.z;
-
-                Vector2 tangentProjection = new Vector2(tangentPoint.x, tangentPoint.z);
-
-                Vector2 normalProjection = Rotate(tangentProjection, 90);
-                bottomBeamDirection.z = normalProjection.y;
-                bottomBeamDirection.x = normalProjection.x;
-                bottomBeamDirection.Normalize();
-                bottomBeamDirection *= Math.Abs(trackBanking) > 90 ? 1.0f : -1.0f;
-            }
-
-            //track beam
-            Vector3 startPoint = trackPivot + normal * 0.159107f + binormal * (beamWidth / 2);
-            Vector3 endPoint = trackPivot + normal * 0.159107f - binormal * (beamWidth / 2);
-
-            bool equalHeight = Mathf.Abs(startPoint.y - endPoint.y) < 0.97f;
-
-            //Bottom beam calculation
-            Vector3 bottomBeamPivot = new Vector3(trackPivot.x, Mathf.Min(startPoint.y, endPoint.y), trackPivot.z);
-
-            Vector3 bottomBeamStart = new Vector3();
-            Vector3 bottomBeamEnd = new Vector3();
-
-            Vector3 bottomBeamBinormal = bottomBeamDirection.normalized;
-
-            Vector3 planePosition = new Vector3();
-            Vector3 planeSpanVector1 = endPoint - startPoint;
-            Vector3 planeSpanVector2 = tangentPoint;
-            Vector3 bottomLinePosition = new Vector3();
-            Vector3 topLinePosition = new Vector3();
-            Vector3 lineSpanVector = bottomBeamDirection;
-            bool attachToStartPoint = false;
-            if (((trackFacingXNegative || trackFacingXPositive) ? -1.0f : 1.0) * ((Mathf.Abs(trackBanking) <= 90) ? -1.0f : 1.0f) * trackBanking < 0)
-            {
-                bottomBeamStart.x = endPoint.x;
-                bottomBeamStart.z = endPoint.z;
-                bottomBeamStart.y = endPoint.y > startPoint.y ? startPoint.y : endPoint.y;
-
-                bottomBeamEnd = bottomBeamStart - bottomBeamDirection.normalized * beamWidth;
-
-                planePosition = endPoint;
-                bottomLinePosition = bottomBeamStart;
-                topLinePosition = new Vector3(bottomLinePosition.x, Mathf.Max(startPoint.y, endPoint.y), bottomLinePosition.z);
-                attachToStartPoint = false;
-            }
-            else
-            {
-                bottomBeamEnd.x = startPoint.x;
-                bottomBeamEnd.z = startPoint.z;
-                bottomBeamEnd.y = endPoint.y > startPoint.y ? startPoint.y : endPoint.y;
-
-                bottomBeamStart = bottomBeamEnd + bottomBeamDirection.normalized * beamWidth;
-
-                planePosition = startPoint;
-                bottomLinePosition = bottomBeamEnd;
-                topLinePosition = new Vector3(bottomLinePosition.x, Mathf.Max(startPoint.y, endPoint.y), bottomLinePosition.z);
-                attachToStartPoint = true;
-            }
-
-
-
-            if (Mathf.Abs(trackBanking) > 90)
-            {
-                bottomBeamStart.y -= ((Mathf.Abs(trackBanking) / 90) - 1) * invertHeadSpace;
-                bottomBeamEnd.y -= ((Mathf.Abs(trackBanking) / 90) - 1) * invertHeadSpace;
-                position.topBarVisible = true;
-            }
-            if (Mathf.Abs(trackBanking) > iBeamBankingSwitch)
-            {
-                position.bottomBarVisible = true;
-            }
-            position.bottomBarLeft = bottomBeamStart;
-            position.bottomBarRight = bottomBeamEnd;
-            position.topBarLeft = new Vector3(bottomBeamEnd.x, Mathf.Max(startPoint.y, endPoint.y), bottomBeamEnd.z);
-            position.topBarRight = new Vector3(bottomBeamStart.x, Mathf.Max(startPoint.y, endPoint.y), bottomBeamStart.z);
-            position.barsTangent = -1f * bottomBeamBinormal;
-
-            Vector3 leftVerticalSupportPost = bottomBeamEnd;
-            Vector3 rightVerticalSupportPost = bottomBeamStart;
-
-            if (!position.topBarVisible)
-            {
-                if (trackBanking < iBeamBankingSwitch && trackBanking > -90f)
-                {
-                    leftVerticalSupportPost = ((bottomBeamEnd - trackPivot) * 0.8f) + trackPivot;
-                }
-                if (trackBanking > -iBeamBankingSwitch && trackBanking < 90f)
-                {
-                    rightVerticalSupportPost = ((bottomBeamStart - trackPivot) * 0.8f) + trackPivot;
-                }
-            }
-
-            LandPatch terrain = GameController.Instance.park.getTerrain(trackPivot);
-
-            if (terrain != null)
-            {
-                groundHeight = terrain.getLowestHeight();
-                groundHeight = Mathf.Min(trackSegment.getStartpoint().y, trackSegment.getEndpoint().y);
-            }
-            else
-            {
-                groundHeight = 0;
-            }
-            Vector3 projectedTangentDirection = tangentPoint;
-            projectedTangentDirection.y = 0;
-            projectedTangentDirection.Normalize();
-
-            if (Mathf.Abs(trackBanking) > 90)
-            {
-                leftVerticalSupportPost.y = Mathf.Max(startPoint.y, endPoint.y);
-                rightVerticalSupportPost.y = Mathf.Max(startPoint.y, endPoint.y);
-            }
-            else
-            {
-                leftVerticalSupportPost.y = startPoint.y;
-                rightVerticalSupportPost.y = endPoint.y;
-            }
-
-            /* horizontal support beams
-                if (pos > supportInterval)
-                {
-                    if (Mathf.Abs(trackBanking) > 90 != previousFlippedSupportPosts)
-                    {
-                        Vector3 temp = previousSupportLeft;
-                        previousSupportLeft = previousSupportRight;
-                        previousSupportRight = temp;
-                    }
-                    //Horizontal beams
-                    float leftY = Mathf.Min(previousSupportLeft.y, leftVerticalSupportPost.y) - 0.06f;
-                    float rightY = Mathf.Min(previousSupportRight.y, rightVerticalSupportPost.y) - 0.06f;
-                    float connectionY = Mathf.Min(leftY, rightY);
-                    //left horizontal beams
-                    bool first = true;
-                    while (leftY > groundHeight)
-                    {
-                        woodenHorizontalSupportPostExtruder.extrude(new Vector3(previousSupportLeft.x, leftY, previousSupportLeft.z), previousSupportTangent, Vector3.up);
-                        woodenHorizontalSupportPostExtruder.extrude(new Vector3(leftVerticalSupportPost.x, leftY, leftVerticalSupportPost.z), projectedTangentDirection, Vector3.up);
-                        woodenHorizontalSupportPostExtruder.end();
-                        if (first)
-                        {
-                            leftY -= woodenHorizontalSupportPostExtruder.height * 1.5f;
-                            leftY = Mathf.Floor(leftY / supportVerticalGrid) * supportVerticalGrid;
-                            first = false;
-                        }
-                        else
-                        {
-                            leftY -= supportVerticalGrid;
-                        }
-                    }
-                    first = true;
-                    //right horizontal beams
-                    while (rightY > groundHeight)
-                    {
-                        woodenHorizontalSupportPostExtruder.extrude(new Vector3(previousSupportRight.x, rightY, previousSupportRight.z), previousSupportTangent, Vector3.up);
-                        woodenHorizontalSupportPostExtruder.extrude(new Vector3(rightVerticalSupportPost.x, rightY, rightVerticalSupportPost.z), projectedTangentDirection, Vector3.up);
-                        woodenHorizontalSupportPostExtruder.end();
-                        if (first)
-                        {
-                            rightY -= woodenHorizontalSupportPostExtruder.height * 1.5f;
-                            rightY = Mathf.Floor(rightY / supportVerticalGrid) * supportVerticalGrid;
-                            first = false;
-                        }
-                        else
-                        {
-                            rightY -= supportVerticalGrid;
-                        }
-                    }
-                    first = true;
-                    //connector beams
-                    while (connectionY > groundHeight)
-                    {
-                        if (connectionY < bottomBeamEnd.y)
-                        {
-                            woodenHorizontalSupportPostExtruder.extrude(new Vector3(rightVerticalSupportPost.x, connectionY, rightVerticalSupportPost.z), Vector3.Cross(projectedTangentDirection, Vector3.up), Vector3.up);
-                            woodenHorizontalSupportPostExtruder.extrude(new Vector3(leftVerticalSupportPost.x, connectionY, leftVerticalSupportPost.z), Vector3.Cross(projectedTangentDirection, Vector3.up), Vector3.up);
-                            woodenHorizontalSupportPostExtruder.end();
-                            if (!first && connectionY > supportVerticalGrid)
-                            {
-                                woodenHorizontalSupportPostExtruder.extrude(new Vector3(rightVerticalSupportPost.x, connectionY, rightVerticalSupportPost.z), Vector3.Cross(projectedTangentDirection, Vector3.up), Vector3.up);
-                                woodenHorizontalSupportPostExtruder.extrude(new Vector3(leftVerticalSupportPost.x, connectionY - supportVerticalGrid, leftVerticalSupportPost.z), Vector3.Cross(projectedTangentDirection, Vector3.up), Vector3.up);
-                                woodenHorizontalSupportPostExtruder.end();
-                            }
-                        }
-                        if (first)
-                        {
-                            connectionY -= woodenHorizontalSupportPostExtruder.height * 1.5f;
-                            connectionY = Mathf.Floor(connectionY / supportVerticalGrid) * supportVerticalGrid;
-                            first = false;
-                        }
-                        else
-                        {
-                            connectionY -= supportVerticalGrid;
-                        }
-                    }
-                previousSupportLeft = leftVerticalSupportPost;
-                previousSupportRight = rightVerticalSupportPost;
-                previousSupportTangent = projectedTangentDirection;
-                previousFlippedSupportPosts = Mathf.Abs(trackBanking) > 90;
-            }
-            */
-
-            Vector3 intersectionPoint = new Vector3();
-
-            if (Math.Abs(trackBanking) > 90 && position.topBarVisible)
-            {
-                intersectionPoint = IntersectLineAndPlane(planePosition, planeSpanVector1, planeSpanVector2, topLinePosition, lineSpanVector);
-                if (!float.IsNaN(intersectionPoint.x))
-                {
-                    if (attachToStartPoint)
-                    {
-                        endPoint = intersectionPoint;
-                    }
-                    else
-                    {
-                        startPoint = intersectionPoint;
-                    }
-                }
-            }
-            else if (Math.Abs(trackBanking) > 0.1)
-            {
-                intersectionPoint = IntersectLineAndPlane(planePosition, planeSpanVector1, planeSpanVector2, bottomLinePosition, lineSpanVector);
-            }
-
-            if (Mathf.Abs(trackBanking) > 5 && !float.IsNaN(intersectionPoint.x) && (intersectionPoint - planePosition).magnitude > 0.5 && (intersectionPoint - planePosition).magnitude < 1.5)
-            {
-                WriteToFile("IntersectionPoint:" + intersectionPoint);
-                WriteToFile("PlanePosition:" + planePosition);
-                WriteToFile("Magnitude:" + (intersectionPoint - planePosition).magnitude);
-                WriteToFile("Difference:" + (intersectionPoint - planePosition));
-                WriteToFile("TrackBanking" + trackBanking);
-                WriteToFile("planeSpanVector1" + planeSpanVector1);
-                WriteToFile("planeSpanVector2" + planeSpanVector2);
-                WriteToFile("topLinePosition" + topLinePosition);
-                WriteToFile("bottomLinePasition" + bottomLinePosition);
-                WriteToFile("lineSpanVector" + lineSpanVector);
-                if (attachToStartPoint)
-                {
-                    endPoint = intersectionPoint;
-                }
-                else
-                {
-                    startPoint = intersectionPoint;
-                }
-            }
-
-            if (pos > supportInterval)
-            {
-                if (Mathf.Abs(trackBanking) <= iBeamBankingSwitch)
-                { 
-                    float distance = 1 / Mathf.Sin((90 - Mathf.Abs(trackBanking)) * Mathf.Deg2Rad);
-                    if (attachToStartPoint)
-                    {
-                        endPoint = startPoint - ((startPoint - endPoint) * distance);
-                    }
-                    else
-                    {
-                        startPoint = endPoint - ((endPoint - startPoint) * distance);
-                    }
-                }
-                position.iBeamLeft = startPoint;
-                position.iBeamRight = endPoint;
-                position.iBeamTangent = -1f * binormal;
-                position.iBeamNormal = equalHeight ? Vector3.up : normal;
-            }
-            position.verticalSupportPostLeft = leftVerticalSupportPost;
-            position.verticalSupportPostRight = rightVerticalSupportPost;
-            position.verticalSupportPostTangent = projectedTangentDirection;
-            supportPosts[trackSegment.getStartpoint()].Add(position);
-        }
-        WriteToFile("Count " + trackSegment.getStartpoint().ToString() + ": " + supportPosts[trackSegment.getStartpoint()].Count);
-
 
         //RENDER CODE HERE
         if (!(trackSegment is Station))
@@ -988,7 +896,7 @@ public class HybridCoasterMeshGenerator : MeshGenerator
 
     public override Mesh getMesh(GameObject putMeshOnGO)
     {
-        return MeshCombiner.start().add(topperLeftPlankExtruder_1, topperLeftPlankExtruder_2, topperLeftPlankExtruder_3, topperLeftPlankExtruder_4, topperLeftPlankExtruder_5, topperLeftPlankExtruder_6, topperRightPlankExtruder_1, topperRightPlankExtruder_2, topperRightPlankExtruder_3, topperRightPlankExtruder_4, topperRightPlankExtruder_5, topperRightPlankExtruder_6, woodenVerticalSupportPostExtruder, woodenHorizontalSupportPostExtruder).end(putMeshOnGO.transform.worldToLocalMatrix);
+        return MeshCombiner.start().add(topperLeftPlankExtruder_1, topperLeftPlankExtruder_2, topperLeftPlankExtruder_3, topperLeftPlankExtruder_4, topperLeftPlankExtruder_5, topperLeftPlankExtruder_6, topperRightPlankExtruder_1, topperRightPlankExtruder_2, topperRightPlankExtruder_3, topperRightPlankExtruder_4, topperRightPlankExtruder_5, topperRightPlankExtruder_6, woodenVerticalSupportPostExtruder).end(putMeshOnGO.transform.worldToLocalMatrix);
     }
 
     public override Mesh getCollisionMesh(GameObject putMeshOnGO)
