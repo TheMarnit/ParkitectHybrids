@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using HybridCoasters;
+using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 
@@ -11,9 +12,9 @@ public class SupportHybridCoaster : SupportTrackedRide
 
     private BoxExtruder woodenVerticalSupportPostExtruder;
 
-    private BoxExtruder woodenHorizontalSupportPostExtruder;
+    private BoxExtruder concreteVerticalSupportFooterExtruder;
 
-    private float crossBeamSpacing = 1f;
+    private BoxExtruder woodenHorizontalSupportPostExtruder;
 
     Vector3 leftVerticalSupportPost;
 
@@ -23,9 +24,11 @@ public class SupportHybridCoaster : SupportTrackedRide
 
     Vector3 rightVerticalSupportPost_floor;
 
-    private float beamWidth = 0.98f;
+    Vector3 projectedTangentDirection;
 
-    private float supportBeamExtension = 0.2f;
+    float leftVerticalSupportPost_footerHeight;
+
+    float rightVerticalSupportPost_footerHeight;
 
     protected override void build()
     {
@@ -37,6 +40,9 @@ public class SupportHybridCoaster : SupportTrackedRide
         woodenVerticalSupportPostExtruder = new BoxExtruder(0.043f, 0.043f);
         woodenVerticalSupportPostExtruder.closeEnds = true;
         woodenVerticalSupportPostExtruder.setUV(14, 14);
+        concreteVerticalSupportFooterExtruder = new BoxExtruder(0.08f, 0.08f);
+        concreteVerticalSupportFooterExtruder.closeEnds = true;
+        concreteVerticalSupportFooterExtruder.setUV(0, 8);
         woodenHorizontalSupportPostExtruder = new BoxExtruder(0.03f, 0.06f);
         woodenHorizontalSupportPostExtruder.closeEnds = true;
         woodenHorizontalSupportPostExtruder.setUV(14, 14);
@@ -55,42 +61,76 @@ public class SupportHybridCoaster : SupportTrackedRide
         }
         else
         {
-            float supportInterval = trackSegment.getLength(0) / ((float)Mathf.RoundToInt(trackSegment.getLength(0) / this.crossBeamSpacing) * 2);
-            float pos = 0;
-
-            int index = 0;
-            while (pos <= trackSegment.getLength(0) + 0.1f)
+            HybridCoasterMeshGenerator meshGenerator = (HybridCoasterMeshGenerator)track.TrackedRide.meshGenerator;
+            WriteToFile("Segment " + trackSegment.getStartpoint().ToString());
+            WriteToFile("Count " + meshGenerator.supportPosts[trackSegment.getStartpoint()].Count);
+            WriteToFile(meshGenerator.supportPosts.Count.ToString());
+            if (meshGenerator.supportPosts[trackSegment.getStartpoint()].Count > 0) { 
+            foreach(supportPosition position in meshGenerator.supportPosts[trackSegment.getStartpoint()])
             {
-                WriteToFile(pos + "/" + trackSegment.getLength(0));
-                index++;
-                float tForDistance = trackSegment.getTForDistance(pos, 0);
-                pos += supportInterval;
+                WriteToFile(position.ToString());
 
-                Vector3 normal = trackSegment.getNormal(tForDistance);
-                Vector3 tangentPoint = trackSegment.getTangentPoint(tForDistance);
-                Vector3 binormal = Vector3.Cross(normal, tangentPoint).normalized;
-                Vector3 trackPivot = track.TrackedRide.meshGenerator.getTrackPivot(trackSegment.getPoint(tForDistance, 0), Vector3.up);
-                Vector3 projectedTangentDirection = tangentPoint;
-                projectedTangentDirection.y = 0;
-                projectedTangentDirection.Normalize();
+                leftVerticalSupportPost = position.leftVerticalSupportPost;
+                rightVerticalSupportPost = position.rightVerticalSupportPost;
+                projectedTangentDirection = position.projectedTangentDirection;
+                /*
+                float supportInterval = trackSegment.getLength(0) / (float)Mathf.RoundToInt(trackSegment.getLength(0) / this.crossBeamSpacing);
+                float pos = 0;
 
-                WriteToFile(trackPivot.ToString());
+                int index = 0;
+                while (pos <= trackSegment.getLength(0) + 0.1f)
+                {
+                    WriteToFile(pos + "/" + trackSegment.getLength(0));
+                    index++;
+                    float tForDistance = trackSegment.getTForDistance(pos, 0);
+                    pos += supportInterval;
 
-                leftVerticalSupportPost = trackPivot + (new Vector3(0, 1, 0) * supportBeamExtension) + (binormal * (beamWidth / 2.5f));
-                rightVerticalSupportPost = trackPivot + (new Vector3(0, 1, 0) * supportBeamExtension) - (binormal * (beamWidth / 2.5f));
+                    Vector3 normal = trackSegment.getNormal(tForDistance);
+                    Vector3 tangentPoint = trackSegment.getTangentPoint(tForDistance);
+                    Vector3 binormal = Vector3.Cross(normal, tangentPoint).normalized;
+                    Vector3 trackPivot = track.TrackedRide.meshGenerator.getTrackPivot(trackSegment.getPoint(tForDistance, 0), Vector3.up);
+                    Vector3 projectedTangentDirection = tangentPoint;
+                    projectedTangentDirection.y = 0;
+                    projectedTangentDirection.Normalize();
+
+                    WriteToFile(trackPivot.ToString());
+
+                    leftVerticalSupportPost = trackPivot + (normal * 0.159107f) + (new Vector3(0, 1, 0) * supportBeamExtension) + (binormal * (beamWidth / 2.5f));
+                    rightVerticalSupportPost = trackPivot + (normal * 0.159107f) + (new Vector3(0, 1, 0) * supportBeamExtension) - (binormal * (beamWidth / 2.5f));
+                    */
                 leftVerticalSupportPost_floor = GameController.Instance.park.getTerrain(leftVerticalSupportPost).getPoint(leftVerticalSupportPost);
                 rightVerticalSupportPost_floor = GameController.Instance.park.getTerrain(rightVerticalSupportPost).getPoint(rightVerticalSupportPost);
 
-
-                if (pos > supportInterval)
+                leftVerticalSupportPost_footerHeight = leftVerticalSupportPost_floor.y + 0.1f;
+                if (GameController.Instance.park.getTerrain(leftVerticalSupportPost).WaterHeight > leftVerticalSupportPost_footerHeight)
                 {
-                    woodenVerticalSupportPostExtruder.extrude(leftVerticalSupportPost, new Vector3(0, -1, 0), projectedTangentDirection);
-                    woodenVerticalSupportPostExtruder.extrude(leftVerticalSupportPost_floor, new Vector3(0, -1, 0), projectedTangentDirection);
-                    woodenVerticalSupportPostExtruder.end();
-
-                    woodenVerticalSupportPostExtruder.extrude(rightVerticalSupportPost, new Vector3(0, -1, 0), projectedTangentDirection);
-                    woodenVerticalSupportPostExtruder.extrude(rightVerticalSupportPost_floor, new Vector3(0, -1, 0), projectedTangentDirection);
-                    woodenVerticalSupportPostExtruder.end();
+                    leftVerticalSupportPost_footerHeight = GameController.Instance.park.getTerrain(leftVerticalSupportPost).WaterHeight + 0.025f;
+                }
+                rightVerticalSupportPost_footerHeight = rightVerticalSupportPost_floor.y + 0.1f;
+                if (GameController.Instance.park.getTerrain(rightVerticalSupportPost).WaterHeight > rightVerticalSupportPost_footerHeight)
+                {
+                    rightVerticalSupportPost_footerHeight = GameController.Instance.park.getTerrain(rightVerticalSupportPost).WaterHeight + 0.025f;
+                }
+               // if (pos > supportInterval)
+                //{
+                    if (leftVerticalSupportPost.y > leftVerticalSupportPost_floor.y)
+                    {
+                        woodenVerticalSupportPostExtruder.extrude(leftVerticalSupportPost, new Vector3(0, -1, 0), projectedTangentDirection);
+                        woodenVerticalSupportPostExtruder.extrude(leftVerticalSupportPost_floor, new Vector3(0, -1, 0), projectedTangentDirection);
+                        woodenVerticalSupportPostExtruder.end();
+                        concreteVerticalSupportFooterExtruder.extrude(new Vector3(leftVerticalSupportPost_floor.x, leftVerticalSupportPost_footerHeight, leftVerticalSupportPost_floor.z), new Vector3(0, -1, 0), projectedTangentDirection);
+                        concreteVerticalSupportFooterExtruder.extrude(new Vector3(leftVerticalSupportPost_floor.x, leftVerticalSupportPost_floor.y - 0.05f, leftVerticalSupportPost_floor.z), new Vector3(0, -1, 0), projectedTangentDirection);
+                        concreteVerticalSupportFooterExtruder.end();
+                    }
+                    if (rightVerticalSupportPost.y > rightVerticalSupportPost_floor.y)
+                    {
+                        woodenVerticalSupportPostExtruder.extrude(rightVerticalSupportPost, new Vector3(0, -1, 0), projectedTangentDirection);
+                        woodenVerticalSupportPostExtruder.extrude(rightVerticalSupportPost_floor, new Vector3(0, -1, 0), projectedTangentDirection);
+                        woodenVerticalSupportPostExtruder.end();
+                        concreteVerticalSupportFooterExtruder.extrude(new Vector3(rightVerticalSupportPost_floor.x, rightVerticalSupportPost_footerHeight, rightVerticalSupportPost_floor.z), new Vector3(0, -1, 0), projectedTangentDirection);
+                        concreteVerticalSupportFooterExtruder.extrude(new Vector3(rightVerticalSupportPost_floor.x, rightVerticalSupportPost_floor.y - 0.05f, rightVerticalSupportPost_floor.z), new Vector3(0, -1, 0), projectedTangentDirection);
+                        concreteVerticalSupportFooterExtruder.end();
+                    }
                 }
             }
 
@@ -102,6 +142,10 @@ public class SupportHybridCoaster : SupportTrackedRide
             if (woodenHorizontalSupportPostExtruder.vertices.Count > 0)
             {
                 extruders.Add(woodenHorizontalSupportPostExtruder);
+            }
+            if (concreteVerticalSupportFooterExtruder.vertices.Count > 0)
+            {
+                extruders.Add(concreteVerticalSupportFooterExtruder);
             }
             foreach (BoxExtruder extruder in extruders)
             {

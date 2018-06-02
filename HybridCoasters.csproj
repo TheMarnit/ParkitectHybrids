@@ -64,6 +64,7 @@
     <Compile Include="HybridSupportLocation.cs" />
     <Compile Include="Main.cs" />
     <Compile Include="SupportHybridCoaster.cs" />
+    <Compile Include="SupportPosition.cs" />
     <Compile Include="TrackRiderUtil\BaseCar.cs" />
     <Compile Include="TrackRiderUtil\GameObjectHelper.cs" />
     <Compile Include="TrackRiderUtil\TrackRideHelper.cs" />
