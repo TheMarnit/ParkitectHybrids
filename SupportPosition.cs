@@ -19,5 +19,6 @@ public Vector3 iBeamLeft;
 public Vector3 iBeamRight;
 public Vector3 iBeamTangent;
 public Vector3 iBeamNormal;
+public float trackBanking;
 }
 }

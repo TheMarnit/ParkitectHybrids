@@ -83,6 +83,8 @@ private BoxExtruder woodenVerticalSupportPostExtruder;
 
 private BoxExtruder collisionMeshExtruder;
 
+private BoxExtruder customBuildVolumeMeshExtruder;
+
 private StreamWriter streamWriter;
 
 public Material metalMaterial;
@@ -375,12 +377,16 @@ public override void prepare (TrackSegment4 trackSegment, GameObject putMeshOnGO
     metalTopperCrossTie_8.setUV (15, 15);
     metalTopperCrossTie_8.closeEnds = true;
     collisionMeshExtruder = new BoxExtruder (trackWidth, 0.02666f);
-    buildVolumeMeshExtruder = new BoxExtruder (trackWidth, 0.8f);
-    buildVolumeMeshExtruder.closeEnds = true;
+    collisionMeshExtruder.setUV(8, 10);
+    buildVolumeMeshExtruder = new BoxExtruder(beamWidth, beamWidth);
+    buildVolumeMeshExtruder.setUV(8, 11);
+    customBuildVolumeMeshExtruder = new BoxExtruder (0.1f, 0.1f);
+    customBuildVolumeMeshExtruder.setUV(8, 12);
+    customBuildVolumeMeshExtruder.closeEnds = true;
     woodenVerticalSupportPostExtruder = new BoxExtruder (0.043f, 0.043f);
     woodenVerticalSupportPostExtruder.closeEnds = true;
     woodenVerticalSupportPostExtruder.setUV (14, 14);
-    base.setModelExtruders (topperLeftPlankExtruder_1, topperLeftPlankExtruder_2, topperLeftPlankExtruder_3, topperLeftPlankExtruder_4, topperLeftPlankExtruder_5, topperLeftPlankExtruder_6, topperRightPlankExtruder_1, topperRightPlankExtruder_2, topperRightPlankExtruder_3, topperRightPlankExtruder_4, topperRightPlankExtruder_5, topperRightPlankExtruder_6, woodenVerticalSupportPostExtruder);
+    base.setModelExtruders (topperLeftPlankExtruder_1, topperLeftPlankExtruder_2, topperLeftPlankExtruder_3, topperLeftPlankExtruder_4, topperLeftPlankExtruder_5, topperLeftPlankExtruder_6, topperRightPlankExtruder_1, topperRightPlankExtruder_2, topperRightPlankExtruder_3, topperRightPlankExtruder_4, topperRightPlankExtruder_5, topperRightPlankExtruder_6, woodenVerticalSupportPostExtruder, collisionMeshExtruder, buildVolumeMeshExtruder, customBuildVolumeMeshExtruder);
 }
 
 public override void sampleAt (TrackSegment4 trackSegment, float t)
@@ -513,6 +519,8 @@ public override void sampleAt (TrackSegment4 trackSegment, float t)
                 bottomBeamDirection *= Math.Abs (trackBanking) > 90 ? 1.0f : -1.0f;
             }
 
+            position.trackBanking = trackBanking;
+
             //track beam
             Vector3 startPoint = trackPivot + normal * 0.159107f + binormal * (beamWidth / 2);
             Vector3 endPoint = trackPivot + normal * 0.159107f - binormal * (beamWidth / 2);
@@ -575,9 +583,14 @@ public override void sampleAt (TrackSegment4 trackSegment, float t)
             position.topBarRight = new Vector3 (bottomBeamStart.x, Mathf.Max (startPoint.y, endPoint.y), bottomBeamStart.z);
             position.barsTangent = -1f * bottomBeamBinormal;
 
+                if (Mathf.Abs(trackBanking) < 90)
+                {
+                    position.topBarLeft.y += (1 - (Mathf.Abs(trackBanking) / 90)) * invertHeadSpace;
+                    position.topBarRight.y += (1 - (Mathf.Abs(trackBanking) / 90)) * invertHeadSpace;
+                }
 
 
-            LandPatch terrain = GameController.Instance.park.getTerrain (trackPivot);
+                LandPatch terrain = GameController.Instance.park.getTerrain (trackPivot);
 
             if (terrain != null) {
                 groundHeight = terrain.getLowestHeight ();
@@ -675,7 +688,12 @@ public override void sampleAt (TrackSegment4 trackSegment, float t)
             position.verticalSupportPostRight = rightVerticalSupportPost;
             position.verticalSupportPostTangent = projectedTangentDirection;
             supportPosts [trackSegment.getStartpoint ()].Add (position);
+            customBuildVolumeMeshExtruder.setWidth(Vector3.Distance(position.bottomBarLeft, position.bottomBarRight));
+            customBuildVolumeMeshExtruder.setHeight(Vector3.Distance((position.bottomBarLeft+ position.bottomBarRight)/2,(position.topBarLeft+ position.topBarRight)/2)+ (Mathf.Abs(position.trackBanking) > 90 ? supportBeamExtension : 0f));
+            Vector3 middle = (position.topBarLeft + position.topBarRight + position.bottomBarLeft + position.bottomBarRight) / 4;
+            customBuildVolumeMeshExtruder.extrude(new Vector3(middle.x, middle.y + (Mathf.Abs(position.trackBanking) > 90 ? supportBeamExtension / 2:0f), middle.z), Vector3.Cross(position.barsTangent, Vector3.up) * (Mathf.Abs(position.trackBanking) > 90 ? 1f: -1f),Vector3.up);
         }
+        customBuildVolumeMeshExtruder.end();
     }
 }
 
@@ -742,7 +760,7 @@ public override void afterExtrusion (TrackSegment4 trackSegment, GameObject putM
                 }
 
                 //top beam
-                if (position.topBarVisible) {
+                if (position.topBarVisible || true) {
                     metalCrossTieExtrude (position.topBarLeft, position.barsTangent, Vector3.up);
                     metalCrossTieExtrude (position.topBarRight, position.barsTangent, Vector3.up);
                     metalCrossTieEnd ();
@@ -856,7 +874,7 @@ public Vector2 Rotate (Vector2 vector, float degrees)
 
 public override Mesh getMesh (GameObject putMeshOnGO)
 {
-    return MeshCombiner.start ().add (topperLeftPlankExtruder_1, topperLeftPlankExtruder_2, topperLeftPlankExtruder_3, topperLeftPlankExtruder_4, topperLeftPlankExtruder_5, topperLeftPlankExtruder_6, topperRightPlankExtruder_1, topperRightPlankExtruder_2, topperRightPlankExtruder_3, topperRightPlankExtruder_4, topperRightPlankExtruder_5, topperRightPlankExtruder_6, woodenVerticalSupportPostExtruder).end (putMeshOnGO.transform.worldToLocalMatrix);
+    return MeshCombiner.start ().add (topperLeftPlankExtruder_1, topperLeftPlankExtruder_2, topperLeftPlankExtruder_3, topperLeftPlankExtruder_4, topperLeftPlankExtruder_5, topperLeftPlankExtruder_6, topperRightPlankExtruder_1, topperRightPlankExtruder_2, topperRightPlankExtruder_3, topperRightPlankExtruder_4, topperRightPlankExtruder_5, topperRightPlankExtruder_6, woodenVerticalSupportPostExtruder, collisionMeshExtruder, customBuildVolumeMeshExtruder, buildVolumeMeshExtruder).end (putMeshOnGO.transform.worldToLocalMatrix);
 }
 
 public override Mesh getCollisionMesh (GameObject putMeshOnGO)
@@ -866,7 +884,7 @@ public override Mesh getCollisionMesh (GameObject putMeshOnGO)
 
 public override Extruder getBuildVolumeMeshExtruder ()
 {
-    return buildVolumeMeshExtruder;
+    return customBuildVolumeMeshExtruder;
 }
 
 public override float getCenterPointOffsetY ()

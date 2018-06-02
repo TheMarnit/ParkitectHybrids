@@ -63,9 +63,7 @@ namespace HybridCoasters
             hybridSupportConfiguration.supportSettings[0].minimumHeightAboveGround = 0.25f;
             hybridSupportConfiguration.supportSettings[0].supportGO = hybridSupportContainer.GetComponent<SupportHybridCoaster>();
             iboxCoaster.supportConfiguration = hybridSupportConfiguration;
-            //iboxCoaster.supportConfiguration.supportSettings[0].supportGO = hybridSupportContainer.GetComponent<SupportHybridCoaster>();
-            //iboxTrackGenerator.supportInstantiator = null;
-            //topperTrackGenerator.supportInstantiator = null;
+            topperCoaster.supportConfiguration = hybridSupportConfiguration;
             iboxTrackGenerator.stationPlatformGO = TrackRideHelper.GetTrackedRide("Spinning Coaster").meshGenerator.stationPlatformGO;
             topperTrackGenerator.stationPlatformGO = TrackRideHelper.GetTrackedRide("Spinning Coaster").meshGenerator.stationPlatformGO;
             iboxTrackGenerator.frictionWheelsGO = TrackRideHelper.GetTrackedRide("Junior Coaster").meshGenerator.frictionWheelsGO;
