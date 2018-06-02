@@ -104,7 +104,7 @@ public class HybridCoasterMeshGenerator : MeshGenerator
     private float supportVerticalGrid = 0.25f;
 
     public string path;
-    
+
     public Dictionary<Vector3, List<supportPosition>> supportPosts = new Dictionary<Vector3, List<supportPosition>>();
 
     protected override void Initialize()
@@ -432,18 +432,19 @@ public class HybridCoasterMeshGenerator : MeshGenerator
     public override void afterExtrusion(TrackSegment4 trackSegment, GameObject putMeshOnGO)
     {
         base.afterExtrusion(trackSegment, putMeshOnGO);
-        WriteToFile("creating segment: "+ trackSegment.getStartpoint().ToString());
+        WriteToFile("creating segment: " + trackSegment.getStartpoint().ToString());
         supportPosts[trackSegment.getStartpoint()] = new List<supportPosition>();
         float supportInterval = trackSegment.getLength(0) / (float)Mathf.RoundToInt(trackSegment.getLength(0) / this.beamSpacing);
         float tieInterval = trackSegment.getLength(0) / (float)Mathf.RoundToInt(trackSegment.getLength(0) / this.tieSpacing);
         float pos = 0;
+        /*
         Vector3 previousSupportLeft = new Vector3();
         Vector3 previousSupportRight = new Vector3();
         Vector3 previousSupportTangent = new Vector3();
         bool previousFlippedSupportPosts = false;
+        */
 
-
-
+        // Topper Crossties
         while (pos <= trackSegment.getLength(0) + 0.1f)
         {
             float tForDistance = trackSegment.getTForDistance(pos, 0);
@@ -489,6 +490,10 @@ public class HybridCoasterMeshGenerator : MeshGenerator
             Vector3 binormal = Vector3.Cross(normal, tangentPoint).normalized;
             Vector3 trackPivot = base.getTrackPivot(trackSegment.getPoint(tForDistance, 0), normal);
 
+            WriteToFile("Adding post to: " + trackSegment.getStartpoint().ToString());
+            supportPosition position = new supportPosition();
+            position.topBarVisible = false;
+            position.bottomBarVisible = false;
             float trackDirection = Mathf.Repeat(Mathf.Atan2(tangentPoint.x, tangentPoint.z) * Mathf.Rad2Deg, 360.0f);
             trackDirection += 45;
             bool trackFacingXPositive = false;
@@ -593,7 +598,6 @@ public class HybridCoasterMeshGenerator : MeshGenerator
             Vector3 bottomLinePosition = new Vector3();
             Vector3 topLinePosition = new Vector3();
             Vector3 lineSpanVector = bottomBeamDirection;
-            bool hasTopBars = false;
             bool attachToStartPoint = false;
             if (((trackFacingXNegative || trackFacingXPositive) ? -1.0f : 1.0) * ((Mathf.Abs(trackBanking) <= 90) ? -1.0f : 1.0f) * trackBanking < 0)
             {
@@ -624,84 +628,66 @@ public class HybridCoasterMeshGenerator : MeshGenerator
 
 
 
-            if (!(trackSegment is Station))
+            if (Mathf.Abs(trackBanking) > 90)
             {
-                if (Mathf.Abs(trackBanking) > 90)
-                {
-                    bottomBeamStart.y -= ((Mathf.Abs(trackBanking) / 90) - 1) * invertHeadSpace;
-                    bottomBeamEnd.y -= ((Mathf.Abs(trackBanking) / 90) - 1) * invertHeadSpace;
-                    if (pos > supportInterval)
-                    {
-                        //Top beam extruding
-                        metalCrossTieExtrude(new Vector3(bottomBeamEnd.x, Mathf.Max(startPoint.y, endPoint.y), bottomBeamEnd.z), -1f * bottomBeamBinormal, Vector3.up);
-                        metalCrossTieExtrude(new Vector3(bottomBeamStart.x, Mathf.Max(startPoint.y, endPoint.y), bottomBeamStart.z), -1f * bottomBeamBinormal, Vector3.up);
-                        metalCrossTieEnd();
-                        hasTopBars = true;
-                    }
-                }
+                bottomBeamStart.y -= ((Mathf.Abs(trackBanking) / 90) - 1) * invertHeadSpace;
+                bottomBeamEnd.y -= ((Mathf.Abs(trackBanking) / 90) - 1) * invertHeadSpace;
+                position.topBarVisible = true;
+            }
+            if (Mathf.Abs(trackBanking) > iBeamBankingSwitch)
+            {
+                position.bottomBarVisible = true;
+            }
+            position.bottomBarLeft = bottomBeamStart;
+            position.bottomBarRight = bottomBeamEnd;
+            position.topBarLeft = new Vector3(bottomBeamEnd.x, Mathf.Max(startPoint.y, endPoint.y), bottomBeamEnd.z);
+            position.topBarRight = new Vector3(bottomBeamStart.x, Mathf.Max(startPoint.y, endPoint.y), bottomBeamStart.z);
+            position.barsTangent = -1f * bottomBeamBinormal;
 
-                //Bottom beam extruding
-                if (Mathf.Abs(trackBanking) > iBeamBankingSwitch && pos > supportInterval)
-                {
-                    metalCrossTieExtrude(bottomBeamEnd, -1f * bottomBeamBinormal, Vector3.up);
-                    metalCrossTieExtrude(bottomBeamStart, -1f * bottomBeamBinormal, Vector3.up);
-                    metalCrossTieEnd();
-                }
+            Vector3 leftVerticalSupportPost = bottomBeamEnd;
+            Vector3 rightVerticalSupportPost = bottomBeamStart;
 
-                Vector3 leftVerticalSupportPost = bottomBeamEnd;
-                Vector3 rightVerticalSupportPost = bottomBeamStart;
+            if (!position.topBarVisible)
+            {
+                if (trackBanking < iBeamBankingSwitch && trackBanking > -90f)
+                {
+                    leftVerticalSupportPost = ((bottomBeamEnd - trackPivot) * 0.8f) + trackPivot;
+                }
+                if (trackBanking > -iBeamBankingSwitch && trackBanking < 90f)
+                {
+                    rightVerticalSupportPost = ((bottomBeamStart - trackPivot) * 0.8f) + trackPivot;
+                }
+            }
 
-                if (!hasTopBars)
-                {
-                    if (trackBanking < iBeamBankingSwitch && trackBanking > -90f)
-                    {
-                        leftVerticalSupportPost = ((bottomBeamEnd - trackPivot) * 0.8f) + trackPivot;
-                    }
-                    if (trackBanking > -iBeamBankingSwitch && trackBanking < 90f)
-                    {
-                        rightVerticalSupportPost = ((bottomBeamStart - trackPivot) * 0.8f) + trackPivot;
-                    }
-                }
+            LandPatch terrain = GameController.Instance.park.getTerrain(trackPivot);
 
-                LandPatch terrain = GameController.Instance.park.getTerrain(trackPivot);
+            if (terrain != null)
+            {
+                groundHeight = terrain.getLowestHeight();
+                groundHeight = Mathf.Min(trackSegment.getStartpoint().y, trackSegment.getEndpoint().y);
+            }
+            else
+            {
+                groundHeight = 0;
+            }
+            Vector3 projectedTangentDirection = tangentPoint;
+            projectedTangentDirection.y = 0;
+            projectedTangentDirection.Normalize();
 
-                if (terrain != null)
-                {
-                    groundHeight = terrain.getLowestHeight();
-                    groundHeight = Mathf.Min(trackSegment.getStartpoint().y, trackSegment.getEndpoint().y);
-                }
-                else
-                {
-                    groundHeight = 0;
-                }
-                Vector3 projectedTangentDirection = tangentPoint;
-                projectedTangentDirection.y = 0;
-                projectedTangentDirection.Normalize();
+            if (Mathf.Abs(trackBanking) > 90)
+            {
+                leftVerticalSupportPost.y = Mathf.Max(startPoint.y, endPoint.y);
+                rightVerticalSupportPost.y = Mathf.Max(startPoint.y, endPoint.y);
+            }
+            else
+            {
+                leftVerticalSupportPost.y = startPoint.y;
+                rightVerticalSupportPost.y = endPoint.y;
+            }
 
-                if (Mathf.Abs(trackBanking) > 90)
-                {
-                    leftVerticalSupportPost.y = Mathf.Max(startPoint.y, endPoint.y);
-                    rightVerticalSupportPost.y = Mathf.Max(startPoint.y, endPoint.y);
-                }
-                else
-                {
-                    leftVerticalSupportPost.y = startPoint.y;
-                    rightVerticalSupportPost.y = endPoint.y;
-                }
-                WriteToFile("Adding post to: " + trackSegment.getStartpoint().ToString());
-                supportPosts[trackSegment.getStartpoint()].Add(new supportPosition(leftVerticalSupportPost, rightVerticalSupportPost, projectedTangentDirection));
+            /* horizontal support beams
                 if (pos > supportInterval)
                 {
-                    //left post
-                    woodenVerticalSupportPostExtruder.extrude(new Vector3(leftVerticalSupportPost.x, leftVerticalSupportPost.y + supportBeamExtension, leftVerticalSupportPost.z), new Vector3(0, -1, 0), projectedTangentDirection);
-                    woodenVerticalSupportPostExtruder.extrude(leftVerticalSupportPost, new Vector3(0, -1, 0), projectedTangentDirection);
-                    woodenVerticalSupportPostExtruder.end();
-
-                    //right post
-                    woodenVerticalSupportPostExtruder.extrude(new Vector3(rightVerticalSupportPost.x, rightVerticalSupportPost.y + supportBeamExtension, rightVerticalSupportPost.z), new Vector3(0, -1, 0), projectedTangentDirection);
-                    woodenVerticalSupportPostExtruder.extrude(rightVerticalSupportPost, new Vector3(0, -1, 0), projectedTangentDirection);
-                    woodenVerticalSupportPostExtruder.end();
-
                     if (Mathf.Abs(trackBanking) > 90 != previousFlippedSupportPosts)
                     {
                         Vector3 temp = previousSupportLeft;
@@ -775,16 +761,16 @@ public class HybridCoasterMeshGenerator : MeshGenerator
                             connectionY -= supportVerticalGrid;
                         }
                     }
-                }
                 previousSupportLeft = leftVerticalSupportPost;
                 previousSupportRight = rightVerticalSupportPost;
                 previousSupportTangent = projectedTangentDirection;
                 previousFlippedSupportPosts = Mathf.Abs(trackBanking) > 90;
             }
+            */
 
             Vector3 intersectionPoint = new Vector3();
 
-            if (Math.Abs(trackBanking) > 90 && hasTopBars)
+            if (Math.Abs(trackBanking) > 90 && position.topBarVisible)
             {
                 intersectionPoint = IntersectLineAndPlane(planePosition, planeSpanVector1, planeSpanVector2, topLinePosition, lineSpanVector);
                 if (!float.IsNaN(intersectionPoint.x))
@@ -828,14 +814,8 @@ public class HybridCoasterMeshGenerator : MeshGenerator
 
             if (pos > supportInterval)
             {
-                if (Mathf.Abs(trackBanking) > iBeamBankingSwitch)
-                {
-                    metalIBeamExtrude(startPoint, -1f * binormal, equalHeight ? Vector3.up : normal);
-                    metalIBeamExtrude(endPoint, -1f * binormal, equalHeight ? Vector3.up : normal);
-                    metalIBeamEnd();
-                }
-                else
-                {
+                if (Mathf.Abs(trackBanking) <= iBeamBankingSwitch)
+                { 
                     float distance = 1 / Mathf.Sin((90 - Mathf.Abs(trackBanking)) * Mathf.Deg2Rad);
                     if (attachToStartPoint)
                     {
@@ -845,13 +825,72 @@ public class HybridCoasterMeshGenerator : MeshGenerator
                     {
                         startPoint = endPoint - ((endPoint - startPoint) * distance);
                     }
-                    metalCrossTieExtrude(startPoint, -1f * binormal, equalHeight ? Vector3.up : normal);
-                    metalCrossTieExtrude(endPoint, -1f * binormal, equalHeight ? Vector3.up : normal);
-                    metalCrossTieEnd();
                 }
+                position.iBeamLeft = startPoint;
+                position.iBeamRight = endPoint;
+                position.iBeamTangent = -1f * binormal;
+                position.iBeamNormal = equalHeight ? Vector3.up : normal;
             }
+            position.verticalSupportPostLeft = leftVerticalSupportPost;
+            position.verticalSupportPostRight = rightVerticalSupportPost;
+            position.verticalSupportPostTangent = projectedTangentDirection;
+            supportPosts[trackSegment.getStartpoint()].Add(position);
         }
         WriteToFile("Count " + trackSegment.getStartpoint().ToString() + ": " + supportPosts[trackSegment.getStartpoint()].Count);
+
+
+        //RENDER CODE HERE
+        if (!(trackSegment is Station))
+        {
+            bool first = true;
+            foreach (supportPosition position in supportPosts[trackSegment.getStartpoint()])
+            {
+                //left post
+                woodenVerticalSupportPostExtruder.extrude(new Vector3(position.verticalSupportPostLeft.x, position.verticalSupportPostLeft.y + supportBeamExtension, position.verticalSupportPostLeft.z), new Vector3(0, -1, 0), position.verticalSupportPostTangent);
+                woodenVerticalSupportPostExtruder.extrude(position.verticalSupportPostLeft, new Vector3(0, -1, 0), position.verticalSupportPostTangent);
+                woodenVerticalSupportPostExtruder.end();
+
+                //right post
+                woodenVerticalSupportPostExtruder.extrude(new Vector3(position.verticalSupportPostRight.x, position.verticalSupportPostRight.y + supportBeamExtension, position.verticalSupportPostRight.z), new Vector3(0, -1, 0), position.verticalSupportPostTangent);
+                woodenVerticalSupportPostExtruder.extrude(position.verticalSupportPostRight, new Vector3(0, -1, 0), position.verticalSupportPostTangent);
+                woodenVerticalSupportPostExtruder.end();
+                if (!first)
+                {
+                    //bottom beam
+                    if (position.bottomBarVisible)
+                    {
+                        metalCrossTieExtrude(position.bottomBarLeft, position.barsTangent, Vector3.up);
+                        metalCrossTieExtrude(position.bottomBarRight, position.barsTangent, Vector3.up);
+                        metalCrossTieEnd();
+                    }
+
+                    //top beam
+                    if (position.topBarVisible)
+                    {
+                        metalCrossTieExtrude(position.topBarLeft, position.barsTangent, Vector3.up);
+                        metalCrossTieExtrude(position.topBarRight, position.barsTangent, Vector3.up);
+                        metalCrossTieEnd();
+                    }
+
+                    //i beam
+                    if (position.bottomBarVisible)
+                    {
+                        metalIBeamExtrude(position.iBeamLeft, position.iBeamTangent, position.iBeamNormal);
+                        metalIBeamExtrude(position.iBeamRight, position.iBeamTangent, position.iBeamNormal);
+                        metalIBeamEnd();
+                    }
+                    else
+                    {
+                        metalCrossTieExtrude(position.iBeamLeft, position.iBeamTangent, position.iBeamNormal);
+                        metalCrossTieExtrude(position.iBeamRight, position.iBeamTangent, position.iBeamNormal);
+                        metalCrossTieEnd();
+                    }
+                }
+                first = false;
+            }
+        }
+        //RENDER CODE HERE
+
         List<ShapeExtruder> metalShapeExtruders = new List<ShapeExtruder>();
         if (useTopperTrack)
         {

@@ -6,14 +6,19 @@ namespace HybridCoasters
 
     public class supportPosition
     {
-        public Vector3 leftVerticalSupportPost;
-        public Vector3 rightVerticalSupportPost;
-        public Vector3 projectedTangentDirection;
-        public supportPosition(Vector3 leftPost, Vector3 rightPost, Vector3 tangent)
-        {
-            leftVerticalSupportPost = leftPost;
-            rightVerticalSupportPost = rightPost;
-            projectedTangentDirection = tangent;
-        }
+        public Vector3 verticalSupportPostLeft;
+        public Vector3 verticalSupportPostRight;
+        public Vector3 verticalSupportPostTangent;
+        public Vector3 topBarLeft;
+        public Vector3 topBarRight;
+        public bool topBarVisible;
+        public Vector3 bottomBarLeft;
+        public Vector3 bottomBarRight;
+        public bool bottomBarVisible;
+        public Vector3 barsTangent;
+        public Vector3 iBeamLeft;
+        public Vector3 iBeamRight;
+        public Vector3 iBeamTangent;
+        public Vector3 iBeamNormal;
     }
 }

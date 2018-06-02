@@ -65,14 +65,13 @@ public class SupportHybridCoaster : SupportTrackedRide
             WriteToFile("Segment " + trackSegment.getStartpoint().ToString());
             WriteToFile("Count " + meshGenerator.supportPosts[trackSegment.getStartpoint()].Count);
             WriteToFile(meshGenerator.supportPosts.Count.ToString());
-            if (meshGenerator.supportPosts[trackSegment.getStartpoint()].Count > 0) { 
             foreach(supportPosition position in meshGenerator.supportPosts[trackSegment.getStartpoint()])
             {
                 WriteToFile(position.ToString());
 
-                leftVerticalSupportPost = position.leftVerticalSupportPost;
-                rightVerticalSupportPost = position.rightVerticalSupportPost;
-                projectedTangentDirection = position.projectedTangentDirection;
+                leftVerticalSupportPost = position.verticalSupportPostLeft;
+                rightVerticalSupportPost = position.verticalSupportPostRight;
+                projectedTangentDirection = position.verticalSupportPostTangent;
                 /*
                 float supportInterval = trackSegment.getLength(0) / (float)Mathf.RoundToInt(trackSegment.getLength(0) / this.crossBeamSpacing);
                 float pos = 0;
@@ -131,7 +130,6 @@ public class SupportHybridCoaster : SupportTrackedRide
                         concreteVerticalSupportFooterExtruder.extrude(new Vector3(rightVerticalSupportPost_floor.x, rightVerticalSupportPost_floor.y - 0.05f, rightVerticalSupportPost_floor.z), new Vector3(0, -1, 0), projectedTangentDirection);
                         concreteVerticalSupportFooterExtruder.end();
                     }
-                }
             }
 
             List<BoxExtruder> extruders = new List<BoxExtruder>();
