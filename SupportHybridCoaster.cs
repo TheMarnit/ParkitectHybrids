@@ -59,8 +59,8 @@ private void render ()
     else{
         HybridCoasterMeshGenerator meshGenerator = (HybridCoasterMeshGenerator)track.TrackedRide.meshGenerator;
         foreach (SupportPosition position in meshGenerator.supportPosts [trackSegment.getStartpoint ()]) {
-            leftVerticalSupportPost = position.verticalSupportPostLeft;
-            rightVerticalSupportPost = position.verticalSupportPostRight;
+            leftVerticalSupportPost = new Vector3(position.verticalSupportPostLeft.x, position.verticalSupportPostLeft.y + meshGenerator.supportBeamExtension, position.verticalSupportPostLeft.z);
+            rightVerticalSupportPost = new Vector3(position.verticalSupportPostRight.x, position.verticalSupportPostRight.y + meshGenerator.supportBeamExtension, position.verticalSupportPostRight.z);
             projectedTangentDirection = position.verticalSupportPostTangent;
 
             leftVerticalSupportPost_floor = GameController.Instance.park.getTerrain (leftVerticalSupportPost).getPoint (leftVerticalSupportPost);
