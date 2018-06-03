@@ -377,16 +377,13 @@ public override void prepare (TrackSegment4 trackSegment, GameObject putMeshOnGO
     metalTopperCrossTie_8.setUV (15, 15);
     metalTopperCrossTie_8.closeEnds = true;
     collisionMeshExtruder = new BoxExtruder (trackWidth, 0.02666f);
-    collisionMeshExtruder.setUV(8, 10);
     buildVolumeMeshExtruder = new BoxExtruder(beamWidth, beamWidth);
-    buildVolumeMeshExtruder.setUV(8, 11);
     customBuildVolumeMeshExtruder = new BoxExtruder (0.1f, 0.1f);
-    customBuildVolumeMeshExtruder.setUV(8, 12);
     customBuildVolumeMeshExtruder.closeEnds = true;
     woodenVerticalSupportPostExtruder = new BoxExtruder (0.043f, 0.043f);
     woodenVerticalSupportPostExtruder.closeEnds = true;
     woodenVerticalSupportPostExtruder.setUV (14, 14);
-    base.setModelExtruders (topperLeftPlankExtruder_1, topperLeftPlankExtruder_2, topperLeftPlankExtruder_3, topperLeftPlankExtruder_4, topperLeftPlankExtruder_5, topperLeftPlankExtruder_6, topperRightPlankExtruder_1, topperRightPlankExtruder_2, topperRightPlankExtruder_3, topperRightPlankExtruder_4, topperRightPlankExtruder_5, topperRightPlankExtruder_6, woodenVerticalSupportPostExtruder, collisionMeshExtruder, buildVolumeMeshExtruder, customBuildVolumeMeshExtruder);
+    base.setModelExtruders (topperLeftPlankExtruder_1, topperLeftPlankExtruder_2, topperLeftPlankExtruder_3, topperLeftPlankExtruder_4, topperLeftPlankExtruder_5, topperLeftPlankExtruder_6, topperRightPlankExtruder_1, topperRightPlankExtruder_2, topperRightPlankExtruder_3, topperRightPlankExtruder_4, topperRightPlankExtruder_5, topperRightPlankExtruder_6, woodenVerticalSupportPostExtruder);
 }
 
 public override void sampleAt (TrackSegment4 trackSegment, float t)
@@ -431,7 +428,6 @@ public override void sampleAt (TrackSegment4 trackSegment, float t)
         float pos = 0;
         while (pos <= trackSegment.getLength (0) + 0.1f) {
             float tForDistance = trackSegment.getTForDistance (pos, 0);
-            pos += supportInterval;
             normal = trackSegment.getNormal (tForDistance);
             tangentPoint = trackSegment.getTangentPoint (tForDistance);
             Vector3 binormal = Vector3.Cross (normal, tangentPoint).normalized;
@@ -669,7 +665,7 @@ public override void sampleAt (TrackSegment4 trackSegment, float t)
 
 
 
-            if (pos > supportInterval) {
+            if (pos > 0f) {
                 if (Mathf.Abs (trackBanking) <= iBeamBankingSwitch) {
                     float distance = 1 / Mathf.Sin ((90 - Mathf.Abs (trackBanking)) * Mathf.Deg2Rad);
                     if (attachToStartPoint) {
@@ -691,8 +687,12 @@ public override void sampleAt (TrackSegment4 trackSegment, float t)
             customBuildVolumeMeshExtruder.setWidth(Vector3.Distance(position.bottomBarLeft, position.bottomBarRight));
             customBuildVolumeMeshExtruder.setHeight(Vector3.Distance((position.bottomBarLeft+ position.bottomBarRight)/2,(position.topBarLeft+ position.topBarRight)/2)+ (Mathf.Abs(position.trackBanking) > 90 ? supportBeamExtension : 0f));
             Vector3 middle = (position.topBarLeft + position.topBarRight + position.bottomBarLeft + position.bottomBarRight) / 4;
-            customBuildVolumeMeshExtruder.extrude(new Vector3(middle.x, middle.y + (Mathf.Abs(position.trackBanking) > 90 ? supportBeamExtension / 2:0f), middle.z), Vector3.Cross(position.barsTangent, Vector3.up) * (Mathf.Abs(position.trackBanking) > 90 ? 1f: -1f),Vector3.up);
-        }
+                if (pos > 0f)
+                {
+                    customBuildVolumeMeshExtruder.extrude(new Vector3(middle.x, middle.y + (Mathf.Abs(position.trackBanking) > 90 ? supportBeamExtension / 2 : 0f), middle.z), Vector3.Cross(position.barsTangent, Vector3.up) * (Mathf.Abs(position.trackBanking) > 90 ? 1f : -1f), Vector3.up);
+                }
+            pos += supportInterval;
+            }
         customBuildVolumeMeshExtruder.end();
     }
 }
@@ -753,14 +753,14 @@ public override void afterExtrusion (TrackSegment4 trackSegment, GameObject putM
             woodenVerticalSupportPostExtruder.end ();
             if (!first) {
                 //bottom beam
-                if (position.bottomBarVisible || true) {
+                if (position.bottomBarVisible) {
                     metalCrossTieExtrude (position.bottomBarLeft, position.barsTangent, Vector3.up);
                     metalCrossTieExtrude (position.bottomBarRight, position.barsTangent, Vector3.up);
                     metalCrossTieEnd ();
                 }
 
                 //top beam
-                if (position.topBarVisible || true) {
+                if (position.topBarVisible) {
                     metalCrossTieExtrude (position.topBarLeft, position.barsTangent, Vector3.up);
                     metalCrossTieExtrude (position.topBarRight, position.barsTangent, Vector3.up);
                     metalCrossTieEnd ();
@@ -874,7 +874,7 @@ public Vector2 Rotate (Vector2 vector, float degrees)
 
 public override Mesh getMesh (GameObject putMeshOnGO)
 {
-    return MeshCombiner.start ().add (topperLeftPlankExtruder_1, topperLeftPlankExtruder_2, topperLeftPlankExtruder_3, topperLeftPlankExtruder_4, topperLeftPlankExtruder_5, topperLeftPlankExtruder_6, topperRightPlankExtruder_1, topperRightPlankExtruder_2, topperRightPlankExtruder_3, topperRightPlankExtruder_4, topperRightPlankExtruder_5, topperRightPlankExtruder_6, woodenVerticalSupportPostExtruder, collisionMeshExtruder, customBuildVolumeMeshExtruder, buildVolumeMeshExtruder).end (putMeshOnGO.transform.worldToLocalMatrix);
+    return MeshCombiner.start ().add (topperLeftPlankExtruder_1, topperLeftPlankExtruder_2, topperLeftPlankExtruder_3, topperLeftPlankExtruder_4, topperLeftPlankExtruder_5, topperLeftPlankExtruder_6, topperRightPlankExtruder_1, topperRightPlankExtruder_2, topperRightPlankExtruder_3, topperRightPlankExtruder_4, topperRightPlankExtruder_5, topperRightPlankExtruder_6, woodenVerticalSupportPostExtruder).end (putMeshOnGO.transform.worldToLocalMatrix);
 }
 
 public override Mesh getCollisionMesh (GameObject putMeshOnGO)
